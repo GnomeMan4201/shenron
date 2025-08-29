@@ -30,3 +30,5 @@ pyproject.toml.bak*
 *.swp
 .pytest_cache/
 .ruff_cache/
+*.bak.*
+*.log
