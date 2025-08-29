@@ -1,6 +1,6 @@
 # SHENRON (Research Edition)
 
-**Status:** pre-release | **Author:** Aaron Brosch (@YOUR_GITHUB_USERNAME)
+**Status:** pre-release 
 
 SHENRON is an **adaptive red-team research framework** focused on **controlled, authorized testing** and **defensive simulation**. The goal is to explore techniques such as modular orchestration, decoying, and resilience under blue-team pressure **in lab environments**.
 
