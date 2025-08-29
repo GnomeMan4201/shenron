@@ -13,6 +13,9 @@ license = {text = "MIT"}
 dependencies = []
 
 [project.optional-dependencies]
+
+[project.scripts]
+shenron = "shenron_core.cli:main"
 dev = ["pytest", "pytest-cov", "ruff", "mypy", "pre-commit"]
 
 [tool.ruff]
