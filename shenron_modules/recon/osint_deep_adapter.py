@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import time
-import zipfile
 from pathlib import Path
 from typing import Any, Dict
+import time
+import zipfile
 
 try:
     from shenron_core import payload_registry  # type: ignore[attr-defined]

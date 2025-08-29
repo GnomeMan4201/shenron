@@ -70,10 +70,10 @@ def run_deep(
     urls = load_urls(Path(urls_file), limit=limit)
     rp_cache: Dict[str, RobotFileParser] = {}
 
-    rows = []
-    ok_urls = []
+    rows: List[Dict] = []
+    ok_urls: List[str] = []
 
-    for i, url in enumerate(urls, 1):
+    for _, url in enumerate(urls, 1):
         allowed = robots_ok(url, user_agent, rp_cache)
         status, title = (None, None)
         if allowed:
@@ -83,6 +83,7 @@ def run_deep(
         rows.append({"url": url, "robots_allowed": allowed, "status": status, "title": title})
         time.sleep(delay_sec)
 
+    # Outputs
     (out / "ok_urls.txt").write_text("\n".join(ok_urls) + ("\n" if ok_urls else ""))
 
     with (out / "titles.csv").open("w", newline="", encoding="utf-8") as f:

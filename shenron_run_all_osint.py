@@ -57,22 +57,22 @@ def main() -> int:
         f.write("## Google URLs\n\n")
         if urls_file.exists():
             for line in urls_file.read_text().splitlines():
-                line = line.strip()
-                if line:
-                    f.write(f"- {line}\n")
+                if line.strip():
+                    f.write("- " + line.strip() + "\n")
         else:
             f.write("_No URLs produced._\n")
         f.write("\n## Deep Titles (robots-aware)\n\n")
         titles_csv = Path(d["artifacts"]["titles_csv"])
         if titles_csv.exists():
-            f.write(f"- Titles CSV: `{titles_csv}`\n")
+            f.write("- Titles CSV: `" + str(titles_csv) + "`\n")
         ok_urls = Path(d["artifacts"]["ok_urls"])
         if ok_urls.exists():
             ok = [u for u in ok_urls.read_text().splitlines() if u.strip()]
-            f.write(f"- OK URLs ({len(ok)}):\n")
+            f.write("- OK URLs (" + str(len(ok)) + "):\n")
             for u in ok:
-                f.write(f"  - {u}\n")
+                f.write("  - " + u + "\n")
 
+    # Zip the chain-out directory
     zip_path = deep_out.with_suffix(".zip")
     _zip_dir(deep_out, zip_path)
     print(f"\n[+] Markdown: {md}")
