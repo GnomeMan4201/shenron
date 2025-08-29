@@ -14,12 +14,10 @@ def run_adapter(params: Dict[str, Any]) -> Dict[str, Any]:
     name = str(params.get("name") or "").strip()
     if not name:
         return {"ok": False, "error": "Missing required parameter: name"}
-
     max_pages = int(params.get("max_pages", 10))
     deep_limit = int(params.get("deep_limit", 50))
     delay_sec = float(params.get("delay_sec", 1.0))
     user_agent = str(params.get("user_agent", "shenron-name/0.1"))
-
     res = run_name_scraper(name, max_pages, deep_limit, delay_sec, user_agent)
     return {
         "ok": res.ok,

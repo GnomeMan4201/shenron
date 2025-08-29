@@ -35,7 +35,6 @@ def robots_ok(url: str, ua: str, cache: Dict[str, RobotFileParser]) -> bool:
             try:
                 rp.read()
             except Exception:
-                # If robots cannot be fetched, continue conservatively
                 pass
             cache[root] = rp
         return cache[root].can_fetch(ua, url)

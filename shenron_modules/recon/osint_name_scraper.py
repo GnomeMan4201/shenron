@@ -69,13 +69,13 @@ def run_name_scraper(
     delay_sec: float = 1.0,
     user_agent: str = DEFAULT_UA,
 ) -> NameScrapeResult:
-    # 1) Google for quoted name (URLs only)
+    # 1) Google for the quoted name (URLs only)
     query = f'"{name}"'
     g = google_run({"query": query, "max_pages": max_pages, "user_agent": user_agent})
     google_out = Path(g["out_dir"])
     urls_file = google_out / "urls.txt"
 
-    # 2) Deep: polite titles (robots-aware)
+    # 2) Deep: polite titles fetch (robots-aware)
     deep_out = Path.home() / "SHENRON" / "output" / f"osint_name_{name.replace(' ', '_')}"
     deep_out.mkdir(parents=True, exist_ok=True)
     d = deep_run(
@@ -94,8 +94,8 @@ def run_name_scraper(
     # 3) Aggregate: profiles + domains
     rows: List[Dict[str, str]] = []
     if titles_csv.exists():
-        with titles_csv.open("r", encoding="utf-8") as fh:
-            for r in csv.DictReader(fh):
+        with titles_csv.open("r", encoding="utf-8") as fin:
+            for r in csv.DictReader(fin):
                 url = (r.get("url") or "").strip()
                 title = (r.get("title") or "").strip()
                 platform = _platform_for_url(url) or ""
