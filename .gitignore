@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.venv
+venv/
+dist/
+build/
+.wheelhouse/
+
+# Node (if used for dashboard/docs site)
+node_modules/
+.npm/
+.pnpm-store/
+
+# OS/Editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Reports/Artifacts
+reports/
+artifacts/
