@@ -8,19 +8,18 @@ version = "0.1.0"
 description = "Adaptive red-team research framework (research-only)."
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [{name="GnomeMan4201"}]
+authors = [{name="Aaron Brosch"}]
 license = {text = "MIT"}
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest", "pytest-cov", "mypy", "pre-commit"]
 
 [project.scripts]
 shenron = "shenron_core.cli:main"
 
-[tool.setuptools.packages.find]
-# Explicitly include both top-level packages in this flat layout
-include = ["shenron_core*", "shenron_modules*"]
+[project.scripts]
+shenron = "shenron_core.cli:main"
+dev = ["pytest", "pytest-cov", "ruff", "mypy", "pre-commit"]
 
 [tool.ruff]
 line-length = 100
@@ -29,3 +28,9 @@ line-length = 100
 minversion = "8.0"
 addopts = "-q"
 testpaths = ["tests"]
+
+[project.urls]
+Homepage = "https://github.com/GnomeMan4201/shenron"
+Source = "https://github.com/GnomeMan4201/shenron"
+Issues = "https://github.com/GnomeMan4201/shenron/issues"
+Changelog = "https://github.com/GnomeMan4201/shenron/releases"
