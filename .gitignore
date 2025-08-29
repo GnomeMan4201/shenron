@@ -28,3 +28,5 @@ artifacts/
 pyproject.toml.bak*
 *.tmp
 *.swp
+.pytest_cache/
+.ruff_cache/
