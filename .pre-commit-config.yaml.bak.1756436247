@@ -6,15 +6,13 @@ repos:
         entry: ruff
         language: system
         types: [python]
-        args: ["check"]
       - id: ruff-format
         name: ruff (format)
-        entry: ruff
+        entry: ruff format
         language: system
         types: [python]
-        args: ["format"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: v4.6.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
