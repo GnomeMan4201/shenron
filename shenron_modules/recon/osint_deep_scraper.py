@@ -35,6 +35,7 @@ def robots_ok(url: str, ua: str, cache: Dict[str, RobotFileParser]) -> bool:
             try:
                 rp.read()
             except Exception:
+                # If robots cannot be fetched, continue conservatively
                 pass
             cache[root] = rp
         return cache[root].can_fetch(ua, url)
@@ -83,7 +84,6 @@ def run_deep(
         rows.append({"url": url, "robots_allowed": allowed, "status": status, "title": title})
         time.sleep(delay_sec)
 
-    # Outputs
     (out / "ok_urls.txt").write_text("\n".join(ok_urls) + ("\n" if ok_urls else ""))
 
     with (out / "titles.csv").open("w", newline="", encoding="utf-8") as f:
