@@ -16,6 +16,9 @@ dependencies = []
 
 [project.scripts]
 shenron = "shenron_core.cli:main"
+
+[project.scripts]
+shenron = "shenron_core.cli:main"
 dev = ["pytest", "pytest-cov", "ruff", "mypy", "pre-commit"]
 
 [tool.ruff]
