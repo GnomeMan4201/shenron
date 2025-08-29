@@ -30,3 +30,8 @@ See [SECURITY.md](SECURITY.md).
 
 ## License
 MIT (see [LICENSE](LICENSE))
+
+## Links
+- Part 1: https://dev.to/gnomeman4201/shenron-designing-adaptive-persistent-offense-for-the-real-world-part-1-3ooj
+- Part 2: https://dev.to/gnomeman4201/shenron-part-2-anatomy-of-a-shape-shifter-inside-the-framework-1nk5
+- Part 3: https://dev.to/gnomeman4201/shenron-part-3-mutation-misdirection-and-modern-anti-forensics-3dpp
