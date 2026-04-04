@@ -2,7 +2,7 @@
 from typing import Callable, Dict, Optional
 _REGISTRY: Dict[str, Callable] = {}
 
-def register_payload(name: str):
+def register_payload(name: str, **kwargs):
     def decorator(fn: Callable) -> Callable:
         _REGISTRY[name] = fn
         return fn
