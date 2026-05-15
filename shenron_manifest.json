@@ -509,12 +509,26 @@
           "process",
           "authentication"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "subnet_sweep",
+          "smb_port_probe",
+          "share_enumeration",
+          "sequential_host_requests"
+        ],
+        "alert_signatures": [
+          "sequential ip scan",
+          "smb enumeration from single host",
+          "rapid port probe"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "host_discovery",
+          "port_scan",
+          "share_discovery",
+          "web_crawl"
+        ],
         "safe": true
       }
     },
