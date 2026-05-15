@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SHENRON: Poltergeist File Infector — randomized file-level infection and persistence dropper
 import os
 import random
 

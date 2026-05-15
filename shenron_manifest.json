@@ -46,7 +46,7 @@
       "name": "deadzone_payload",
       "category": "payload",
       "file": "deadzone_payload.py",
-      "description": "",
+      "description": "SHENRON: Deadzone Payload \u2014 inert payload staging and dead-drop zone manager",
       "variant_count": 128
     },
     {
@@ -81,7 +81,7 @@
       "name": "ethereal_payload_reanimator",
       "category": "payload",
       "file": "ethereal_payload_reanimator.py",
-      "description": "!/usr/bin/env python3",
+      "description": "SHENRON: Ethereal Payload Reanimator \u2014 subprocess-based dormant payload revival engine",
       "variant_count": 30
     },
     {
@@ -158,21 +158,21 @@
       "name": "poltergeist_file_infector",
       "category": "persistence",
       "file": "poltergeist_file_infector.py",
-      "description": "!/usr/bin/env python3",
+      "description": "SHENRON: Poltergeist File Infector \u2014 randomized file-level infection and persistence dropper",
       "variant_count": 33
     },
     {
       "name": "polymorph_chain_stats",
       "category": "meta",
       "file": "polymorph_chain_stats.py",
-      "description": "",
+      "description": "SHENRON: Polymorph Chain Stats \u2014 real-time operational dashboard",
       "variant_count": 0
     },
     {
       "name": "quantum_entanglement_relay",
       "category": "entropy",
       "file": "quantum_entanglement_relay.py",
-      "description": "!/usr/bin/env python3",
+      "description": "SHENRON: Quantum Entanglement Relay \u2014 threaded socket relay for covert channel bridging",
       "variant_count": 30
     },
     {

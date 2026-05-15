@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SHENRON: Quantum Entanglement Relay — threaded socket relay for covert channel bridging
 import socket
 import threading
 

@@ -1,4 +1,5 @@
 from core.engine.payload_registry import register_payload
+# SHENRON: Deadzone Payload — inert payload staging and dead-drop zone manager
 
 from core.engine.payload_registry import register_payload
 import os

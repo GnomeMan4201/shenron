@@ -1,6 +1,7 @@
 from core.engine.payload_registry import register_payload
 
 #!/usr/bin/env python3
+# SHENRON: Ethereal Payload Reanimator — subprocess-based dormant payload revival engine
 import os
 import subprocess
 import time
