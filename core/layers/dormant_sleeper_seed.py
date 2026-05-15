@@ -1,46 +1,158 @@
 from core.engine.payload_registry import register_payload
 
 #!/usr/bin/env python3
-# dormant_sleeper_seed.py - SHENRON latent payload trigger system
+# SHENRON: Dormant Sleeper Seed — synthetic persistence trigger simulator
+# PURPOSE: Emit realistic-shaped persistence and trigger telemetry for detection testing
+# PRINCIPLE: Represent adversarial shape without adversarial capability
+# MITRE: T1053 (Scheduled Task), T1547 (Boot Autostart)
+# NO EXECUTION — no shell calls, no loops, no real trigger monitoring
 
 import os
-import time
-import hashlib
-from datetime import datetime
+import json
+import uuid
+import random
+from datetime import datetime, timezone
+from pathlib import Path
 
-SLEEPER_LOG = os.path.expanduser("~/SHENRON/logs/sleeper_status.log")
-TRIGGER_FILE = "/sdcard/DCIM/trigger.jpg"
-TRIGGER_HASH = "badc0ffee"
-TRIGGER_TIME = "03:33"
+ARTIFACT_LOG = Path("/home/gnomeman4201/SHENRON/logs/simulation_artifacts.jsonl")
 
-def log_event(msg):
-    with open(SLEEPER_LOG, "a") as f:
-        f.write(f"[{datetime.now()}] {msg}\n")
+def _get_artifact_log():
+    ARTIFACT_LOG.parent.mkdir(parents=True, exist_ok=True)
+    return ARTIFACT_LOG
 
-def file_trigger():
-    if os.path.exists(TRIGGER_FILE):
-        with open(TRIGGER_FILE, "rb") as f:
-            data = f.read()
-            if hashlib.md5(data).hexdigest()[:9] == TRIGGER_HASH:
-                return True
-    return False
+# ── Synthetic data pools ──────────────────────────────────────────────────────
+FAKE_TRIGGER_TYPES = [
+    "time_based", "file_hash_match", "network_beacon_response",
+    "registry_key_change", "user_login_event", "process_termination"
+]
 
-def time_trigger():
-    return datetime.now().strftime("%H:%M") == TRIGGER_TIME
+FAKE_PERSISTENCE_MECHANISMS = [
+    {"type": "scheduled_task",    "path": "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Schedule\\TaskCache"},
+    {"type": "registry_run_key",  "path": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"},
+    {"type": "startup_folder",    "path": "%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"},
+    {"type": "systemd_unit",      "path": "/etc/systemd/system/update-check.service"},
+    {"type": "cron_job",          "path": "/etc/cron.d/syscheck"},
+    {"type": "launchd_plist",     "path": "/Library/LaunchDaemons/com.system.update.plist"},
+]
+
+FAKE_TRIGGER_CONDITIONS = [
+    {"condition": "time_match",     "value": "03:33:00", "check_interval_sim": 30},
+    {"condition": "file_present",   "value": "/tmp/.trigger", "check_interval_sim": 15},
+    {"condition": "hash_match",     "value": "md5:badc0ffee00000000", "check_interval_sim": 60},
+    {"condition": "port_open",      "value": "localhost:4444", "check_interval_sim": 45},
+    {"condition": "env_var_set",    "value": "SHENRON_ARMED=1", "check_interval_sim": 10},
+]
+
+FAKE_ACTIVATION_EVENTS = [
+    "trigger condition evaluated — not met",
+    "trigger condition evaluated — not met",
+    "trigger condition evaluated — not met",
+    "trigger condition met — activation simulated",
+]
+
+# ── Simulation core ───────────────────────────────────────────────────────────
+def simulate_sleeper_seed():
+    session_id = str(uuid.uuid4())
+    events = []
+
+    # Event 1: Persistence installation
+    mechanism = random.choice(FAKE_PERSISTENCE_MECHANISMS)
+    install_event = {
+        "artifact_id": str(uuid.uuid4()),
+        "session_id": session_id,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "layer": "dormant_sleeper_seed",
+        "phase": "persistence_install",
+        "mitre_techniques": ["T1053", "T1547"],
+        "mechanism_type": mechanism["type"],
+        "synthetic_path": mechanism["path"],
+        "armed": True,
+        "safe": True,
+        "simulation_only": True,
+        "shell_commands_executed": False,
+    }
+    events.append(install_event)
+    with open(_get_artifact_log(), "a") as f:
+        f.write(json.dumps(install_event) + "\n")
+
+    # Event 2: Trigger registration
+    trigger = random.choice(FAKE_TRIGGER_CONDITIONS)
+    trigger_event = {
+        "artifact_id": str(uuid.uuid4()),
+        "session_id": session_id,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "layer": "dormant_sleeper_seed",
+        "phase": "trigger_registration",
+        "mitre_techniques": ["T1053"],
+        "trigger_type": random.choice(FAKE_TRIGGER_TYPES),
+        "trigger_condition": trigger["condition"],
+        "trigger_value_sim": trigger["value"],
+        "check_interval_sim": trigger["check_interval_sim"],
+        "safe": True,
+        "simulation_only": True,
+        "shell_commands_executed": False,
+    }
+    events.append(trigger_event)
+    with open(_get_artifact_log(), "a") as f:
+        f.write(json.dumps(trigger_event) + "\n")
+
+    # Event 3: Trigger evaluation cycles (simulated, not real loop)
+    n_checks = random.randint(2, 4)
+    for i in range(n_checks):
+        outcome = FAKE_ACTIVATION_EVENTS[min(i, len(FAKE_ACTIVATION_EVENTS)-1)]
+        check_event = {
+            "artifact_id": str(uuid.uuid4()),
+            "session_id": session_id,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "layer": "dormant_sleeper_seed",
+            "phase": "trigger_evaluation",
+            "mitre_techniques": ["T1053"],
+            "check_number": i + 1,
+            "outcome_sim": outcome,
+            "activated": "activation simulated" in outcome,
+            "safe": True,
+            "simulation_only": True,
+            "shell_commands_executed": False,
+        }
+        events.append(check_event)
+        with open(_get_artifact_log(), "a") as f:
+            f.write(json.dumps(check_event) + "\n")
+
+    return session_id, events
+
+def print_simulation(session_id, events):
+    print(f"\n  [SIMULATION]  dormant_sleeper_seed")
+    print(f"  [SESSION]     {session_id}")
+    print(f"  [EVENTS]      {len(events)}")
+    print(f"  [MITRE]       T1053, T1547")
+    print(f"  [NETWORK]     NO CALLS MADE — synthetic only")
+    print(f"  [EXECUTION]   NO SHELL COMMANDS — synthetic only")
+    print()
+    for e in events:
+        phase = e["phase"]
+        if phase == "persistence_install":
+            print(f"  [PHASE 1: PERSISTENCE INSTALL]")
+            print(f"    mechanism     : {e['mechanism_type']}")
+            print(f"    synthetic_path: {e['synthetic_path']}")
+            print(f"    armed         : {e['armed']}")
+        elif phase == "trigger_registration":
+            print(f"\n  [PHASE 2: TRIGGER REGISTRATION]")
+            print(f"    trigger_type  : {e['trigger_type']}")
+            print(f"    condition     : {e['trigger_condition']}")
+            print(f"    value_sim     : {e['trigger_value_sim']}")
+            print(f"    check_interval: {e['check_interval_sim']}s")
+        elif phase == "trigger_evaluation":
+            print(f"\n  [PHASE 3: TRIGGER EVAL #{e['check_number']}]")
+            print(f"    outcome       : {e['outcome_sim']}")
+            print(f"    activated     : {e['activated']}")
+    print()
+    print(f"  [LOGGED]      {_get_artifact_log()}")
+    print(f"  [SAFE]        no execution, no loops — simulation artifact only")
 
 @register_payload(name="dormant_sleeper_seed")
 def main():
-    log_event("Sleeper seed is armed and waiting.")
-    while True:
-        if file_trigger():
-            log_event("File-based trigger activated.")
-            os.system("sh ~/SHENRON/core/autonomy/execute_payloads.sh &")
-            break
-        if time_trigger():
-            log_event("Time-based trigger activated.")
-            os.system("sh ~/SHENRON/core/autonomy/execute_payloads.sh &")
-            break
-        time.sleep(30)
+    session_id, events = simulate_sleeper_seed()
+    print_simulation(session_id, events)
 
 if __name__ == "__main__":
     main()

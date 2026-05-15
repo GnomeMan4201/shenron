@@ -256,12 +256,24 @@
           "filesystem",
           "scheduled-task"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "scheduled_task_creation",
+          "registry_run_key_write",
+          "cron_modification"
+        ],
+        "alert_signatures": [
+          "new scheduled task",
+          "run key modification",
+          "unusual cron entry"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "persistence_install",
+          "trigger_registration",
+          "trigger_evaluation"
+        ],
         "safe": true
       }
     },
@@ -1385,12 +1397,24 @@
           "filesystem",
           "scheduled-task"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "process_injection_attempt",
+          "signal_handler_modification",
+          "process_revival"
+        ],
+        "alert_signatures": [
+          "dll injection pattern",
+          "signal block on non-system process",
+          "process respawn loop"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "injection_sim",
+          "signal_block_sim",
+          "watchdog_cycle"
+        ],
         "safe": true
       }
     },
