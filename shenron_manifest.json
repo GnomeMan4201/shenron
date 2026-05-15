@@ -131,12 +131,24 @@
           "dns",
           "proxy"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "periodic_outbound_connection",
+          "dns_subdomain_query",
+          "encoded_uri_parameter"
+        ],
+        "alert_signatures": [
+          "regular beacon interval",
+          "base64 in dns label",
+          "synthetic user-agent rotation"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "http_beacon",
+          "dns_beacon",
+          "encoded_beacon"
+        ],
         "safe": true
       }
     },
