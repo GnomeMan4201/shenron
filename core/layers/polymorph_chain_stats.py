@@ -39,7 +39,7 @@ def build_stats():
         name = layer["name"]
         entries = log_by_layer.get(name, [])
         total = len(entries)
-        ok = sum(1 for e in entries if e.get("mutation") == "loaded")
+        ok = sum(1 for e in entries if e.get("mutation") in ("loaded", "executed"))
         fails = total - ok
         last_seen = entries[-1]["timestamp"][:19] if entries else "never"
         layer_stats.append({
