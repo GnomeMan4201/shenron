@@ -16,8 +16,10 @@ import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
 
-ARTIFACT_LOG = Path(os.path.expanduser("~/SHENRON/logs/simulation_artifacts.jsonl"))
-ARTIFACT_LOG.parent.mkdir(parents=True, exist_ok=True)
+def _get_artifact_log():
+    p = Path("/home/gnomeman4201/SHENRON/logs/simulation_artifacts.jsonl")
+    p.parent.mkdir(parents=True, exist_ok=True)
+    return p
 
 # ── Synthetic data pools ──────────────────────────────────────────────────────
 FAKE_USER_AGENTS = [
@@ -136,7 +138,7 @@ def simulate_beacon(n_events=3):
         }
         events.append(event)
 
-        with open(ARTIFACT_LOG, "a") as f:
+        with open(_get_artifact_log(), "a") as f:
             f.write(json.dumps(event) + "\n")
 
     return session_id, host_id, events
@@ -163,7 +165,7 @@ def print_simulation(session_id, host_id, events):
         if "user_agent" in bd:
             print(f"  user_agent    : {bd['user_agent'][:60]}")
         print()
-    print(f"  [LOGGED]      {ARTIFACT_LOG}")
+    print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no network calls — simulation artifact only")
 
 @register_payload(name="beacon_emitter_cloak")

@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 
 # ── Output paths ──────────────────────────────────────────────────────────────
-ARTIFACT_LOG = Path(os.path.expanduser("~/SHENRON/logs/simulation_artifacts.jsonl"))
+ARTIFACT_LOG = Path("/home/gnomeman4201/SHENRON/logs/simulation_artifacts.jsonl")
 ARTIFACT_LOG.parent.mkdir(parents=True, exist_ok=True)
 
 # ── Input validation ──────────────────────────────────────────────────────────
