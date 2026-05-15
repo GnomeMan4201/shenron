@@ -1,6 +1,6 @@
-from core.engine.payload_registry import register_payload
-
 #!/usr/bin/env python3
+# SHENRON: Mutation History — tracks layer load events, mutation types and stealth scores
+from core.engine.payload_registry import register_payload
 import os
 import json
 from datetime import datetime

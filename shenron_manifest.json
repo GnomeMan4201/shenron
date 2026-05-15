@@ -130,7 +130,7 @@
       "name": "mutation_history",
       "category": "meta",
       "file": "mutation_history.py",
-      "description": "!/usr/bin/env python3",
+      "description": "SHENRON: Mutation History \u2014 tracks layer load events, mutation types and stealth scores",
       "variant_count": 1
     },
     {
