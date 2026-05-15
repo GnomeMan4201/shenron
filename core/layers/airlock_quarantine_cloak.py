@@ -1,36 +1,135 @@
 from core.engine.payload_registry import register_payload
 
 #!/usr/bin/env python3
-# SHENRON: Airlock Quarantine Cloak — Simulates malware quarantine to fool antivirus
+# SHENRON: Airlock Quarantine Cloak — synthetic AV quarantine bypass simulator
+# PURPOSE: Emit realistic-shaped quarantine evasion telemetry for detection testing
+# PRINCIPLE: Represent adversarial shape without adversarial capability
+# MITRE: T1564 (Hide Artifacts), T1036 (Masquerading)
+# NO FILE WRITES — no real quarantine files created
 
 import os
+import json
+import uuid
 import random
-import string
-import time
+import hashlib
+from datetime import datetime, timezone
+from pathlib import Path
 
-QUARANTINE_DIR = os.path.expanduser("~/SHENRON/data/quarantine_zone")
-os.makedirs(QUARANTINE_DIR, exist_ok=True)
+ARTIFACT_LOG = Path("/home/gnomeman4201/SHENRON/logs/simulation_artifacts.jsonl")
 
-def random_filename(ext=".quar"):
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=12)) + ext
+def _get_artifact_log():
+    ARTIFACT_LOG.parent.mkdir(parents=True, exist_ok=True)
+    return ARTIFACT_LOG
 
-def write_fake_signature(path):
-    signature = ''.join(random.choices("abcdef0123456789", k=64))
-    with open(path, "w") as f:
-        f.write(f"signature={signature}\nstatus=quarantined\n")
+FAKE_AV_ENGINES = [
+    "Windows Defender", "ClamAV", "Sophos", "Malwarebytes", "ESET NOD32"
+]
 
-def deploy_fake_quarantines(count=5):
-    for _ in range(count):
-        fname = random_filename()
-        fullpath = os.path.join(QUARANTINE_DIR, fname)
-        write_fake_signature(fullpath)
-        print(f"[+] Fake quarantine entry: {fname}")
-        time.sleep(random.uniform(0.2, 0.6))
+FAKE_QUARANTINE_PATHS = [
+    "C:\\ProgramData\\Microsoft\\Windows Defender\\Quarantine",
+    "/var/lib/clamav/quarantine",
+    "/opt/sophos/quarantine",
+    "~/.config/malwarebytes/quarantine",
+]
+
+FAKE_EVASION_TECHNIQUES = [
+    "signature_spoof",
+    "quarantine_dir_mirror",
+    "benign_header_prepend",
+    "entropy_reduction_sim",
+    "packed_stub_sim",
+]
+
+FAKE_QUARANTINE_OUTCOMES = [
+    "quarantine attempted — bypass failed (simulated)",
+    "quarantine attempted — bypass succeeded (simulated)",
+    "av_scan_triggered — evasion maintained (simulated)",
+]
+
+def _fake_sig():
+    return hashlib.md5(os.urandom(16)).hexdigest()
 
 def simulate_quarantine_cloak():
-    print("[*] Generating artificial quarantine zone...")
-    deploy_fake_quarantines()
-    print("[✓] Airlock quarantine cloak activated.")
+    session_id = str(uuid.uuid4())
+    av_engine = random.choice(FAKE_AV_ENGINES)
+    events = []
+
+    # Phase 1: AV engine profiling
+    profile_event = {
+        "artifact_id": str(uuid.uuid4()),
+        "session_id": session_id,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "layer": "airlock_quarantine_cloak",
+        "phase": "av_profiling",
+        "mitre_techniques": ["T1036"],
+        "av_engine_sim": av_engine,
+        "quarantine_path_sim": random.choice(FAKE_QUARANTINE_PATHS),
+        "engine_version_sim": f"{random.randint(1,5)}.{random.randint(0,9)}.{random.randint(100,999)}",
+        "safe": True,
+        "simulation_only": True,
+        "files_created": False,
+    }
+    events.append(profile_event)
+    with open(_get_artifact_log(), "a") as f:
+        f.write(json.dumps(profile_event) + "\n")
+
+    # Phase 2: Fake quarantine entries
+    n_entries = random.randint(3, 5)
+    for i in range(n_entries):
+        technique = random.choice(FAKE_EVASION_TECHNIQUES)
+        outcome = random.choice(FAKE_QUARANTINE_OUTCOMES)
+        entry_event = {
+            "artifact_id": str(uuid.uuid4()),
+            "session_id": session_id,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "layer": "airlock_quarantine_cloak",
+            "phase": "quarantine_entry_sim",
+            "mitre_techniques": ["T1564"],
+            "entry_num": i + 1,
+            "fake_sig_sim": _fake_sig(),
+            "evasion_technique_sim": technique,
+            "outcome_sim": outcome,
+            "bypassed": "succeeded" in outcome,
+            "safe": True,
+            "simulation_only": True,
+            "files_created": False,
+        }
+        events.append(entry_event)
+        with open(_get_artifact_log(), "a") as f:
+            f.write(json.dumps(entry_event) + "\n")
+
+    return session_id, av_engine, events
+
+def print_simulation(session_id, av_engine, events):
+    bypassed = sum(1 for e in events if e.get("bypassed"))
+    print(f"\n  [SIMULATION]  airlock_quarantine_cloak")
+    print(f"  [SESSION]     {session_id}")
+    print(f"  [AV_SIM]      {av_engine}")
+    print(f"  [EVENTS]      {len(events)}")
+    print(f"  [MITRE]       T1564, T1036")
+    print(f"  [FILES]       NOT CREATED — synthetic only")
+    print()
+    for e in events:
+        phase = e["phase"]
+        if phase == "av_profiling":
+            print(f"  [PHASE 1: AV PROFILING]")
+            print(f"    engine_sim    : {e['av_engine_sim']}")
+            print(f"    version_sim   : {e['engine_version_sim']}")
+            print(f"    qpath_sim     : {e['quarantine_path_sim']}")
+        elif phase == "quarantine_entry_sim":
+            flag = "✓" if e["bypassed"] else "✗"
+            print(f"\n  [PHASE 2: QUARANTINE ENTRY #{e['entry_num']} [{flag}]]")
+            print(f"    sig_sim       : {e['fake_sig_sim'][:16]}...")
+            print(f"    technique_sim : {e['evasion_technique_sim']}")
+            print(f"    outcome       : {e['outcome_sim']}")
+    print()
+    print(f"  [LOGGED]      {_get_artifact_log()}")
+    print(f"  [SAFE]        no files created, no quarantine interaction — simulation only")
+
+@register_payload(name="airlock_quarantine_cloak")
+def main():
+    session_id, av_engine, events = simulate_quarantine_cloak()
+    print_simulation(session_id, av_engine, events)
 
 if __name__ == "__main__":
-    simulate_quarantine_cloak()
+    main()

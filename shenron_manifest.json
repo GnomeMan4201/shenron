@@ -47,12 +47,23 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "quarantine_dir_access",
+          "av_engine_probe",
+          "signature_spoof_attempt"
+        ],
+        "alert_signatures": [
+          "quarantine dir access from non-av process",
+          "signature hash mismatch",
+          "benign header on suspicious file"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "av_profiling",
+          "quarantine_entry_sim"
+        ],
         "safe": true
       }
     },
@@ -75,12 +86,24 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "log_file_cleared",
+          "history_truncated",
+          "timestamp_rollback"
+        ],
+        "alert_signatures": [
+          "bash_history cleared",
+          "auth.log truncated",
+          "mtime rollback on log files"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "target_enumeration",
+          "log_wipe",
+          "timestamp_manipulation"
+        ],
         "safe": true
       }
     },
@@ -463,12 +486,23 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "hidden_directory_creation",
+          "fake_signature_file",
+          "lure_trigger"
+        ],
+        "alert_signatures": [
+          "file with known malware signature string",
+          "hidden dot-path file creation",
+          "decoy crack or keygen file"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "lure_selection",
+          "lure_deployment"
+        ],
         "safe": true
       }
     },
@@ -687,12 +721,22 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "process_name_spoof",
+          "fake_cmdline",
+          "pid_masquerade"
+        ],
+        "alert_signatures": [
+          "process name matches system daemon but path differs",
+          "unexpected cmdline for known process"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "process_masquerade",
+          "deflection_loop"
+        ],
         "safe": true
       }
     },
@@ -1248,12 +1292,24 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "syscall_hook_install",
+          "proc_entry_hidden",
+          "lkm_load"
+        ],
+        "alert_signatures": [
+          "getdents64 hook pattern",
+          "hidden /proc entry",
+          "ld_preload modification"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "syscall_hook_sim",
+          "artifact_hiding_sim",
+          "noise_injection"
+        ],
         "safe": true
       }
     },
