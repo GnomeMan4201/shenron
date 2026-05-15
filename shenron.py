@@ -1,7 +1,18 @@
 import sys, os, argparse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from core.engine import payload_registry
-from core.engine.layer_loader import load_all, discover_canonical, get_by_category, CATEGORIES, _TYPE_TO_CAT
+from core.engine.layer_loader import (
+    load_all, load_layer, discover_canonical,
+    get_by_category, CATEGORIES, _TYPE_TO_CAT
+)
+
+BANNER = "  SHENRON // polymorphic framework // LANimals collective // gnomeman4201"
+DIVIDER = "  " + "=" * 70
+
+def banner():
+    print()
+    print(BANNER)
+    print()
 
 def cmd_list(args):
     canonical = discover_canonical()
@@ -12,7 +23,7 @@ def cmd_list(args):
         cat = _TYPE_TO_CAT.get(lt, "unknown")
         print("  " + lt.ljust(45) + cat.ljust(15) + p.name)
     print()
-    print("  " + str(len(canonical)) + " canonical layers across " + str(len(CATEGORIES)) + " categories")
+    print(f"  {len(canonical)} canonical layers across {len(CATEGORIES)} categories")
     print()
 
 def cmd_categories(args):
@@ -23,80 +34,98 @@ def cmd_categories(args):
         print("  " + cat.ljust(15) + ", ".join(layers))
     print()
 
-def cmd_run(args):
-    target_cats = list(CATEGORIES.keys()) if args.categories == "all" else [c.strip() for c in args.categories.split(",")]
-    bad = [c for c in target_cats if c not in CATEGORIES]
-    if bad:
-        print("[!] Unknown: " + ", ".join(bad))
-        print("    Valid: " + ", ".join(CATEGORIES.keys()))
-        sys.exit(1)
-    print("[*] Loading: " + ", ".join(target_cats))
-    load_results = load_all(categories=target_cats)
-    loaded = [lt for lt, ok in load_results.items() if ok]
-    failed = [lt for lt, ok in load_results.items() if not ok]
-    print("[+] Loaded: " + str(len(loaded)) + "  Failed: " + str(len(failed)))
-    if failed:
-        print("[!] Failed: " + ", ".join(failed))
-    registered = payload_registry.list_registered()
-    print("[+] Registered: " + str(len(registered)))
-    if args.dry_run:
-        print()
-        print("[~] DRY RUN:")
-        for cat in target_cats:
-            for lt in get_by_category(cat):
-                status = "ok" if lt in registered else "not registered"
-                print("    [" + cat + "] " + lt + " " + status)
-        print()
-        return
-    print()
-    for cat in target_cats:
-        print("  -- " + cat.upper() + " --")
-        for lt in get_by_category(cat):
-            if lt in registered:
-                print("  [>] " + lt)
-                result = payload_registry.run(lt)
-                print("  [" + ("ok" if result else "fail") + "] " + lt)
-            else:
-                print("  [~] " + lt + " (skipping)")
-        print()
-
-def cmd_layer(args):
+def _run_layer(lt, dry_run=False):
+    """Load and optionally run a single layer. Returns (ok, status_str)."""
     canonical = discover_canonical()
-    lt = args.layer
     if lt not in canonical:
-        print("[!] Not found: " + lt + " -- try --list")
-        sys.exit(1)
-    from core.engine.layer_loader import load_layer
+        return False, f"not found — try --list"
     ok, err = load_layer(lt, canonical[lt])
     if not ok:
-        print("[!] " + str(err))
-        sys.exit(1)
+        return False, f"load failed: {err}"
     registered = payload_registry.list_registered()
-    if lt in registered:
-        if args.dry_run:
-            print("[~] DRY RUN: " + lt)
-        else:
-            print("[>] " + lt)
-            payload_registry.run(lt)
+    if lt not in registered:
+        return False, "no @register_payload entry point"
+    if dry_run:
+        return True, "dry-run ok"
+    result = payload_registry.run(lt)
+    return (True, "executed") if result else (False, "exec failed")
+
+def cmd_run(args):
+    """--run <layer|all> [--dry-run]"""
+    canonical = discover_canonical()
+    target = args.run
+
+    # Build target list
+    if target == "all":
+        targets = sorted(canonical.keys())
+    elif target in CATEGORIES:
+        targets = [lt for lt in get_by_category(target) if lt in canonical]
+    elif target in canonical:
+        targets = [target]
     else:
-        print("[~] No @register_payload found for " + lt)
+        print(f"\n  [!] Unknown target: '{target}'")
+        print(f"  Valid: a layer name, a category name, or 'all'")
+        print(f"  Categories: {', '.join(CATEGORIES.keys())}")
+        print(f"  Layers: shenron --list\n")
+        sys.exit(1)
+
+    mode = "DRY RUN" if args.dry_run else "EXECUTE"
+    print(f"\n  [{mode}] {len(targets)} layer(s)\n")
+    print(f"  {'LAYER':<45} {'STATUS'}")
+    print(f"  {'-'*44} {'-'*20}")
+
+    ok_count = fail_count = 0
+    for lt in targets:
+        payload_registry.clear()
+        ok, status = _run_layer(lt, dry_run=args.dry_run)
+        marker = "✓" if ok else "✗"
+        print(f"  [{marker}] {lt:<43} {status}")
+        if ok:
+            ok_count += 1
+        else:
+            fail_count += 1
+
+    print()
+    print(f"  {ok_count} ok  |  {fail_count} failed")
+    print()
+
+def cmd_layer(args):
+    """--layer <name> [--dry-run] (legacy single-layer interface)"""
+    ok, status = _run_layer(args.layer, dry_run=args.dry_run)
+    marker = "✓" if ok else "✗"
+    print(f"  [{marker}] {args.layer}: {status}")
+    if not ok:
+        sys.exit(1)
+
+def cmd_stats(args):
+    """--stats: run polymorph_chain_stats dashboard"""
+    ok, status = _run_layer("polymorph_chain_stats", dry_run=False)
+    if not ok:
+        print(f"  [!] stats failed: {status}")
 
 def main():
-    print()
-    print("  SHENRON // polymorphic framework // LANimals collective // gnomeman4201")
-    print()
-    p = argparse.ArgumentParser(prog="shenron")
-    p.add_argument("--list", action="store_true")
-    p.add_argument("--cats", action="store_true")
-    p.add_argument("--categories", type=str)
-    p.add_argument("--layer", type=str)
-    p.add_argument("--dry-run", action="store_true")
+    banner()
+    p = argparse.ArgumentParser(prog="shenron", add_help=True)
+    p.add_argument("--list",       action="store_true",  help="list all canonical layers")
+    p.add_argument("--cats",       action="store_true",  help="list categories")
+    p.add_argument("--categories", type=str,             help="run layers by category (legacy)")
+    p.add_argument("--run",        type=str, metavar="TARGET",
+                   help="run a layer, category, or 'all'")
+    p.add_argument("--layer",      type=str,             help="run a single layer (legacy)")
+    p.add_argument("--dry-run",    action="store_true",  help="validate without executing")
+    p.add_argument("--stats",      action="store_true",  help="show operational dashboard")
     args = p.parse_args()
-    if args.list: cmd_list(args)
-    elif args.cats: cmd_categories(args)
-    elif args.categories: cmd_run(args)
-    elif args.layer: cmd_layer(args)
-    else: p.print_help()
+
+    if args.list:           cmd_list(args)
+    elif args.cats:         cmd_categories(args)
+    elif args.run:          cmd_run(args)
+    elif args.categories:   cmd_run(type('A', (), {
+                                'run': args.categories,
+                                'dry_run': args.dry_run
+                            })())
+    elif args.layer:        cmd_layer(args)
+    elif args.stats:        cmd_stats(args)
+    else:                   p.print_help()
 
 if __name__ == "__main__":
     main()

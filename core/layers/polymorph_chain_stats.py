@@ -4,7 +4,7 @@ import os, json
 from datetime import datetime
 from pathlib import Path
 
-MANIFEST_PATH = Path(__file__).parent.parent.parent / "shenron_manifest.json"
+MANIFEST_PATH = Path(os.path.abspath(__file__)).parent.parent.parent / "shenron_manifest.json"
 LOG_PATH = Path(os.path.expanduser("~/SHENRON/logs/mutation_history.json"))
 
 def load_manifest():
