@@ -95,9 +95,9 @@ BUILTIN_SCENARIOS = {
             {"layer": "evasion_lure_illusion",    "delay_sim": 60,  "label": "lure_deploy"},
             {"layer": "airlock_quarantine_cloak", "delay_sim": 90,  "label": "quarantine_cloak"},
             {"layer": "spectral_rootkit_shroud",  "delay_sim": 120, "label": "rootkit_shroud"},
-            {"layer": "dark_signature_morpher",   "delay_sim": 150, "label": "sig_morph"},
+            {"layer": "spectral_rootkit_shroud",  "delay_sim": 150, "label": "rootkit_shroud_2"},
         ],
-        "mitre_coverage": ["T1070", "T1107", "T1036", "T1036.005", "T1055", "T1564", "T1014", "T1027"],
+        "mitre_coverage": ["T1070", "T1107", "T1036", "T1036.005", "T1055", "T1564", "T1014"],
         "expected_detection_points": [
             "log deletion or tampering",
             "process name masquerading",

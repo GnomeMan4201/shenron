@@ -84,6 +84,7 @@
         "log_sources": [
           "process",
           "filesystem",
+          "log",
           "memory"
         ],
         "expected_events": [
