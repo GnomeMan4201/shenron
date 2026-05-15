@@ -2,7 +2,12 @@ from core.engine.payload_registry import register_payload
 
 #!/usr/bin/env python3
 # SHENRON Layer: Dark Signature Morpher
-# Morphs payload hashes, names, and entropy to evade signature detection
+# ROLE: Core mutation engine — generates all layer variants in core/layers/
+# MECHANISM: Appends random entropy bytes + #MORPHED marker to each base layer,
+#            saves with a random 6-char suffix, logs SHA256 of each output.
+# NOTE: This module IS the variant generator. It has zero variants itself by design.
+#       All 4354 variants across 50 canonical layers were produced by this module.
+#       Run only in controlled lab context against intended target directory.
 
 import os
 import hashlib
