@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # SHENRON: Phantom Thread Fabricator — simulates IO and thread noise for anti-forensic interference
-import threading, time, os, random
+import threading, time, os, random, tempfile
 
 def simulate_io_chatter():
-    tmp = f"/data/data/com.termux/files/usr/tmp/io_{random.randint(1000,9999)}"
+    tmp = os.path.join(tempfile.gettempdir(), f"io_{random.randint(1000,9999)}")
     with open(tmp, 'w') as f:
         f.write("x" * 512)
     os.remove(tmp)
@@ -12,7 +12,7 @@ def simulate_network_noise():
     os.system("ping -c 1 127.0.0.1 > /dev/null")
 
 def simulate_log_rotation():
-    with open("/data/data/com.termux/files/usr/tmp/syslog", "a") as log:
+    with open(os.path.join(tempfile.gettempdir(), "shenron_phantom_syslog.log"), "a") as log:
         log.write(f"[phantom] Kernel module {random.randint(1000,9999)} triggered at {time.time()}\n")
 
 BEHAVIORS = [simulate_io_chatter, simulate_network_noise, simulate_log_rotation]
