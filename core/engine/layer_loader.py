@@ -40,7 +40,10 @@ def _get_layer_type(filename):
         if i == 0:
             continue
         if re.match(r"^[A-Za-z0-9]{6}$", part):
-            return None
+            has_upper = any(c.isupper() for c in part)
+            has_digit = any(c.isdigit() for c in part)
+            if has_upper or has_digit:
+                return None  # mixed case or digit = mutation suffix
     return stem
 
 def discover_canonical():
