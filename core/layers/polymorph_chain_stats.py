@@ -14,11 +14,13 @@ def load_manifest():
         return json.load(f)
 
 def load_log():
-    log_path = Path(os.path.expanduser("~/SHENRON/logs/mutation_history.json")).resolve()
+    import os as _os, json as _json
+    from pathlib import Path as _Path
+    log_path = _Path(_os.path.expanduser("~/SHENRON/logs/mutation_history.json")).resolve()
     if not log_path.exists():
         return []
     with open(log_path) as f:
-        return json.load(f)
+        return _json.load(f)
 
 def build_stats():
     manifest = load_manifest()
