@@ -138,10 +138,12 @@ def main():
     elif args.scenario:     run_scenario(args.scenario, dry_run=args.dry_run)
     elif args.scenarios:    list_scenarios()
     elif getattr(args, 'report', False):
-        spec = _ilu.spec_from_file_location("generate_report",
-            _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+        import importlib.util, os
+        spec = importlib.util.spec_from_file_location("generate_report",
+            os.path.join(os.path.dirname(os.path.abspath(__file__)),
                          "scripts/generate_report.py"))
-        mod = _ilu.module_from_spec(spec); spec.loader.exec_module(mod)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
         mod.generate_report()
     else:                   p.print_help()
 
