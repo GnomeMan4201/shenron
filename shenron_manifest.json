@@ -5,350 +5,1396 @@
       "category": "meta",
       "file": "adaptive_brainstem.py",
       "description": "adaptive_brainstem.py - SHENRON Layer 6: Context-Aware Neural Reflex Controller",
-      "variant_count": 130
+      "variant_count": 130,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1620"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "airlock_quarantine_cloak",
       "category": "evasion",
       "file": "airlock_quarantine_cloak.py",
       "description": "SHENRON: Airlock Quarantine Cloak \u2014 Simulates malware quarantine to fool antivirus",
-      "variant_count": 61
+      "variant_count": 61,
+      "mitre": {
+        "techniques": [
+          "T1564",
+          "T1036"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "anti_forensics_molt",
       "category": "evasion",
       "file": "anti_forensics_molt.py",
       "description": "anti_forensics_molt.py - SHENRON Forensics Defense Layer",
-      "variant_count": 133
+      "variant_count": 133,
+      "mitre": {
+        "techniques": [
+          "T1070",
+          "T1107"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "autonomous_signal_cloner",
       "category": "c2",
       "file": "autonomous_signal_cloner.py",
       "description": "SHENRON // autonomous_signal_cloner",
-      "variant_count": 61
+      "variant_count": 61,
+      "mitre": {
+        "techniques": [
+          "T1071",
+          "T1102"
+        ],
+        "tactic": "command-and-control"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "dns",
+          "proxy"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "beacon_emitter_cloak",
       "category": "c2",
       "file": "beacon_emitter_cloak.py",
       "description": "beacon_emitter_cloak.py - SHENRON stealth beacon callback emitter",
-      "variant_count": 128
+      "variant_count": 128,
+      "mitre": {
+        "techniques": [
+          "T1071",
+          "T1132"
+        ],
+        "tactic": "command-and-control"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "dns",
+          "proxy"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "cognitive_replicator",
       "category": "identity",
       "file": "cognitive_replicator.py",
       "description": "cognitive_replicator.py - SHENRON Self-Replication Engine",
-      "variant_count": 119
+      "variant_count": 119,
+      "mitre": {
+        "techniques": [
+          "T1036",
+          "T1078"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "dark_signature_morpher",
       "category": "evasion",
       "file": "dark_signature_morpher.py",
       "description": "SHENRON Layer: Dark Signature Morpher",
-      "variant_count": 0
+      "variant_count": 0,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1036"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "deadzone_payload",
       "category": "payload",
       "file": "deadzone_payload.py",
       "description": "SHENRON: Deadzone Payload \u2014 inert payload staging and dead-drop zone manager",
-      "variant_count": 128
+      "variant_count": 128,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1140"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "dormant_sleeper_seed",
       "category": "persistence",
       "file": "dormant_sleeper_seed.py",
       "description": "dormant_sleeper_seed.py - SHENRON latent payload trigger system",
-      "variant_count": 125
+      "variant_count": 125,
+      "mitre": {
+        "techniques": [
+          "T1053",
+          "T1547"
+        ],
+        "tactic": "persistence"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "registry",
+          "filesystem",
+          "scheduled-task"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "dragons_breath_destructor",
       "category": "llm",
       "file": "dragons_breath_destructor.py",
       "description": "SHENRON: Dragons Breath Destructor \u2014 aggressive file/process scorched-earth cleanup layer",
-      "variant_count": 31
+      "variant_count": 31,
+      "mitre": {
+        "techniques": [
+          "T1070",
+          "T1485"
+        ],
+        "tactic": "impact"
+      },
+      "detection": {
+        "log_sources": [
+          "filesystem",
+          "process",
+          "log"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "dreamdive_overlay",
       "category": "c2",
       "file": "dreamdive_overlay.py",
       "description": "SHENRON: DreamDive Overlay \u2014 Hallucinogenic Log Distortion",
-      "variant_count": 65
+      "variant_count": 65,
+      "mitre": {
+        "techniques": [
+          "T1070.001",
+          "T1036"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "encrypted_echo_chamber",
       "category": "llm",
       "file": "encrypted_echo_chamber.py",
       "description": "SHENRON: Encrypted Echo Chamber \u2013 internal secure comms channel creator",
-      "variant_count": 60
+      "variant_count": 60,
+      "mitre": {
+        "techniques": [
+          "T1573",
+          "T1132"
+        ],
+        "tactic": "command-and-control"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "dns",
+          "proxy"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "entropy_anchor_dropper",
       "category": "entropy",
       "file": "entropy_anchor_dropper.py",
       "description": "SHENRON: Entropy Anchor Dropper \u2014 Timing and Pattern Camouflage Engine",
-      "variant_count": 64
+      "variant_count": 64,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1140"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "entropy_flux_disruptor",
       "category": "entropy",
       "file": "entropy_flux_disruptor.py",
       "description": "SHENRON: Entropy Flux Disruptor \u2014 ML Pattern Confuser",
-      "variant_count": 65
+      "variant_count": 65,
+      "mitre": {
+        "techniques": [
+          "T1027.002"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "ethereal_payload_reanimator",
       "category": "payload",
       "file": "ethereal_payload_reanimator.py",
       "description": "SHENRON: Ethereal Payload Reanimator \u2014 subprocess-based dormant payload revival engine",
-      "variant_count": 30
+      "variant_count": 30,
+      "mitre": {
+        "techniques": [
+          "T1055",
+          "T1620"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "evasion_lure_illusion",
       "category": "evasion",
       "file": "evasion_lure_illusion.py",
       "description": "SHENRON Layer: Evasion Lure Illusion",
-      "variant_count": 128
+      "variant_count": 128,
+      "mitre": {
+        "techniques": [
+          "T1036",
+          "T1055"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "forged_bios_artifact",
       "category": "identity",
       "file": "forged_bios_artifact.py",
       "description": "SHENRON: Forged BIOS Artifact Seeder \u2014 Creates low-level tamper illusions",
-      "variant_count": 60
+      "variant_count": 60,
+      "mitre": {
+        "techniques": [
+          "T1542",
+          "T1036"
+        ],
+        "tactic": "persistence"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "registry",
+          "filesystem",
+          "scheduled-task"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "lateral_webcrawler",
       "category": "c2",
       "file": "lateral_webcrawler.py",
       "description": "lateral_webcrawler.py - SHENRON Lateral Movement Web Crawler",
-      "variant_count": 132
+      "variant_count": 132,
+      "mitre": {
+        "techniques": [
+          "T1021",
+          "T1046",
+          "T1135"
+        ],
+        "tactic": "lateral-movement"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "process",
+          "authentication"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "llm_echo_chamber",
       "category": "llm",
       "file": "llm_echo_chamber.py",
       "description": "SHENRON Layer: LLM Echo Chamber",
-      "variant_count": 134
+      "variant_count": 134,
+      "mitre": {
+        "techniques": [
+          "T1565",
+          "T1036"
+        ],
+        "tactic": "impact"
+      },
+      "detection": {
+        "log_sources": [
+          "filesystem",
+          "process",
+          "log"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "llm_shroud_writer",
       "category": "llm",
       "file": "llm_shroud_writer.py",
       "description": "SHENRON // llm_shroud_writer",
-      "variant_count": 125
+      "variant_count": 125,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1036"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "manifest_vampire",
       "category": "meta",
       "file": "manifest_vampire.py",
       "description": "manifest_vampire.py - SHENRON Layer 4: Manifest Leech + Clone Engine",
-      "variant_count": 131
+      "variant_count": 131,
+      "mitre": {
+        "techniques": [
+          "T1005",
+          "T1119"
+        ],
+        "tactic": "collection"
+      },
+      "detection": {
+        "log_sources": [
+          "filesystem",
+          "process"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "memory_hijack_inheritor",
       "category": "persistence",
       "file": "memory_hijack_inheritor.py",
       "description": "Simulated memory hijack \u2013 write our code to an unused location",
-      "variant_count": 126
+      "variant_count": 126,
+      "mitre": {
+        "techniques": [
+          "T1055",
+          "T1134"
+        ],
+        "tactic": "privilege-escalation"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "authentication",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "mirror_loop_deflector",
       "category": "evasion",
       "file": "mirror_loop_deflector.py",
       "description": "SHENRON: Mirror Loop Deflector \u2014 Process Reflection & Cloaking",
-      "variant_count": 59
+      "variant_count": 59,
+      "mitre": {
+        "techniques": [
+          "T1036.005",
+          "T1070"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "mutation_history",
       "category": "meta",
       "file": "mutation_history.py",
       "description": "SHENRON: Mutation History \u2014 tracks layer load events, mutation types and stealth scores",
-      "variant_count": 1
+      "variant_count": 1,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1036"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "neural_entropy_seeder",
       "category": "entropy",
       "file": "neural_entropy_seeder.py",
       "description": "SHENRON // neural_entropy_seeder",
-      "variant_count": 123
+      "variant_count": 123,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1036"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "obfuscated_skinwalker_dropper",
       "category": "payload",
       "file": "obfuscated_skinwalker_dropper.py",
       "description": "SHENRON Layer: Obfuscated Skinwalker Dropper",
-      "variant_count": 126
+      "variant_count": 126,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1105"
+        ],
+        "tactic": "command-and-control"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "dns",
+          "proxy"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "parasitic_mesh_crawler",
       "category": "c2",
       "file": "parasitic_mesh_crawler.py",
       "description": "parasitic_mesh_crawler.py - SHENRON Layer 5: LAN/Mesh Infection & Spread",
-      "variant_count": 126
+      "variant_count": 126,
+      "mitre": {
+        "techniques": [
+          "T1021",
+          "T1570"
+        ],
+        "tactic": "lateral-movement"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "process",
+          "authentication"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "payload_skinwalker",
       "category": "payload",
       "file": "payload_skinwalker.py",
       "description": "payload_skinwalker.py - SHENRON Layer 2: Morphing Clone Generator",
-      "variant_count": 124
+      "variant_count": 124,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1059"
+        ],
+        "tactic": "execution"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "command-line"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "phantom_thread_fabricator",
       "category": "meta",
       "file": "phantom_thread_fabricator.py",
       "description": "SHENRON: Phantom Thread Fabricator \u2014 simulates IO and thread noise for anti-forensic interference",
-      "variant_count": 131
+      "variant_count": 131,
+      "mitre": {
+        "techniques": [
+          "T1055.003",
+          "T1036"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "poltergeist_file_infector",
       "category": "persistence",
       "file": "poltergeist_file_infector.py",
       "description": "SHENRON: Poltergeist File Infector \u2014 randomized file-level infection and persistence dropper",
-      "variant_count": 33
+      "variant_count": 33,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1564.001"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "polymorph_chain_stats",
       "category": "meta",
       "file": "polymorph_chain_stats.py",
       "description": "SHENRON: Polymorph Chain Stats \u2014 real-time operational dashboard",
-      "variant_count": 0
+      "variant_count": 0,
+      "mitre": {
+        "techniques": [],
+        "tactic": "meta"
+      },
+      "detection": {
+        "log_sources": [],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "quantum_entanglement_relay",
       "category": "entropy",
       "file": "quantum_entanglement_relay.py",
       "description": "SHENRON: Quantum Entanglement Relay \u2014 threaded socket relay for covert channel bridging",
-      "variant_count": 30
+      "variant_count": 30,
+      "mitre": {
+        "techniques": [
+          "T1095",
+          "T1572"
+        ],
+        "tactic": "command-and-control"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "dns",
+          "proxy"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "quantum_entropy_distorter",
       "category": "entropy",
       "file": "quantum_entropy_distorter.py",
       "description": "SHENRON Layer: Quantum Entropy Distorter",
-      "variant_count": 132
+      "variant_count": 132,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1001"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "quantum_state_shuffler",
       "category": "entropy",
       "file": "quantum_state_shuffler.py",
       "description": "SHENRON: Quantum State Shuffler \u2013 Dynamic payload state randomizer for heuristic evasion",
-      "variant_count": 66
+      "variant_count": 66,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1001"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "quantum_trace_rewinder",
       "category": "entropy",
       "file": "quantum_trace_rewinder.py",
       "description": "SHENRON: Quantum Trace Rewinder \u2014 Timeline Spoofing + Anti-Forensics",
-      "variant_count": 64
+      "variant_count": 64,
+      "mitre": {
+        "techniques": [
+          "T1070",
+          "T1027"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "recursive_payload_seedbank",
       "category": "payload",
       "file": "recursive_payload_seedbank.py",
       "description": "SHENRON: Recursive Payload Seedbank \u2014 plants dormant recursive payloads",
-      "variant_count": 63
+      "variant_count": 63,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1547"
+        ],
+        "tactic": "persistence"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "registry",
+          "filesystem",
+          "scheduled-task"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "self_sealing_nano_sandbox",
       "category": "persistence",
       "file": "self_sealing_nano_sandbox.py",
       "description": "self_sealing_nano_sandbox.py - SHENRON lightweight isolation and seal-off layer",
-      "variant_count": 115
+      "variant_count": 115,
+      "mitre": {
+        "techniques": [
+          "T1055",
+          "T1564"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "shadow_system_rebuilder",
       "category": "persistence",
       "file": "shadow_system_rebuilder.py",
       "description": "SHENRON: Shadow System Rebuilder \u2014 Restores original file states post-compromise",
-      "variant_count": 61
+      "variant_count": 61,
+      "mitre": {
+        "techniques": [
+          "T1547",
+          "T1543"
+        ],
+        "tactic": "persistence"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "registry",
+          "filesystem",
+          "scheduled-task"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "shenron_bio_replication",
       "category": "identity",
       "file": "shenron_bio_replication.py",
       "description": "SHENRON: Bio-Replication Layer",
-      "variant_count": 63
+      "variant_count": 63,
+      "mitre": {
+        "techniques": [
+          "T1036",
+          "T1027"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "shenron_holo_emitter",
       "category": "meta",
       "file": "shenron_holo_emitter.py",
       "description": "SHENRON: Hologram Emitter",
-      "variant_count": 63
+      "variant_count": 63,
+      "mitre": {
+        "techniques": [
+          "T1036",
+          "T1027"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "spectral_packet_weaver",
       "category": "c2",
       "file": "spectral_packet_weaver.py",
       "description": "SHENRON // spectral_packet_weaver",
-      "variant_count": 62
+      "variant_count": 62,
+      "mitre": {
+        "techniques": [
+          "T1095",
+          "T1001"
+        ],
+        "tactic": "command-and-control"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "dns",
+          "proxy"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "spectral_rootkit_shroud",
       "category": "evasion",
       "file": "spectral_rootkit_shroud.py",
       "description": "SHENRON // spectral_rootkit_shroud",
-      "variant_count": 33
+      "variant_count": 33,
+      "mitre": {
+        "techniques": [
+          "T1014",
+          "T1564"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "stealth_mimic",
       "category": "identity",
       "file": "stealth_mimic.py",
       "description": "stealth_mimic.py - SHENRON Mimicry Layer",
-      "variant_count": 127
+      "variant_count": 127,
+      "mitre": {
+        "techniques": [
+          "T1036",
+          "T1134"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "symbiote_payload",
       "category": "payload",
       "file": "symbiote_payload.py",
       "description": "symbiote_payload.py - SHENRON Layer 3: Parasitic Persistence",
-      "variant_count": 123
+      "variant_count": 123,
+      "mitre": {
+        "techniques": [
+          "T1055",
+          "T1027"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "synthetic_splinter_seed",
       "category": "entropy",
       "file": "synthetic_splinter_seed.py",
       "description": "SHENRON: Synthetic Splinter Seeder \u2014 Polymorphic Micro-Worm Propagation",
-      "variant_count": 69
+      "variant_count": 69,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1105"
+        ],
+        "tactic": "command-and-control"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "dns",
+          "proxy"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "temporal_mirage_emulator",
       "category": "c2",
       "file": "temporal_mirage_emulator.py",
       "description": "SHENRON Layer: Temporal Mirage Emulator",
-      "variant_count": 135
+      "variant_count": 135,
+      "mitre": {
+        "techniques": [
+          "T1070",
+          "T1036"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "temporal_payload_phaser",
       "category": "c2",
       "file": "temporal_payload_phaser.py",
       "description": "SHENRON // temporal_payload_phaser",
-      "variant_count": 67
+      "variant_count": 67,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1140"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "transient_exfil_shell",
       "category": "payload",
       "file": "transient_exfil_shell.py",
       "description": "SHENRON Layer: Transient Exfiltration Shell",
-      "variant_count": 130
+      "variant_count": 130,
+      "mitre": {
+        "techniques": [
+          "T1041",
+          "T1048"
+        ],
+        "tactic": "exfiltration"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "dns",
+          "proxy"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "undead_memory_latch",
       "category": "persistence",
       "file": "undead_memory_latch.py",
       "description": "SHENRON Layer: Undead Memory Latch",
-      "variant_count": 128
+      "variant_count": 128,
+      "mitre": {
+        "techniques": [
+          "T1055",
+          "T1547"
+        ],
+        "tactic": "persistence"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "registry",
+          "filesystem",
+          "scheduled-task"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     },
     {
       "name": "void_gateway_tunnel",
       "category": "payload",
       "file": "void_gateway_tunnel.py",
       "description": "SHENRON // void_gateway_tunnel",
-      "variant_count": 64
+      "variant_count": 64,
+      "mitre": {
+        "techniques": [
+          "T1572",
+          "T1090"
+        ],
+        "tactic": "command-and-control"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "dns",
+          "proxy"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
     }
   ],
   "summary": {
