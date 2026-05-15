@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 MANIFEST_PATH = Path(os.path.abspath(__file__)).parent.parent.parent / "shenron_manifest.json"
-LOG_PATH = Path(os.path.expanduser("~/SHENRON/logs/mutation_history.json"))
+LOG_PATH = Path(os.path.expanduser("~/SHENRON/logs/mutation_history.json")).resolve()
 
 def load_manifest():
     if not MANIFEST_PATH.exists():
@@ -14,9 +14,10 @@ def load_manifest():
         return json.load(f)
 
 def load_log():
-    if not LOG_PATH.exists():
+    log_path = Path(os.path.expanduser("~/SHENRON/logs/mutation_history.json")).resolve()
+    if not log_path.exists():
         return []
-    with open(LOG_PATH) as f:
+    with open(log_path) as f:
         return json.load(f)
 
 def build_stats():
