@@ -98,10 +98,16 @@ def cmd_layer(args):
         sys.exit(1)
 
 def cmd_stats(args):
-    """--stats: run polymorph_chain_stats dashboard"""
-    ok, status = _run_layer("polymorph_chain_stats", dry_run=False)
-    if not ok:
-        print(f"  [!] stats failed: {status}")
+    """--stats: run polymorph_chain_stats dashboard directly"""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "polymorph_chain_stats",
+        os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                     "core/layers/polymorph_chain_stats.py")
+    )
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    mod.main()
 
 def main():
     banner()
