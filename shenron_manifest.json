@@ -1,0 +1,270 @@
+{
+  "layers": [
+    {
+      "name": "adaptive_brainstem",
+      "category": "meta",
+      "file": "adaptive_brainstem.py",
+      "description": "adaptive_brainstem.py - SHENRON Layer 6: Context-Aware Neural Reflex Controller",
+      "variant_count": 130
+    },
+    {
+      "name": "airlock_quarantine_cloak",
+      "category": "evasion",
+      "file": "airlock_quarantine_cloak.py",
+      "description": "SHENRON: Airlock Quarantine Cloak \u2014 Simulates malware quarantine to fool antivirus",
+      "variant_count": 61
+    },
+    {
+      "name": "anti_forensics_molt",
+      "category": "evasion",
+      "file": "anti_forensics_molt.py",
+      "description": "anti_forensics_molt.py - SHENRON Forensics Defense Layer",
+      "variant_count": 133
+    },
+    {
+      "name": "beacon_emitter_cloak",
+      "category": "c2",
+      "file": "beacon_emitter_cloak.py",
+      "description": "beacon_emitter_cloak.py - SHENRON stealth beacon callback emitter",
+      "variant_count": 128
+    },
+    {
+      "name": "cognitive_replicator",
+      "category": "identity",
+      "file": "cognitive_replicator.py",
+      "description": "cognitive_replicator.py - SHENRON Self-Replication Engine",
+      "variant_count": 119
+    },
+    {
+      "name": "dark_signature_morpher",
+      "category": "evasion",
+      "file": "dark_signature_morpher.py",
+      "description": "SHENRON Layer: Dark Signature Morpher",
+      "variant_count": 0
+    },
+    {
+      "name": "deadzone_payload",
+      "category": "payload",
+      "file": "deadzone_payload.py",
+      "description": "",
+      "variant_count": 128
+    },
+    {
+      "name": "dormant_sleeper_seed",
+      "category": "persistence",
+      "file": "dormant_sleeper_seed.py",
+      "description": "dormant_sleeper_seed.py - SHENRON latent payload trigger system",
+      "variant_count": 125
+    },
+    {
+      "name": "dreamdive_overlay",
+      "category": "c2",
+      "file": "dreamdive_overlay.py",
+      "description": "SHENRON: DreamDive Overlay \u2014 Hallucinogenic Log Distortion",
+      "variant_count": 65
+    },
+    {
+      "name": "encrypted_echo_chamber",
+      "category": "llm",
+      "file": "encrypted_echo_chamber.py",
+      "description": "SHENRON: Encrypted Echo Chamber \u2013 internal secure comms channel creator",
+      "variant_count": 60
+    },
+    {
+      "name": "entropy_flux_disruptor",
+      "category": "entropy",
+      "file": "entropy_flux_disruptor.py",
+      "description": "SHENRON: Entropy Flux Disruptor \u2014 ML Pattern Confuser",
+      "variant_count": 65
+    },
+    {
+      "name": "ethereal_payload_reanimator",
+      "category": "payload",
+      "file": "ethereal_payload_reanimator.py",
+      "description": "!/usr/bin/env python3",
+      "variant_count": 30
+    },
+    {
+      "name": "evasion_lure_illusion",
+      "category": "evasion",
+      "file": "evasion_lure_illusion.py",
+      "description": "SHENRON Layer: Evasion Lure Illusion",
+      "variant_count": 128
+    },
+    {
+      "name": "forged_bios_artifact",
+      "category": "identity",
+      "file": "forged_bios_artifact.py",
+      "description": "SHENRON: Forged BIOS Artifact Seeder \u2014 Creates low-level tamper illusions",
+      "variant_count": 60
+    },
+    {
+      "name": "lateral_webcrawler",
+      "category": "c2",
+      "file": "lateral_webcrawler.py",
+      "description": "lateral_webcrawler.py - SHENRON Lateral Movement Web Crawler",
+      "variant_count": 132
+    },
+    {
+      "name": "llm_echo_chamber",
+      "category": "llm",
+      "file": "llm_echo_chamber.py",
+      "description": "SHENRON Layer: LLM Echo Chamber",
+      "variant_count": 134
+    },
+    {
+      "name": "manifest_vampire",
+      "category": "meta",
+      "file": "manifest_vampire.py",
+      "description": "manifest_vampire.py - SHENRON Layer 4: Manifest Leech + Clone Engine",
+      "variant_count": 131
+    },
+    {
+      "name": "mirror_loop_deflector",
+      "category": "evasion",
+      "file": "mirror_loop_deflector.py",
+      "description": "SHENRON: Mirror Loop Deflector \u2014 Process Reflection & Cloaking",
+      "variant_count": 59
+    },
+    {
+      "name": "mutation_history",
+      "category": "meta",
+      "file": "mutation_history.py",
+      "description": "!/usr/bin/env python3",
+      "variant_count": 1
+    },
+    {
+      "name": "obfuscated_skinwalker_dropper",
+      "category": "payload",
+      "file": "obfuscated_skinwalker_dropper.py",
+      "description": "SHENRON Layer: Obfuscated Skinwalker Dropper",
+      "variant_count": 126
+    },
+    {
+      "name": "parasitic_mesh_crawler",
+      "category": "c2",
+      "file": "parasitic_mesh_crawler.py",
+      "description": "parasitic_mesh_crawler.py - SHENRON Layer 5: LAN/Mesh Infection & Spread",
+      "variant_count": 126
+    },
+    {
+      "name": "payload_skinwalker",
+      "category": "payload",
+      "file": "payload_skinwalker.py",
+      "description": "payload_skinwalker.py - SHENRON Layer 2: Morphing Clone Generator",
+      "variant_count": 124
+    },
+    {
+      "name": "poltergeist_file_infector",
+      "category": "persistence",
+      "file": "poltergeist_file_infector.py",
+      "description": "!/usr/bin/env python3",
+      "variant_count": 33
+    },
+    {
+      "name": "polymorph_chain_stats",
+      "category": "meta",
+      "file": "polymorph_chain_stats.py",
+      "description": "",
+      "variant_count": 0
+    },
+    {
+      "name": "quantum_entanglement_relay",
+      "category": "entropy",
+      "file": "quantum_entanglement_relay.py",
+      "description": "!/usr/bin/env python3",
+      "variant_count": 30
+    },
+    {
+      "name": "quantum_entropy_distorter",
+      "category": "entropy",
+      "file": "quantum_entropy_distorter.py",
+      "description": "SHENRON Layer: Quantum Entropy Distorter",
+      "variant_count": 132
+    },
+    {
+      "name": "quantum_state_shuffler",
+      "category": "entropy",
+      "file": "quantum_state_shuffler.py",
+      "description": "SHENRON: Quantum State Shuffler \u2013 Dynamic payload state randomizer for heuristic evasion",
+      "variant_count": 66
+    },
+    {
+      "name": "quantum_trace_rewinder",
+      "category": "entropy",
+      "file": "quantum_trace_rewinder.py",
+      "description": "SHENRON: Quantum Trace Rewinder \u2014 Timeline Spoofing + Anti-Forensics",
+      "variant_count": 64
+    },
+    {
+      "name": "recursive_payload_seedbank",
+      "category": "payload",
+      "file": "recursive_payload_seedbank.py",
+      "description": "SHENRON: Recursive Payload Seedbank \u2014 plants dormant recursive payloads",
+      "variant_count": 63
+    },
+    {
+      "name": "self_sealing_nano_sandbox",
+      "category": "persistence",
+      "file": "self_sealing_nano_sandbox.py",
+      "description": "self_sealing_nano_sandbox.py - SHENRON lightweight isolation and seal-off layer",
+      "variant_count": 115
+    },
+    {
+      "name": "shenron_bio_replication",
+      "category": "identity",
+      "file": "shenron_bio_replication.py",
+      "description": "SHENRON: Bio-Replication Layer",
+      "variant_count": 63
+    },
+    {
+      "name": "shenron_holo_emitter",
+      "category": "meta",
+      "file": "shenron_holo_emitter.py",
+      "description": "SHENRON: Hologram Emitter",
+      "variant_count": 63
+    },
+    {
+      "name": "stealth_mimic",
+      "category": "identity",
+      "file": "stealth_mimic.py",
+      "description": "stealth_mimic.py - SHENRON Mimicry Layer",
+      "variant_count": 127
+    },
+    {
+      "name": "symbiote_payload",
+      "category": "payload",
+      "file": "symbiote_payload.py",
+      "description": "symbiote_payload.py - SHENRON Layer 3: Parasitic Persistence",
+      "variant_count": 123
+    },
+    {
+      "name": "synthetic_splinter_seed",
+      "category": "entropy",
+      "file": "synthetic_splinter_seed.py",
+      "description": "SHENRON: Synthetic Splinter Seeder \u2014 Polymorphic Micro-Worm Propagation",
+      "variant_count": 69
+    },
+    {
+      "name": "transient_exfil_shell",
+      "category": "payload",
+      "file": "transient_exfil_shell.py",
+      "description": "SHENRON Layer: Transient Exfiltration Shell",
+      "variant_count": 130
+    }
+  ],
+  "summary": {
+    "total_canonical": 36,
+    "total_variants": 3143,
+    "by_category": {
+      "identity": 4,
+      "evasion": 5,
+      "payload": 7,
+      "persistence": 3,
+      "entropy": 6,
+      "c2": 4,
+      "llm": 2,
+      "meta": 5
+    }
+  }
+}

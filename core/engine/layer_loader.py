@@ -4,6 +4,20 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 from core.engine.path_adapter import patch_source
 from core.engine import payload_registry
+import sys as _sys
+def _log_mutation_safe(layer_type, status, notes=""):
+    try:
+        import importlib.util, os
+        spec = importlib.util.spec_from_file_location(
+            "mutation_history",
+            os.path.join(os.path.dirname(__file__), "../layers/mutation_history.py")
+        )
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        score = "100" if status == "ok" else "0"
+        mod.log_mutation(layer_type, status, score, notes)
+    except Exception:
+        pass
 
 LAYERS_DIR = Path(os.path.expanduser("~/research_hub/repos/shenron/core/layers"))
 
@@ -104,12 +118,16 @@ def load_layer(layer_type, path):
                                     print("  [!] " + fn.__name__ + ": " + str(e))
                         return _runner
                     payload_registry.register_payload(layer_type)(_make_runner(fns))
+        _log_mutation_safe(layer_type, "loaded")
         return True, None
     except SyntaxError as e:
+        _log_mutation_safe(layer_type, "syntax_error", str(e))
         return False, "syntax error: " + str(e)
     except ImportError as e:
+        _log_mutation_safe(layer_type, "import_error", str(e))
         return False, "import error: " + str(e)
     except Exception as e:
+        _log_mutation_safe(layer_type, "exec_error", str(e))
         return False, "exec error: " + str(e)
 
 def load_all(categories=None):
