@@ -1,6 +1,7 @@
 import sys, os, argparse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from core.engine import payload_registry
+from core.engine.scenario_engine import run_scenario, list_scenarios, BUILTIN_SCENARIOS
 from core.engine.layer_loader import (
     load_all, load_layer, discover_canonical,
     get_by_category, CATEGORIES, _TYPE_TO_CAT
@@ -120,6 +121,8 @@ def main():
     p.add_argument("--layer",      type=str,             help="run a single layer (legacy)")
     p.add_argument("--dry-run",    action="store_true",  help="validate without executing")
     p.add_argument("--stats",      action="store_true",  help="show operational dashboard")
+    p.add_argument("--scenario",   type=str, metavar="NAME", help="run a scenario")
+    p.add_argument("--scenarios",  action="store_true",      help="list available scenarios")
     args = p.parse_args()
 
     if args.list:           cmd_list(args)
@@ -131,6 +134,8 @@ def main():
                             })())
     elif args.layer:        cmd_layer(args)
     elif args.stats:        cmd_stats(args)
+    elif args.scenario:     run_scenario(args.scenario, dry_run=args.dry_run)
+    elif args.scenarios:    list_scenarios()
     else:                   p.print_help()
 
 if __name__ == "__main__":
