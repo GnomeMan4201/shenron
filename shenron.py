@@ -123,6 +123,7 @@ def main():
     p.add_argument("--stats",      action="store_true",  help="show operational dashboard")
     p.add_argument("--scenario",   type=str, metavar="NAME", help="run a scenario")
     p.add_argument("--scenarios",  action="store_true",      help="list available scenarios")
+    p.add_argument("--report",     action="store_true",      help="generate detection coverage report")
     args = p.parse_args()
 
     if args.list:           cmd_list(args)
@@ -136,6 +137,12 @@ def main():
     elif args.stats:        cmd_stats(args)
     elif args.scenario:     run_scenario(args.scenario, dry_run=args.dry_run)
     elif args.scenarios:    list_scenarios()
+    elif getattr(args, 'report', False):
+        spec = _ilu.spec_from_file_location("generate_report",
+            _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                         "scripts/generate_report.py"))
+        mod = _ilu.module_from_spec(spec); spec.loader.exec_module(mod)
+        mod.generate_report()
     else:                   p.print_help()
 
 if __name__ == "__main__":
