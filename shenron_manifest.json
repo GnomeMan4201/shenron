@@ -67,7 +67,7 @@
       "name": "dragons_breath_destructor",
       "category": "llm",
       "file": "dragons_breath_destructor.py",
-      "description": "",
+      "description": "SHENRON: Dragons Breath Destructor \u2014 aggressive file/process scorched-earth cleanup layer",
       "variant_count": 31
     },
     {
@@ -200,7 +200,7 @@
       "name": "phantom_thread_fabricator",
       "category": "meta",
       "file": "phantom_thread_fabricator.py",
-      "description": "",
+      "description": "SHENRON: Phantom Thread Fabricator \u2014 simulates IO and thread noise for anti-forensic interference",
       "variant_count": 131
     },
     {
@@ -274,13 +274,6 @@
       "variant_count": 63
     },
     {
-      "name": "shenron_bio_replication_dxqpwa",
-      "category": "unknown",
-      "file": "shenron_bio_replication_dxqpwa.py",
-      "description": "SHENRON: Bio-Replication Layer",
-      "variant_count": 15
-    },
-    {
       "name": "shenron_holo_emitter",
       "category": "meta",
       "file": "shenron_holo_emitter.py",
@@ -314,13 +307,6 @@
       "file": "symbiote_payload.py",
       "description": "symbiote_payload.py - SHENRON Layer 3: Parasitic Persistence",
       "variant_count": 123
-    },
-    {
-      "name": "symbiote_payload_jkkful",
-      "category": "unknown",
-      "file": "symbiote_payload_jkkful.py",
-      "description": "symbiote_payload.py - SHENRON Layer 3: Parasitic Persistence",
-      "variant_count": 4
     },
     {
       "name": "synthetic_splinter_seed",
@@ -366,8 +352,8 @@
     }
   ],
   "summary": {
-    "total_canonical": 52,
-    "total_variants": 4373,
+    "total_canonical": 50,
+    "total_variants": 4354,
     "by_category": {
       "identity": 4,
       "evasion": 6,

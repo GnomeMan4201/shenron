@@ -1,4 +1,5 @@
-#!/data/data/com.termux/files/usr/bin/python3
+#!/usr/bin/env python3
+# SHENRON: Phantom Thread Fabricator — simulates IO and thread noise for anti-forensic interference
 import threading, time, os, random
 
 def simulate_io_chatter():

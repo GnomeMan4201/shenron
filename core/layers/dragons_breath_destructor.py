@@ -1,6 +1,7 @@
 from core.engine.payload_registry import register_payload
 
 #!/usr/bin/env python3
+# SHENRON: Dragons Breath Destructor — aggressive file/process scorched-earth cleanup layer
 import os
 import shutil
 import time

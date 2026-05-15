@@ -33,8 +33,16 @@ CATEGORIES = {
 }
 _TYPE_TO_CAT = {layer: cat for cat, layers in CATEGORIES.items() for layer in layers}
 
+# Authoritative set of canonical base names from CATEGORIES
+_CANONICAL_BASES = set(layer for layers in CATEGORIES.values() for layer in layers)
+
 def _get_layer_type(filename):
     stem = Path(filename).stem
+    # If it exactly matches a known canonical name, accept it
+    if stem in _CANONICAL_BASES:
+        return stem
+    # Otherwise check every segment for mutation suffix pattern
+    # Mutation suffixes: 6 chars with mixed case or digits
     parts = stem.split("_")
     for i, part in enumerate(parts):
         if i == 0:
@@ -43,7 +51,12 @@ def _get_layer_type(filename):
             has_upper = any(c.isupper() for c in part)
             has_digit = any(c.isdigit() for c in part)
             if has_upper or has_digit:
-                return None  # mixed case or digit = mutation suffix
+                return None  # mutation suffix, discard
+            # all-lowercase 6-char segment not in a known base = random suffix
+            # check if this prefix up to here matches any known base
+            prefix = "_".join(parts[:i])
+            if prefix in _CANONICAL_BASES:
+                return None  # everything after a known base is a variant
     return stem
 
 def discover_canonical():
