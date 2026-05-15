@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Tuple
 from core.engine.path_adapter import patch_source
 from core.engine import payload_registry
 
-LAYERS_DIR = Path(os.path.expanduser("~/projects/shenron/core/layers"))
+LAYERS_DIR = Path(os.path.expanduser("~/research_hub/repos/shenron/core/layers"))
 
 CATEGORIES = {
     "identity":    ["shenron_bio_replication","forged_bios_artifact","cognitive_replicator","stealth_mimic"],
@@ -14,7 +14,7 @@ CATEGORIES = {
     "persistence": ["dormant_sleeper_seed","undead_memory_latch","memory_hijack_inheritor","shadow_system_rebuilder","self_sealing_nano_sandbox","poltergeist_file_infector"],
     "entropy":     ["quantum_entropy_distorter","entropy_flux_disruptor","entropy_anchor_dropper","neural_entropy_seeder","quantum_state_shuffler","quantum_trace_rewinder","quantum_entanglement_relay","synthetic_splinter_seed"],
     "c2":          ["beacon_emitter_cloak","autonomous_signal_cloner","lateral_webcrawler","parasitic_mesh_crawler","spectral_packet_weaver","temporal_payload_phaser","temporal_mirage_emulator","dreamdive_overlay"],
-    "llm":         ["llm_echo_chamber","llm_shroud_writer","dragons_breath_destructor"],
+    "llm":         ["llm_echo_chamber","llm_shroud_writer","dragons_breath_destructor","encrypted_echo_chamber"],
     "meta":        ["mutation_history","polymorph_chain_stats","manifest_vampire","phantom_thread_fabricator","adaptive_brainstem","shenron_holo_emitter"],
 }
 _TYPE_TO_CAT = {layer: cat for cat, layers in CATEGORIES.items() for layer in layers}
@@ -22,15 +22,11 @@ _TYPE_TO_CAT = {layer: cat for cat, layers in CATEGORIES.items() for layer in la
 def _get_layer_type(filename):
     stem = Path(filename).stem
     parts = stem.split("_")
-    if len(parts) >= 2:
-        last = parts[-1]
-        # Mutation suffixes are 6 chars, mixed case with digits or mixed case
-        # Real words like "shroud", "cloak", "seed" are all lowercase, no digits
-        if re.match(r"^[A-Za-z0-9]{6}$", last):
-            has_upper = any(c.isupper() for c in last)
-            has_digit = any(c.isdigit() for c in last)
-            if has_upper or has_digit:
-                return None
+    for i, part in enumerate(parts):
+        if i == 0:
+            continue
+        if re.match(r"^[A-Za-z0-9]{6}$", part):
+            return None
     return stem
 
 def discover_canonical():
