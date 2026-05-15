@@ -646,12 +646,25 @@
           "authentication",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "proc_mem_access",
+          "token_impersonation",
+          "rwx_region_write"
+        ],
+        "alert_signatures": [
+          "proc/pid/mem access",
+          "token impersonation attempt",
+          "reflective dll pattern"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "memory_probe",
+          "injection_attempt",
+          "token_manipulation",
+          "monitoring_cycle"
+        ],
         "safe": true
       }
     },
@@ -869,12 +882,24 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "recursive_home_traversal",
+          "script_file_append",
+          "hash_change_on_script"
+        ],
+        "alert_signatures": [
+          "script file modified unexpectedly",
+          "home dir recursive walk",
+          "marker appended to .sh or .py"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "candidate_scan",
+          "candidate_evaluation",
+          "infection_sim"
+        ],
         "safe": true
       }
     },
@@ -1059,12 +1084,24 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "hidden_temp_directory",
+          "sandboxed_command_execution",
+          "artifact_cleanup"
+        ],
+        "alert_signatures": [
+          "hidden dot-prefix temp dir",
+          "chroot or namespace creation",
+          "rapid dir create and delete"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "sandbox_setup",
+          "sandboxed_execution",
+          "sandbox_seal"
+        ],
         "safe": true
       }
     },
@@ -1088,12 +1125,23 @@
           "filesystem",
           "scheduled-task"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "file_hash_mismatch",
+          "unauthorized_file_copy",
+          "timestamp_modification"
+        ],
+        "alert_signatures": [
+          "system file hash change",
+          "unexpected file restoration",
+          "timestamp rollback"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "integrity_scan",
+          "shadow_restore"
+        ],
         "safe": true
       }
     },
