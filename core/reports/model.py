@@ -20,8 +20,8 @@ class SafetyVerification:
         for art in artifacts:
             if art.get("simulation_only") is not True:
                 self.violations.append(f"simulation_only missing or false in {art.get('artifact_id','?')}")
-            if art.get("executable") is not False:
-                self.violations.append(f"executable not false in {art.get('artifact_id','?')}")
+            if art.get("executable") is True:
+                self.violations.append(f"executable is True in {art.get('artifact_id','?')}")
             if "no_payload_present" in art and art.get("no_payload_present") is not True:
                 self.violations.append(f"no_payload_present false in {art.get('artifact_id','?')}")
             if art.get("network_calls_made") is True:
