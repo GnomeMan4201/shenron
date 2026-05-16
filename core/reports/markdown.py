@@ -26,7 +26,7 @@ def _safe_badge(passed: bool) -> str:
     return "✅ PASS" if passed else "❌ FAIL"
 
 
-def render_markdown(report: ShenronReport) -> str:
+def render_markdown(report: ShenronReport, validation=None) -> str:
     lines = []
     a = lines.append
 
@@ -214,6 +214,11 @@ def render_markdown(report: ShenronReport) -> str:
     a("---")
     a("")
 
+    # ── Detector Validation (optional) ────────────────────────────────────────
+    if validation is not None:
+        lines.extend(render_validation_section(validation).splitlines())
+        lines.append("")
+
     # ── Evidence Appendix ─────────────────────────────────────────────────────
     a("## Evidence Appendix")
     a("")
@@ -236,11 +241,71 @@ def render_markdown(report: ShenronReport) -> str:
     return "\n".join(lines)
 
 
-def write_report(report: ShenronReport, output_dir: str = "reports") -> str:
+def write_report(report: ShenronReport, output_dir: str = "reports", validation=None) -> str:
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     filename = f"report_{report.run_id[:8]}_{report.campaign_name}.md"
     filename = filename.replace(" ", "_").replace("/", "_")
     path = out / filename
-    path.write_text(render_markdown(report))
+    path.write_text(render_markdown(report, validation=validation))
     return str(path)
+
+
+def render_validation_section(cov: "DetectionCoverageReport") -> str:
+    from core.validation.coverage import DetectionStatus
+    lines = []
+    a = lines.append
+
+    verdict_badge = {
+        "PASS":    "✅ PASS",
+        "PARTIAL": "⚠️ PARTIAL",
+        "FAIL":    "❌ FAIL",
+        "UNSAFE":  "🚨 UNSAFE",
+        "UNKNOWN": "❓ UNKNOWN",
+    }.get(cov.verdict, cov.verdict)
+
+    a("## Detector Validation")
+    a("")
+    a(f"**Verdict: {verdict_badge}**")
+    a("")
+    a("| Metric | Value |")
+    a("|--------|-------|")
+    a(f"| Expected Detections | {cov.expected_count} |")
+    a(f"| Observed (PASS) | {cov.observed_count} |")
+    a(f"| Partial Matches | {cov.partial_count} |")
+    a(f"| Missing (MISS) | {cov.missing_count} |")
+    a(f"| Coverage | **{cov.coverage_percent}%** |")
+    a(f"| High-Signal Events | {cov.high_signal_count} |")
+    a(f"| Safety Failures | {cov.safety_failure_count} |")
+    a("")
+
+    if cov.results:
+        a("### Coverage Table")
+        a("")
+        a("| Status | Detection | Layer | Reason |")
+        a("|--------|-----------|-------|--------|")
+        for r in cov.results:
+            badge = {"PASS": "✅", "MISS": "❌", "PARTIAL": "⚠️"}.get(r.status.value, "?")
+            layer = f"`{r.matched_layer}`" if r.matched_layer else "—"
+            reason = r.match_reason[:60] if r.match_reason else "—"
+            a(f"| {badge} {r.status.value} | `{r.expectation.name}` | {layer} | {reason} |")
+        a("")
+
+    missing = [r for r in cov.results if r.status == DetectionStatus.MISS]
+    if missing:
+        a("### Missing Detections")
+        a("")
+        a("These expected detections had no matching synthetic artifact or manifest signal:")
+        a("")
+        for r in missing:
+            mitre = f" `{r.expectation.mitre_technique}`" if r.expectation.mitre_technique else ""
+            a(f"- **`{r.expectation.name}`**{mitre} — {r.match_reason}")
+        a("")
+
+    if cov.safety_failure_count > 0:
+        a("> ⚠️ Safety failures detected — verdict degraded to UNSAFE regardless of coverage score.")
+        a("")
+
+    a("---")
+    a("")
+    return "\n".join(lines)

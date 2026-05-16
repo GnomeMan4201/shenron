@@ -3,6 +3,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from core.engine import payload_registry
 from core.engine.scenario_engine import run_scenario, list_scenarios, BUILTIN_SCENARIOS
 from core.reports.evidence import load_latest_report, load_report_by_run_id
+from core.validation.scorer import score_latest, score_by_run_id
 from core.reports.markdown import write_report, render_markdown
 from core.engine.layer_loader import (
     load_all, load_layer, discover_canonical,
@@ -129,6 +130,10 @@ def main():
     p.add_argument("--report-v2",  type=str, nargs="?", const="latest", metavar="RUN_ID",
                    help="generate v2 report: latest or <run_id>")
     p.add_argument("--format",     type=str, default="markdown", help="report format (markdown)")
+    p.add_argument("--validate",   type=str, nargs="?", const="latest", metavar="RUN_ID",
+                   help="run detector validation: latest or <run_id>")
+    p.add_argument("--include-validation", action="store_true",
+                   help="include detector validation in report-v2 output")
     args = p.parse_args()
 
     if args.list:           cmd_list(args)
@@ -142,6 +147,22 @@ def main():
     elif args.stats:        cmd_stats(args)
     elif args.scenario:     run_scenario(args.scenario, dry_run=args.dry_run)
     elif args.scenarios:    list_scenarios()
+    elif args.validate is not None:
+        run_id = args.validate
+        cov = score_by_run_id(run_id) if run_id != 'latest' else score_latest()
+        if cov is None:
+            print(f'  [!] No campaign run found for: {run_id}')
+        else:
+            print(f'\n  [VALIDATION]  {cov.campaign_name}')
+            print(f'  [RUN_ID]      {cov.run_id}')
+            print(f'  [EXPECTED]    {cov.expected_count}')
+            print(f'  [OBSERVED]    {cov.observed_count}')
+            print(f'  [PARTIAL]     {cov.partial_count}')
+            print(f'  [MISSING]     {cov.missing_count}')
+            print(f'  [COVERAGE]    {cov.coverage_percent}%')
+            print(f'  [SAFETY FAIL] {cov.safety_failure_count}')
+            print(f'  [VERDICT]     {cov.verdict}')
+            print()
     elif args.report_v2 is not None:
         run_id = args.report_v2
         rpt = load_report_by_run_id(run_id) if run_id != 'latest' else load_latest_report()
@@ -149,7 +170,10 @@ def main():
             print(f'  [!] No report found for: {run_id}')
         else:
             from pathlib import Path as _P
-            path_out = write_report(rpt, output_dir='reports')
+            cov = None
+            if getattr(args, 'include_validation', False):
+                cov = score_by_run_id(run_id) if run_id != 'latest' else score_latest()
+            path_out = write_report(rpt, output_dir='reports', validation=cov)
             print(f'  [+] Report written: {path_out}')
             print(f'  [+] Safety contract: {"PASS" if rpt.safety.all_passed else "FAIL"}')
     elif getattr(args, 'report', False):
