@@ -129,6 +129,8 @@ def main():
                 help="export ATT&CK Navigator layer for a run (default: latest)")
     p.add_argument("--navigator-out", type=str, default=None, metavar="PATH",
                 help="output path for Navigator JSON")
+    p.add_argument("--release-demo",  action="store_true",
+                help="build complete release artifact bundle")
     p.add_argument("--demo",          action="store_true",
                 help="run safe 40-event demo pipeline (JSONL + report + charts)")
     p.add_argument("--charts",        action="store_true",
@@ -178,6 +180,12 @@ def main():
             print(f'  [COVERAGE]    {cov.coverage_percent}%')
             print(f'  [SAFETY FAIL] {cov.safety_failure_count}')
             print(f'  [VERDICT]     {cov.verdict}')
+
+    elif args.release_demo:
+        from scripts.release_demo import run_release_demo
+        version = "v0.2.0"
+        out_dir = args.out_dir if hasattr(args, "out_dir") and args.out_dir != "artifacts/demo" else f"release/shenron-{version}-demo"
+        run_release_demo(out_dir, version)
 
     elif args.demo:
         import os
