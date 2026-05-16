@@ -19,11 +19,12 @@ import random
 from datetime import datetime, timezone
 from pathlib import Path
 
-ARTIFACT_LOG = Path("/home/gnomeman4201/SHENRON/logs/simulation_artifacts.jsonl")
+from core.config import artifact_log_path as _artifact_log_path
 
 def _get_artifact_log():
-    ARTIFACT_LOG.parent.mkdir(parents=True, exist_ok=True)
-    return ARTIFACT_LOG
+    p = _artifact_log_path()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    return p
 
 FAKE_EXFIL_PROTOCOLS_SIM = [
     {"proto": "TCP",  "direction": "outbound", "desc": "raw tcp stream"},
@@ -76,7 +77,7 @@ def simulate_exfil_shell():
         "bind_addr_sim": "0.0.0.0_sim",
         "listen_backlog_sim": 1,
         "lifecycle_sim": "one_shot",
-        "log_path_sim": "/home/gnomeman4201/SHENRON/logs/exfil_transients_sim.log",
+        "log_path_sim": "~/SHENRON/logs/exfil_transients_sim.log",
         "detection_opportunities": [
             "ephemeral_high_port_tcp_listener_single_connection_lifecycle",
             "one_shot_bind_accept_dissolve_pattern",
@@ -133,7 +134,7 @@ def simulate_exfil_shell():
         "port_released_sim": port_sim,
         "cleanup_delay_sim": round(random.uniform(2.5, 4.0), 2),
         "log_entry_written_sim": True,
-        "log_path_sim": "/home/gnomeman4201/SHENRON/logs/exfil_transients_sim.log",
+        "log_path_sim": "~/SHENRON/logs/exfil_transients_sim.log",
         "detection_opportunities": [
             "ephemeral_high_port_tcp_listener_single_connection_lifecycle",
         ],

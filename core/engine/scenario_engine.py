@@ -17,7 +17,11 @@ from core.engine.layer_loader import load_layer, discover_canonical
 from core.engine import payload_registry
 
 SCENARIO_DIR = Path(__file__).parent.parent.parent / "scenarios"
-TIMELINE_LOG = Path("/home/gnomeman4201/SHENRON/logs/scenario_timelines.jsonl")
+from core.config import timeline_log_path as _timeline_log_path
+def _get_timeline_log_compat():
+    p = _timeline_log_path()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    return p
 
 def _get_timeline_log():
     TIMELINE_LOG.parent.mkdir(parents=True, exist_ok=True)
@@ -253,7 +257,7 @@ def run_scenario(scenario_name_or_path, dry_run=False, verbose=True):
     if verbose:
         print(f"  [COMPLETE]    {ok_count}/{len(results)} stages ok")
         print(f"  [TIMELINE]    {_get_timeline_log()}")
-        print(f"  [ARTIFACTS]   /home/gnomeman4201/SHENRON/logs/simulation_artifacts.jsonl")
+        print(f"  [ARTIFACTS]   {artifact_log_path()}")
         print()
 
     return scenario_id, results

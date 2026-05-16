@@ -12,9 +12,16 @@ import random
 import string
 from datetime import datetime
 from pathlib import Path
+from core.config import artifact_log_path as _artifact_log_path
+
+def _get_artifact_log():
+    p = _artifact_log_path()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    return p
+
+
 
 # ── Output paths ──────────────────────────────────────────────────────────────
-ARTIFACT_LOG = Path("/home/gnomeman4201/SHENRON/logs/simulation_artifacts.jsonl")
 ARTIFACT_LOG.parent.mkdir(parents=True, exist_ok=True)
 
 # ── Input validation ──────────────────────────────────────────────────────────

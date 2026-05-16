@@ -14,11 +14,12 @@ import random
 from datetime import datetime, timezone
 from pathlib import Path
 
-ARTIFACT_LOG = Path("/home/gnomeman4201/SHENRON/logs/simulation_artifacts.jsonl")
+from core.config import artifact_log_path as _artifact_log_path
 
 def _get_artifact_log():
-    ARTIFACT_LOG.parent.mkdir(parents=True, exist_ok=True)
-    return ARTIFACT_LOG
+    p = _artifact_log_path()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    return p
 
 FAKE_LEGITIMATE_NAMES = [
     {"name": "logd",            "type": "system_daemon"},

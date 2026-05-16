@@ -13,8 +13,7 @@ from core.reports.evidence import (
     group_artifacts_by_layer, verify_safety, _load_manifest_index,
 )
 
-ARTIFACT_LOG = Path("/home/gnomeman4201/SHENRON/logs/simulation_artifacts.jsonl")
-TIMELINE_LOG = Path("/home/gnomeman4201/SHENRON/logs/scenario_timelines.jsonl")
+from core.config import artifact_log_path as _artifact_log_path, timeline_log_path as _timeline_log_path
 
 
 # ── Matching helpers ──────────────────────────────────────────────────────────

@@ -10,9 +10,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from core.bananatree.cycle import BananaTreeCycle, Phase, PhaseResult, SAFETY_CONTRACT
 from core.engine.layer_loader import discover_canonical, load_layer
 from core.engine import payload_registry
+from core.config import artifact_log_path, timeline_log_path, mutation_history_path, get_report_dir
 
-ARTIFACT_LOG  = Path("/home/gnomeman4201/SHENRON/logs/simulation_artifacts.jsonl")
-TIMELINE_LOG  = Path("/home/gnomeman4201/SHENRON/logs/scenario_timelines.jsonl")
+ARTIFACT_LOG  = artifact_log_path()
+TIMELINE_LOG  = timeline_log_path()
 MANIFEST_PATH = Path(__file__).parent.parent.parent / "shenron_manifest.json"
 
 

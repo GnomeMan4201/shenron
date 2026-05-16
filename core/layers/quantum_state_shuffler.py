@@ -19,14 +19,15 @@ import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
 
-ARTIFACT_LOG = Path("/home/gnomeman4201/SHENRON/logs/simulation_artifacts.jsonl")
+from core.config import artifact_log_path as _artifact_log_path
 
 def _get_artifact_log():
-    ARTIFACT_LOG.parent.mkdir(parents=True, exist_ok=True)
-    return ARTIFACT_LOG
+    p = _artifact_log_path()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    return p
 
-FAKE_PAYLOAD_DIR_SIM = "/home/gnomeman4201/SHENRON/core/payloads/stealth_sim/"
-FAKE_SHUFFLED_DIR_SIM = "/home/gnomeman4201/SHENRON/core/payloads/shuffled_states_sim/"
+FAKE_PAYLOAD_DIR_SIM = "~/SHENRON/core/payloads/stealth_sim/"
+FAKE_SHUFFLED_DIR_SIM = "~/SHENRON/core/payloads/shuffled_states_sim/"
 
 FAKE_PAYLOAD_NAMES_SIM = [
     "stealth_beacon_sim.py", "persist_hook_sim.py",

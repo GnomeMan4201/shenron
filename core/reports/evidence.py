@@ -8,8 +8,8 @@ from core.reports.model import (
     EvidenceRef, MITRECoverage, SafetyVerification
 )
 
-ARTIFACT_LOG  = Path("/home/gnomeman4201/SHENRON/logs/simulation_artifacts.jsonl")
-TIMELINE_LOG  = Path("/home/gnomeman4201/SHENRON/logs/scenario_timelines.jsonl")
+from core.config import artifact_log_path as _artifact_log_path, timeline_log_path as _timeline_log_path
+
 MANIFEST_PATH = Path(__file__).parent.parent.parent / "shenron_manifest.json"
 
 REQUIRED_SAFE = {
@@ -19,7 +19,9 @@ REQUIRED_SAFE = {
 FORBIDDEN_TRUE = ["network_calls_made", "processes_spawned", "socket_bound"]
 
 
-def load_artifacts(path: Path = ARTIFACT_LOG) -> list:
+def load_artifacts(path: Path = None) -> list:
+    if path is None:
+        path = _artifact_log_path()
     if not path.exists():
         return []
     records = []
@@ -34,7 +36,9 @@ def load_artifacts(path: Path = ARTIFACT_LOG) -> list:
     return records
 
 
-def load_timeline(path: Path = TIMELINE_LOG) -> list:
+def load_timeline(path: Path = None) -> list:
+    if path is None:
+        path = _timeline_log_path()
     return load_artifacts(path)
 
 
