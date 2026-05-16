@@ -1,9 +1,8 @@
 ---
-title: "Observable Adversarial Behavior, Not Portable Adversarial Procedure"
+title: Observable Adversarial Behavior, Not Portable Adversarial Procedure
 published: true
 tags: security, blueteam, python, opensource
-description: "How I built SHENRON as a defensive telemetry simulation lab for blue-team validation without shipping the attack."
-cover_image: https://raw.githubusercontent.com/GnomeMan4201/shenron/main/assets/shenron_banner.png
+cover_image: https://dev-to-uploads.s3.amazonaws.com/uploads/articles/zbsteotk0ldx8yzwfr3u.png
 ---
 
 *How I built SHENRON as a defensive telemetry simulation lab for blue-team validation without shipping the attack.*
@@ -17,6 +16,8 @@ There is a specific problem that comes up when you are building detection system
 You can read ATT&CK. You can study threat intelligence reports. You can look at PCAP samples from controlled captures. But actually producing a continuous, structured stream of adversarial-shaped events — the kind your SIEM rules are supposed to fire on — without introducing real malware into your environment is harder than it sounds.
 
 That is the problem I built SHENRON to solve.
+
+> **Note on history:** Earlier articles about SHENRON described an earlier architecture with different goals. The current codebase is a ground-up rewrite as a telemetry simulation harness. The older articles describe that prior architecture. This article describes what SHENRON is now.
 
 ---
 
@@ -36,9 +37,7 @@ This is not a disclaimer. It is an architectural constraint.
 
 Every layer is structured so that the real behavior it represents is described in the artifact metadata, not performed by the code. A C2 beaconing layer contains data structures describing timing intervals, entropy patterns, and protocol shapes. Not socket calls. A persistence layer describes what cron modification looks like as a log event sequence. It does not write to cron.
 
-The safety verifier scans every artifact and flags violations. A single violation produces `VERDICT: UNSAFE` regardless of coverage score. The test suite has 117 tests, 35 of which are specifically about the validation and safety systems.
-
-This matters because the goal is to generate training data for defenders — and training data that contains real payloads is not training data, it is a liability.
+The safety verifier scans every artifact and flags violations. A single violation produces `VERDICT: UNSAFE` regardless of coverage score.
 
 ---
 
@@ -46,27 +45,34 @@ This matters because the goal is to generate training data for defenders — and
 
 SHENRON is a Python-based defensive adversarial telemetry simulation platform. It has 50 simulation layers, each representing a different adversarial technique or behavior class, organized through a four-phase campaign model called bananaTREE: OBSERVE, SIMULATE, EXECUTE, ADAPT.
 
-Every layer emits structured JSONL artifacts. Every artifact carries an explicit safety contract: `simulation_only: true`, `executable: false`, `no_payload_present: true`.
+Every layer emits structured JSONL artifacts. Every artifact carries an explicit safety contract:
 
-A typical synthetic event looks like this:
-
-````json
+```json
 {
-  "artifact_id": "a4f2c1d8-...",
+  "run_id": "demo-dca95fa7a6aa",
+  "sequence": 1,
+  "phase": "OBSERVE",
   "layer": "beacon_emitter_cloak",
-  "behavior_class": "http_beacon_sim",
-  "technique": "T1071",
-  "signal": "periodic_beacon_to_external_host",
-  "interval_sim": 60,
-  "jitter_sim": 0.12,
-  "simulation_only": true,
-  "executable": false,
-  "no_payload_present": true
+  "event_type": "synthetic_telemetry",
+  "signal": "periodic_beacon",
+  "mitre_technique": "T1071.001",
+  "description": "C2 beaconing shape — timing interval model",
+  "entropy": 5.1859,
+  "safety": {
+    "simulation_only": true,
+    "executable": false,
+    "payload_present": false,
+    "portable_adversarial_procedure": false,
+    "network_connection": false,
+    "subprocess_spawned": false,
+    "real_file_written": false,
+    "shell_invoked": false
+  },
+  "note": "SYNTHETIC RECORD — not produced by real adversarial execution"
 }
 ```
 
 The core principle:
-
 > **Observable adversarial behavior, not portable adversarial procedure.**
 
 SHENRON documents what adversarial activity looks like from a defender's perspective. It does not implement that activity.
@@ -75,7 +81,7 @@ SHENRON documents what adversarial activity looks like from a defender's perspec
 
 ## Why I built it this way
 
-I have been doing independent security research for a few years, self-taught, working primarily in Python and Bash on a mid-grade laptop and an Android smartphone. I am interested in the defensive side — specifically in the gap between "we have detection rules" and "we have validated that our detection rules fire on realistic telemetry."
+I have been doing independent security research for a few years, self-taught, working primarily in Python and bash on a mid-grade laptop and an Android smartphone. I am interested in the defensive side — specifically in the gap between "we have detection rules" and "we have validated that our detection rules fire on realistic telemetry."
 
 That gap is large. Most SIEM rules have never been tested against realistic adversarial event sequences. You find out they do not work when something real happens.
 
@@ -93,7 +99,7 @@ bananaTREE organizes SHENRON campaigns into four phases:
 
 **SIMULATE** — generate synthetic telemetry for detector training. Evasion, payload, and LLM-manipulation layers run here.
 
-**EXECUTE** — run persistence and lateral movement simulators to produce full artifact timelines. Multi-phase event sequences representing installation, trigger registration, and activation — all synthetic. In SHENRON, EXECUTE means executing the simulation workflow, not executing adversarial procedures on the host.
+**EXECUTE** — run persistence and lateral movement simulators to produce full artifact timelines. Multi-phase event sequences representing installation, trigger registration, and activation — all synthetic.
 
 **ADAPT** — score detection coverage and identify gaps.
 
@@ -101,21 +107,21 @@ A campaign is a JSON file specifying which layers run in each phase and what det
 
 ```json
 {
-"name": "c2_shape_detection_test",
-"phases": {
-"OBSERVE": {
-"layers": ["beacon_emitter_cloak", "autonomous_signal_cloner"],
-"expected_findings": ["periodic_beacon", "signal_clone_across_interfaces"]
-},
-"SIMULATE": {
-"layers": ["spectral_packet_weaver", "void_gateway_tunnel"],
-"expected_findings": ["covert_channel_traffic", "dns_tunneling_high_entropy"]
-}
-}
+  "name": "c2_shape_detection_test",
+  "phases": {
+    "OBSERVE": {
+      "layers": ["beacon_emitter_cloak", "autonomous_signal_cloner"],
+      "expected_findings": ["periodic_beacon", "signal_clone_across_interfaces"]
+    },
+    "SIMULATE": {
+      "layers": ["spectral_packet_weaver", "void_gateway_tunnel"],
+      "expected_findings": ["covert_channel_traffic", "dns_tunneling_high_entropy"]
+    }
+  }
 }
 ```
 
-The runner validates the scenario, executes phases in order, and returns a complete cycle object with run ID, phase results, and MITRE coverage aggregation.
+The runner validates the scenario, executes phases in order, and returns a complete cycle object with run ID, phase results, and MITRE ATT&CK descriptor aggregation across synthetic events.
 
 ---
 
@@ -140,8 +146,6 @@ After a campaign run, `--validate latest` compares every expected detection sign
 
 PASS requires ≥80% coverage AND zero safety violations. Any safety failure produces UNSAFE regardless of coverage score.
 
-Note: MITRE coverage here means simulated telemetry coverage against mapped technique labels, not proof that a production environment can detect live technique execution.
-
 ---
 
 ## Why synthetic telemetry matters
@@ -156,88 +160,59 @@ SHENRON tests the telemetry pipeline layer — logging, SIEM ingestion, correlat
 
 ---
 
-## What the output actually looks like
+## Example synthetic output
 
-A useful way to judge SHENRON is not by asking whether it behaves like malware.
+The following visuals come from SHENRON's safe demo artifact generator.
 
-It does not.
+This is not live adversarial execution, not a red-team procedure, and not proof of real-world detector coverage. It is a synthetic telemetry run designed to show event shape, phase structure, MITRE-style descriptors, signal vocabulary, and safety-contract fields.
 
-The better question is:
+The demo emits 40 synthetic records across the bananaTREE phases: OBSERVE, SIMULATE, EXECUTE, and ADAPT. Every record carries explicit safety fields such as `simulation_only: true`, `payload_present: false`, `executable: false`, `network_connection: false`, and `portable_adversarial_procedure: false`.
 
-> Can it produce adversarial-shaped telemetry that is structured enough to test defensive logic without creating portable adversarial procedure?
+**What these charts prove:**
+- The generator produces structured events across all four bananaTREE phases
+- Every record carries the full safety contract
+- MITRE-style technique descriptors are correctly mapped across 32 technique IDs in synthetic demo events
+- Zero safety violations across all 40 records
 
-A generated event can still be useful to a defender because a detector, parser, report generator, or SIEM pipeline can ask practical questions:
+**What these charts do not prove:**
+- That a real SIEM has ingested these events
+- That real detection rules have fired on this output
+- That the full 50-layer scenario produces the same distribution (that requires running `shenron.py --run all` on the actual repo)
 
-- Did the expected field exist?
-- Did the rule map the signal correctly?
-- Did the campaign phase survive parsing?
-- Did the report preserve the technique context?
-- Did the validation layer observe the signal it expected?
+{% raw %}
+![Phase frequency chart showing 10 events per bananaTREE phase](https://raw.githubusercontent.com/GnomeMan4201/shenron/main/docs/assets/shenron-demo/phase_frequency.png)
+*⚠ Synthetic telemetry — demo generator output, not live campaign execution*
 
-But the event is not useful for offensive reuse because there is no payload, no execution primitive, no live network behavior, and no procedure to port.
+![MITRE ATT&CK descriptor distribution across synthetic demo events](https://raw.githubusercontent.com/GnomeMan4201/shenron/main/docs/assets/shenron-demo/technique_frequency.png)
+*⚠ MITRE-style technique distribution across synthetic demo events — not real ATT&CK validation or detector coverage*
 
-## Visualizing the synthetic signal shape
+![Safety contract verification — all 8 fields, zero violations](https://raw.githubusercontent.com/GnomeMan4201/shenron/main/docs/assets/shenron-demo/safety_boundary.png)
+*Green bars = 0 violations. Every event passed the full safety contract.*
 
-The most useful SHENRON output is not a single event. It is the shape of the event set.
+![Synthetic event timeline across bananaTREE phases](https://raw.githubusercontent.com/GnomeMan4201/shenron/main/docs/assets/shenron-demo/event_timeline.png)
+*⚠ Synthetic timing model — not real event timestamps*
+{% endraw %}
 
-A campaign can produce:
-
-- a synthetic event timeline
-- signal frequency counts
-- technique or layer frequency counts
-- expected-vs-observed validation
-- a human-readable report
-
-That makes the project more like a defensive telemetry wind tunnel than an exploit simulator.
-
-The point is not:
-
-> Can this attack a system?
-
-The point is:
-
-> Can this generate enough observable structure to test whether defensive tooling recognizes what it claims to recognize?
-
-## Important limitation
-
-Synthetic telemetry validates the shape and routing of detection logic, not real adversary execution.
-
-If a rule fails here, it likely has a vocabulary, field-mapping, parser, or correlation problem.
-
-If a rule passes here, that only means the rule recognized the simulated signal. Real adversarial emulation is still required to test process behavior, network controls, endpoint response, and environmental side effects.
-
-## The shortest version
-
-SHENRON is not a red-team tool.
-
-It is a defensive simulation harness for generating adversarial-shaped telemetry without adversarial execution.
-
-That boundary matters because detection engineering needs realistic signal structure, but publishing portable adversarial procedure creates a different risk category entirely.
-
-The goal is not to make attacks easier to run.
-
-The goal is to make defensive assumptions easier to inspect.
-
-
+---
 
 ## What v0.1.0 can and cannot do
 
 **Can:**
+
 - Generate realistic-shape adversarial telemetry across 50 technique categories
-
-> By realistic-shape telemetry, I mean structurally similar event fields, timing patterns, technique labels, and correlation sequences — not real execution.
-
 - Organize simulation campaigns through bananaTREE phases
 - Score expected detection coverage against produced telemetry
-- Generate 10-section markdown reports with MITRE coverage tables
+- Generate markdown reports with MITRE ATT&CK descriptor tables across synthetic events
 - Run in any Python 3.10+ environment with no external dependencies
 - Be configured to any log directory via `SHENRON_HOME` environment variable
 
 **Cannot:**
+
 - Test network-layer controls — no real network calls are made
 - Validate EDR behavioral detection — no real process execution occurs
 - Substitute for adversarial emulation where real execution is required
 - Measure detection of kernel-level artifacts
+- Prove that detection rules fire on production telemetry — that requires a real SIEM integration
 
 These are structural limitations, not gaps to be filled by relaxing the safety boundary. v0.2.0 will add higher-fidelity telemetry modeling, validation history, and run comparison — still synthetic, still non-executable.
 
@@ -254,7 +229,17 @@ python3 shenron.py --validate latest
 python3 shenron.py --report-v2 latest --include-validation
 ```
 
+To reproduce the demo artifacts and charts independently:
+
+```bash
+python3 scripts/generate_demo_artifacts.py --out-dir ./artifacts
+python3 scripts/generate_charts.py --jsonl ./artifacts/shenron_demo_run.jsonl \
+    --out-dir ./docs/assets/shenron-demo
+```
+
 See [docs/EXAMPLE_WORKFLOW.md](https://github.com/GnomeMan4201/shenron/blob/main/docs/EXAMPLE_WORKFLOW.md) for full usage including bananaTREE campaign scenarios.
+
+---
 
 ## What comes next
 
@@ -268,25 +253,4 @@ The safety boundary does not move between versions.
 **Tag:** v0.1.0 — 50 layers, 117 tests, zero hardcoded paths, PASS verdict.
 
 *gnomeman4201 / badBANANA Research Collective*
-
 > Observable adversarial behavior, not portable adversarial procedure.
-
-
-## Example visual output
-
-Synthetic technique / layer frequency:
-
-![SHENRON synthetic technique frequency](https://raw.githubusercontent.com/gnomeman4201/shenron/main/docs/assets/shenron-demo/technique_frequency.png)
-
-Synthetic signal frequency:
-
-![SHENRON synthetic signal frequency](https://raw.githubusercontent.com/gnomeman4201/shenron/main/docs/assets/shenron-demo/signal_frequency.png)
-
-Synthetic phase frequency:
-
-![SHENRON synthetic phase frequency](https://raw.githubusercontent.com/gnomeman4201/shenron/main/docs/assets/shenron-demo/phase_frequency.png)
-
-Safety boundary:
-
-![SHENRON safety boundary](https://raw.githubusercontent.com/gnomeman4201/shenron/main/docs/assets/shenron-demo/safety_boundary.png)
-
