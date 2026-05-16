@@ -1,0 +1,59 @@
+{
+  "name": "entropy_obfuscation_sweep",
+  "description": "Sweep entropy manipulation patterns for ML/SIEM blind spot detection",
+  "author": "gnomeman4201",
+  "version": "1.0",
+  "phases": {
+    "OBSERVE": {
+      "description": "Profile entropy distribution patterns",
+      "layers": [
+        "quantum_entropy_distorter",
+        "entropy_flux_disruptor",
+        "neural_entropy_seeder"
+      ],
+      "expected_findings": [
+        "log_high_entropy_non_logging_source",
+        "multi_vector_entropy_fingerprint",
+        "ml_path_entropy_seed"
+      ]
+    },
+    "SIMULATE": {
+      "description": "Generate obfuscation-shaped telemetry",
+      "layers": [
+        "quantum_state_shuffler",
+        "entropy_anchor_dropper",
+        "temporal_payload_phaser",
+        "llm_shroud_writer"
+      ],
+      "expected_findings": [
+        "md5_derived_filename_pattern",
+        "temp_file_create_delete_5s",
+        "time_gated_obfuscation"
+      ]
+    },
+    "EXECUTE": {
+      "description": "Run trace rewind and skinwalker simulators",
+      "layers": [
+        "quantum_trace_rewinder",
+        "payload_skinwalker",
+        "obfuscated_skinwalker_dropper"
+      ],
+      "expected_findings": [
+        "recursive_mtime_modification",
+        "system_named_exec_tmp",
+        "binary_hash_mismatch"
+      ]
+    },
+    "ADAPT": {
+      "description": "Update entropy thresholds and obfuscation rules",
+      "layers": [
+        "shenron_holo_emitter",
+        "mutation_history"
+      ],
+      "expected_findings": [
+        "entropy_threshold_to_calibrate",
+        "obfuscation_rules_to_add"
+      ]
+    }
+  }
+}

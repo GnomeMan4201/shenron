@@ -1,0 +1,57 @@
+{
+  "name": "c2_shape_detection_test",
+  "description": "Test detection coverage for C2 channel shapes",
+  "author": "gnomeman4201",
+  "version": "1.0",
+  "phases": {
+    "OBSERVE": {
+      "description": "Map C2 signal surface",
+      "layers": [
+        "beacon_emitter_cloak",
+        "autonomous_signal_cloner",
+        "quantum_entanglement_relay"
+      ],
+      "expected_findings": [
+        "periodic_beacon",
+        "signal_clone_across_interfaces",
+        "persistent_relay_nonstandard_port"
+      ]
+    },
+    "SIMULATE": {
+      "description": "Generate C2-shaped telemetry",
+      "layers": [
+        "spectral_packet_weaver",
+        "void_gateway_tunnel",
+        "dreamdive_overlay"
+      ],
+      "expected_findings": [
+        "covert_channel_traffic",
+        "dns_tunneling_high_entropy",
+        "synthetic_log_non_system_source"
+      ]
+    },
+    "EXECUTE": {
+      "description": "Run lateral and mesh simulators",
+      "layers": [
+        "lateral_webcrawler",
+        "parasitic_mesh_crawler",
+        "temporal_mirage_emulator"
+      ],
+      "expected_findings": [
+        "subnet_sweep",
+        "lan_mesh_propagation",
+        "timestamp_rollback"
+      ]
+    },
+    "ADAPT": {
+      "description": "Tune beacon interval and DNS entropy rules",
+      "layers": [
+        "manifest_vampire"
+      ],
+      "expected_findings": [
+        "dns_label_entropy_threshold",
+        "beacon_interval_rule_to_tune"
+      ]
+    }
+  }
+}

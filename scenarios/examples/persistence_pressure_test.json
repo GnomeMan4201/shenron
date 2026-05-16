@@ -1,0 +1,53 @@
+{
+  "name": "persistence_pressure_test",
+  "description": "Pressure-test persistence detection across all six persistence mechanisms",
+  "author": "gnomeman4201",
+  "version": "1.0",
+  "phases": {
+    "OBSERVE": {
+      "description": "Enumerate persistence detection surface",
+      "layers": [
+        "adaptive_brainstem"
+      ],
+      "expected_findings": [
+        "state_file_round_counter_in_hidden_dotpath"
+      ]
+    },
+    "SIMULATE": {
+      "description": "Generate persistence-shaped telemetry",
+      "layers": [
+        "poltergeist_file_infector",
+        "self_sealing_nano_sandbox",
+        "shadow_system_rebuilder"
+      ],
+      "expected_findings": [
+        "script_file_modified_unexpectedly",
+        "hidden_temp_dir",
+        "system_file_hash_change"
+      ]
+    },
+    "EXECUTE": {
+      "description": "Run all persistence simulators",
+      "layers": [
+        "dormant_sleeper_seed",
+        "undead_memory_latch",
+        "memory_hijack_inheritor"
+      ],
+      "expected_findings": [
+        "scheduled_task_creation",
+        "process_injection_pattern",
+        "token_impersonation"
+      ]
+    },
+    "ADAPT": {
+      "description": "Review findings \u2014 update persistence detection rules",
+      "layers": [
+        "mutation_history",
+        "polymorph_chain_stats"
+      ],
+      "expected_findings": [
+        "coverage_gaps_in_persistence_category"
+      ]
+    }
+  }
+}

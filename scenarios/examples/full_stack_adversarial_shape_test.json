@@ -1,0 +1,88 @@
+{
+  "name": "full_stack_adversarial_shape_test",
+  "description": "Full bananaTREE cycle \u2014 all four phases, maximum detection surface",
+  "author": "gnomeman4201",
+  "version": "1.0",
+  "phases": {
+    "OBSERVE": {
+      "description": "Enumerate full adversarial signal surface",
+      "layers": [
+        "beacon_emitter_cloak",
+        "autonomous_signal_cloner",
+        "cognitive_replicator",
+        "shenron_bio_replication",
+        "neural_entropy_seeder",
+        "llm_echo_chamber"
+      ],
+      "expected_findings": [
+        "c2_beacon_surface_mapped",
+        "signal_clone_multi_interface",
+        "synthetic_fingerprint_pattern",
+        "ml_entropy_seed_timing",
+        "llm_hallucination_pattern"
+      ]
+    },
+    "SIMULATE": {
+      "description": "Generate full evasion, payload, LLM telemetry",
+      "layers": [
+        "anti_forensics_molt",
+        "mirror_loop_deflector",
+        "evasion_lure_illusion",
+        "airlock_quarantine_cloak",
+        "spectral_rootkit_shroud",
+        "deadzone_payload",
+        "symbiote_payload",
+        "llm_shroud_writer"
+      ],
+      "expected_findings": [
+        "log_deletion_pattern",
+        "process_masquerade",
+        "lure_deployment",
+        "av_quarantine_bypass",
+        "syscall_hook_artifact",
+        "dead_drop_zone",
+        "rc_injection_pattern"
+      ]
+    },
+    "EXECUTE": {
+      "description": "Run persistence and lateral movement simulators",
+      "layers": [
+        "dormant_sleeper_seed",
+        "undead_memory_latch",
+        "memory_hijack_inheritor",
+        "shadow_system_rebuilder",
+        "self_sealing_nano_sandbox",
+        "poltergeist_file_infector",
+        "lateral_webcrawler",
+        "parasitic_mesh_crawler",
+        "transient_exfil_shell"
+      ],
+      "expected_findings": [
+        "scheduled_task_creation",
+        "process_injection",
+        "token_manipulation",
+        "system_file_hash_change",
+        "hidden_sandbox",
+        "script_infection",
+        "subnet_sweep",
+        "mesh_propagation",
+        "ephemeral_exfil_shell"
+      ]
+    },
+    "ADAPT": {
+      "description": "Synthesize findings \u2014 produce detection recommendations",
+      "layers": [
+        "adaptive_brainstem",
+        "manifest_vampire",
+        "mutation_history",
+        "polymorph_chain_stats"
+      ],
+      "expected_findings": [
+        "coverage_gaps_by_mitre_technique",
+        "detection_rules_to_create",
+        "siem_log_sources_to_enable",
+        "alert_thresholds_to_tune"
+      ]
+    }
+  }
+}
