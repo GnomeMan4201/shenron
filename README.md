@@ -1,229 +1,324 @@
-# aish — AI Session Handoff CLI
+# SHENRON
 
-**Local-first CLI for preserving, summarising, archiving, and handing off long AI browser conversations.**
+**Observable adversarial behavior, not portable adversarial procedure.**
 
-Built for legitimate personal workflow continuity when switching between AI accounts or models.
+A Python-based defensive adversarial telemetry simulation platform. SHENRON generates structured synthetic telemetry across 50 technique categories, organized through a four-phase campaign model called bananaTREE: OBSERVE, SIMULATE, EXECUTE, ADAPT.
 
----
-
-## Design principles
-
-- **Local-first** — all data in SQLite at `~/.local/share/aish/`
-- **No credential capture** — passwords, cookies, and tokens are never touched
-- **No stealth scraping** — everything requires your action
-- **Human-confirmed** — destructive or browser-launching actions ask first
-- **Plain text output** — Markdown, JSON, and text; all replayable and auditable
-- **Browser-optional** — the browser integration only opens profiles; you log in yourself
+Every artifact carries an explicit safety contract. No real network calls, no subprocess spawning, no executable payloads, no file writes outside the log directory.
 
 ---
 
-## Install
+## Safety boundary
 
-```bash
-git clone https://github.com/you/ai-session-handoff
-cd ai-session-handoff
-pip install -e .          # standard install
-# or with optional browser support:
-pip install -e ".[browser]"
-```
+SHENRON does not contain:
 
-After install, `aish` is on your PATH.
+- Executable payloads or shellcode
+- Real network connections or socket bindings
+- Subprocess spawning or shell command execution
+- Real file writes outside its own log directory
+- Exploit code of any kind
 
----
-
-## Typical workflow
-
-### 1. Start a session
-
-```bash
-aish session start \
-  --project "Prompts That Survive Pressure" \
-  --provider claude \
-  --model "Claude Sonnet" \
-  --account "claude-main"
-```
-
-### 2. Add notes as you work
-
-```bash
-aish note "Started Prompt 6: drafting 12 flagship prompts"
-aish note "Agreed on 3-part structure: hook, body, close"
-```
-
-### 3. Capture the conversation
-
-When you hit a usage limit or want to checkpoint:
-
-```bash
-aish capture paste      # opens $EDITOR — paste your conversation, save and close
-aish capture file --file ~/Downloads/conversation.txt   # import a file
-cat transcript.txt | aish capture stdin                 # pipe from stdin
-```
-
-### 4. Generate a summary request
-
-```bash
-aish summarize
-```
-
-This prints a structured prompt. Copy it and paste it into your AI chat.
-The model will respond with a formatted summary. Then store it:
-
-```bash
-aish summarize --paste-back   # opens $EDITOR — paste the AI's summary, save
-```
-
-### 5. Generate the handoff packet
-
-```bash
-aish handoff
-```
-
-This produces a complete continuation prompt assembled from:
-- The stored summary
-- All your notes
-- The last ~3 000 characters of the conversation
-
-It's printed to the terminal and stored in the database.
-
-### 6. Save everything to disk
-
-```bash
-aish save
-```
-
-Exports to `~/.local/share/aish/sessions/<uuid>/`:
-```
-notes.md
-capture_01.txt
-summary.md
-handoff.md
-save_report.md
-```
-
-### 7. Close the session
-
-```bash
-aish close
-```
-
-Marks the session closed. If no handoff exists you'll be warned.
-
-### 8. Open the next browser profile (optional)
-
-```bash
-aish browser open --profile "claude-backup-1" --browser brave
-```
-
-This **only launches the browser**. It does not log in or automate anything.
-
-### 9. Start the next session and resume
-
-```bash
-aish session start \
-  --project "Prompts That Survive Pressure" \
-  --provider claude \
-  --account "claude-backup-1" \
-  --model "Claude Sonnet"
-
-aish handoff --show --latest   # prints the continuation prompt
-```
-
-Copy the handoff prompt and paste it into your new chat. Done.
+This is an architectural constraint, not a disclaimer. The safety verifier scans every artifact and flags violations. A single violation produces `VERDICT: UNSAFE` regardless of coverage score.
 
 ---
 
-## Command reference
+## Quick start
 
-### Session commands
-
-| Command | Description |
-|---|---|
-| `aish session start` | Start a new session |
-| `aish session list` | List sessions (filter by `--status`, `--project`) |
-| `aish session show [ID]` | Show full details for a session |
-| `aish session status` | Quick status of the current open session |
-
-### Workflow commands
-
-| Command | Description |
-|---|---|
-| `aish note "text"` | Add a timestamped note to the current session |
-| `aish capture paste` | Open editor to paste a conversation transcript |
-| `aish capture file --file PATH` | Import a transcript file |
-| `aish capture stdin` | Read transcript from stdin |
-| `aish summarize` | Print a summary request prompt to paste into the AI |
-| `aish summarize --paste-back` | Store an AI-generated summary |
-| `aish handoff` | Generate and store a continuation packet |
-| `aish handoff --show` | Print the most recent handoff packet |
-| `aish save` | Export all session data to disk |
-| `aish close` | Mark the current session as closed |
-
-### Browser commands
-
-| Command | Description |
-|---|---|
-| `aish browser open --profile NAME` | Open a browser profile (no login automation) |
-| `aish browser list-profiles` | List known local browser profiles |
-
-### Utility
-
-| Command | Description |
-|---|---|
-| `aish info` | Show data directory and DB paths |
-| `aish version` | Print version |
-
----
-
-## Data directory
-
-Default: `~/.local/share/aish/`
-
-Override with `--data-dir PATH` or `AISH_DATA_DIR` environment variable.
-
-```
-~/.local/share/aish/
-├── aish.db                  # SQLite database (all session metadata)
-└── sessions/
-    └── <session-uuid>/
-        ├── notes.md
-        ├── capture_01.txt
-        ├── summary.md
-        ├── handoff.md
-        └── save_report.md
+```bash
+git clone https://github.com/GnomeMan4201/shenron
+cd shenron
+python3 -m pytest tests/ -q
+python3 shenron.py --run all --dry-run
+python3 shenron.py --validate latest
+python3 shenron.py --report-v2 latest --include-validation
 ```
 
 ---
 
-## Safety guarantees
+## Reproducible demo
 
-This tool is designed for legitimate personal workflow continuity.
-
-- ❌ Does not capture passwords
-- ❌ Does not read browser cookies or session tokens  
-- ❌ Does not bypass login flows
-- ❌ Does not automate browser actions without explicit user confirmation
-- ❌ Does not rely on hidden browser internals or undocumented APIs
-- ✅ All captured text is text you paste yourself
-- ✅ Browser integration only opens a profile window
-- ✅ Every action is logged locally and auditable
-
----
-
-## Development
+Clone the repo and run one command to produce the full safe demo artifact set:
 
 ```bash
-pip install -e ".[dev]"
-pytest                          # run all tests
-pytest tests/test_repository.py # run specific file
+python3 shenron.py --demo --charts --out-dir artifacts/demo
+```
+
+Output:
+
+```
+artifacts/demo/shenron_demo_run.jsonl       — 40 synthetic events, 4 phases
+artifacts/demo/shenron_demo_report.md       — markdown report with MITRE descriptor table
+artifacts/demo/safety_verification.md       — safety contract verification, all 8 fields
+docs/assets/shenron-demo/phase_frequency.png
+docs/assets/shenron-demo/technique_frequency.png
+docs/assets/shenron-demo/signal_frequency.png
+docs/assets/shenron-demo/event_timeline.png
+docs/assets/shenron-demo/safety_boundary.png
+```
+
+Every record in the JSONL carries:
+
+```json
+"safety": {
+  "simulation_only": true,
+  "executable": false,
+  "payload_present": false,
+  "portable_adversarial_procedure": false,
+  "network_connection": false,
+  "subprocess_spawned": false,
+  "real_file_written": false,
+  "shell_invoked": false
+}
 ```
 
 ---
 
-## Roadmap (v2 ideas)
+## Safety verification
 
-- `aish export --format json` — machine-readable export
-- `aish project list` — view all projects across sessions
-- `aish search "keyword"` — full-text search across captures
-- Playwright-based safe page snapshot (user-approved, not scraped)
-- Shell completions (`aish --install-completion`)
+Inspect the safety contract on any JSONL artifact:
+
+```bash
+python3 shenron.py --verify-safety artifacts/demo/shenron_demo_run.jsonl
+```
+
+Output:
+
+```
+  [SOURCE]      artifacts/demo/shenron_demo_run.jsonl
+  [RECORDS]     40
+
+  executable                           PASS
+  network_connection                   PASS
+  payload_present                      PASS
+  portable_adversarial_procedure       PASS
+  real_file_written                    PASS
+  shell_invoked                        PASS
+  simulation_only                      PASS
+  subprocess_spawned                   PASS
+
+  [VERDICT]     PASS
+```
+
+---
+
+## bananaTREE campaign model
+
+bananaTREE organizes SHENRON campaigns into four phases:
+
+| Phase | Intent |
+|-------|--------|
+| **OBSERVE** | Map adversarial signal surface — C2, entropy, identity patterns |
+| **SIMULATE** | Generate synthetic telemetry for detector training |
+| **EXECUTE** | Run simulation layers, produce JSONL artifact timelines |
+| **ADAPT** | Score detection coverage, identify gaps |
+
+Run a built-in scenario:
+
+```bash
+python3 shenron.py --scenarios
+python3 shenron.py --scenario apt_kill_chain --dry-run
+python3 shenron.py --scenario persistence_runbook --dry-run
+```
+
+Built-in scenarios:
+
+- `basic_c2_persistence` — C2 establishment, lateral movement, dual persistence
+- `recon_to_exfil` — Network recon, C2 check-in, data staging
+- `persistence_runbook` — All six persistence mechanisms in sequence
+- `evasion_stress_test` — Anti-forensics, log manipulation, masquerading
+- `apt_kill_chain` — Full APT kill chain: C2, recon, lateral, persistence, evasion, exfil
+
+---
+
+## Detector validation
+
+```bash
+python3 shenron.py --validate latest
+```
+
+Output:
+
+```
+  [VALIDATION]  c2_shape_detection_test
+  [EXPECTED]    31
+  [OBSERVED]    31
+  [COVERAGE]    100.0%
+  [SAFETY FAIL] 0
+  [VERDICT]     PASS
+```
+
+PASS requires ≥80% coverage AND zero safety violations.
+
+---
+
+## Run comparison
+
+Compare two runs to track detection coverage changes over time:
+
+```bash
+python3 shenron.py --compare <run_id_a> <run_id_b>
+```
+
+Example — `apt_kill_chain` vs `persistence_runbook`:
+
+```
+  [COMPARE]
+  RUN A         1972a90e  apt_kill_chain        100.0%  PASS
+  RUN B         32491bae  persistence_runbook   100.0%  PASS
+  DELTA         ▲ +0.0%
+
+  [LOST -13]
+    ✗  dns_subdomain_query
+    ✗  periodic_outbound_connection
+    ✗  subnet_sweep
+    ✗  smb_port_probe
+    ✗  timestamp_rollback
+    ... 8 more
+
+  [MITRE LOST]  T1021, T1036, T1046, T1070, T1071, T1132, T1135
+```
+
+A detection stack validated only against `persistence_runbook` has no coverage signal for C2 beaconing, lateral movement, DNS tunneling, or anti-forensics. The compare output makes that gap explicit before an incident does.
+
+Export a coverage gap as an ATT&CK Navigator layer:
+
+```bash
+python3 shenron.py --compare <run_a> <run_b> --navigator-out reports/gap_layer.json
+```
+
+Import at https://mitre-attack.github.io/attack-navigator/ → Open Existing Layer → Upload File.
+
+---
+
+## ATT&CK Navigator export
+
+Export any run as a Navigator layer:
+
+```bash
+python3 shenron.py --navigator latest
+python3 shenron.py --navigator <run_id> --navigator-out reports/my_layer.json
+```
+
+Navigator layers carry synthetic coverage metadata. They are MITRE-style descriptor coverage from synthetic telemetry — not real ATT&CK validation or confirmed detector coverage.
+
+---
+
+## Report generation
+
+```bash
+python3 shenron.py --report-v2 latest --include-validation
+```
+
+Reports are written to `reports/` as markdown. Each report includes executive summary, bananaTREE phase breakdown, layer execution table, MITRE descriptor table, safety contract verification, and detection opportunity list.
+
+---
+
+## Full workflow
+
+```bash
+# 1. Reproducible safe demo
+python3 shenron.py --demo --charts --out-dir artifacts/demo
+
+# 2. Verify safety contract
+python3 shenron.py --verify-safety artifacts/demo/shenron_demo_run.jsonl
+
+# 3. Run scenarios
+python3 shenron.py --scenario apt_kill_chain --dry-run
+python3 shenron.py --scenario persistence_runbook --dry-run
+
+# 4. Compare coverage profiles
+python3 shenron.py --compare <apt_run_id> <persistence_run_id> \
+  --navigator-out reports/gap_layer.json
+
+# 5. Export Navigator layer
+python3 shenron.py --navigator latest
+
+# 6. Generate report
+python3 shenron.py --report-v2 latest --include-validation
+```
+
+---
+
+## CLI reference
+
+```
+--demo                    Run safe 40-event demo pipeline
+--charts                  Generate charts from demo JSONL (use with --demo)
+--out-dir DIR             Output directory for --demo (default: artifacts/demo)
+--verify-safety [PATH]    Verify safety contract on JSONL file or 'latest'
+--run TARGET              Run a layer, category, or 'all'
+--dry-run                 Validate without executing
+--scenario NAME           Run a built-in or custom scenario
+--scenarios               List available scenarios
+--validate [RUN_ID]       Run detector validation
+--compare RUN_A RUN_B     Diff two validation runs by run ID prefix
+--navigator [RUN_ID]      Export ATT&CK Navigator layer
+--navigator-out PATH      Output path for Navigator JSON
+--report-v2 [RUN_ID]      Generate markdown report
+--include-validation      Include validation results in report
+--stats                   Show operational dashboard
+--list                    List all canonical layers
+```
+
+---
+
+## What SHENRON does not do
+
+- Test network-layer controls — no real network calls are made
+- Validate EDR behavioral detection — no real process execution occurs
+- Substitute for adversarial emulation where real execution is required
+- Prove that detection rules fire on production telemetry
+- Measure detection of kernel-level artifacts
+
+SHENRON tests the telemetry pipeline layer: logging, SIEM ingestion, correlation rules, analyst workflows. It is complementary to adversarial emulation, not a substitute.
+
+---
+
+## Tests
+
+```bash
+python3 -m pytest tests/ -q
+```
+
+154 tests. 35 specifically cover validation and safety systems.
+
+---
+
+## Project structure
+
+```
+shenron.py                  — CLI entrypoint
+core/
+  engine/
+    scenario_engine.py      — bananaTREE campaign runner
+    layer_loader.py         — canonical layer discovery
+    payload_registry.py     — layer execution registry
+  reports/
+    evidence.py             — artifact loader, run parser
+    model.py                — report dataclasses
+    markdown.py             — markdown renderer
+  validation/
+    coverage.py             — detection coverage dataclasses
+    scorer.py               — validation scorer
+    expectations.py         — expected detection loader
+  compare.py                — run comparison engine
+  navigator.py              — ATT&CK Navigator exporter
+  safety/
+    contract.py             — shared safety contract, single source of truth
+scripts/
+  generate_demo_artifacts.py  — safe 40-event JSONL generator
+  generate_charts.py          — publication chart generator
+scenarios/                  — custom scenario JSON files
+artifacts/                  — generated JSONL and reports
+docs/assets/shenron-demo/   — chart PNGs
+```
+
+---
+
+## Tag
+
+`v0.1.0` — 50 layers · 154 tests · zero hardcoded paths · PASS verdict
+
+*gnomeman4201 / badBANANA Research Collective*
+
+> Observable adversarial behavior, not portable adversarial procedure.
