@@ -17,7 +17,7 @@ from core.engine.layer_loader import load_layer, discover_canonical
 from core.engine import payload_registry
 
 SCENARIO_DIR = Path(__file__).parent.parent.parent / "scenarios"
-from core.config import timeline_log_path as _timeline_log_path
+from core.config import timeline_log_path as _timeline_log_path, artifact_log_path
 def _get_timeline_log_compat():
     p = _timeline_log_path()
     p.parent.mkdir(parents=True, exist_ok=True)
