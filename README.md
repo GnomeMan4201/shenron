@@ -52,4 +52,4 @@ gnomeman4201 // bad_banana
 
 ## Launch Article
 
-[Observable Adversarial Behavior, Not Portable Adversarial Procedure](https://dev.to/gnomeman4201/your-actual-slug)
+[Observable Adversarial Behavior, Not Portable Adversarial Procedure](https://dev.to/gnomeman4201/THE-ACTUAL-PUBLISHED-SLUG)
