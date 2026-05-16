@@ -48,6 +48,23 @@ SHENRON is a Python-based defensive adversarial telemetry simulation platform. I
 
 Every layer emits structured JSONL artifacts. Every artifact carries an explicit safety contract: `simulation_only: true`, `executable: false`, `no_payload_present: true`.
 
+A typical synthetic event looks like this:
+
+````json
+{
+  "artifact_id": "a4f2c1d8-...",
+  "layer": "beacon_emitter_cloak",
+  "behavior_class": "http_beacon_sim",
+  "technique": "T1071",
+  "signal": "periodic_beacon_to_external_host",
+  "interval_sim": 60,
+  "jitter_sim": 0.12,
+  "simulation_only": true,
+  "executable": false,
+  "no_payload_present": true
+}
+```
+
 The core principle:
 
 > **Observable adversarial behavior, not portable adversarial procedure.**
@@ -58,7 +75,7 @@ SHENRON documents what adversarial activity looks like from a defender's perspec
 
 ## Why I built it this way
 
-I have been doing independent security research for a few years, self-taught, working primarily in Python and bash on a Pop!_OS laptop. I am interested in the defensive side — specifically in the gap between "we have detection rules" and "we have validated that our detection rules fire on realistic telemetry."
+I have been doing independent security research for a few years, self-taught, working primarily in Python and Bash on a mid-grade laptop and an Android smartphone. I am interested in the defensive side — specifically in the gap between "we have detection rules" and "we have validated that our detection rules fire on realistic telemetry."
 
 That gap is large. Most SIEM rules have never been tested against realistic adversarial event sequences. You find out they do not work when something real happens.
 
@@ -76,7 +93,7 @@ bananaTREE organizes SHENRON campaigns into four phases:
 
 **SIMULATE** — generate synthetic telemetry for detector training. Evasion, payload, and LLM-manipulation layers run here.
 
-**EXECUTE** — run persistence and lateral movement simulators to produce full artifact timelines. Multi-phase event sequences representing installation, trigger registration, and activation — all synthetic.
+**EXECUTE** — run persistence and lateral movement simulators to produce full artifact timelines. Multi-phase event sequences representing installation, trigger registration, and activation — all synthetic. In SHENRON, EXECUTE means executing the simulation workflow, not executing adversarial procedures on the host.
 
 **ADAPT** — score detection coverage and identify gaps.
 
@@ -122,6 +139,8 @@ After a campaign run, `--validate latest` compares every expected detection sign
 ```
 
 PASS requires ≥80% coverage AND zero safety violations. Any safety failure produces UNSAFE regardless of coverage score.
+
+Note: MITRE coverage here means simulated telemetry coverage against mapped technique labels, not proof that a production environment can detect live technique execution.
 
 ---
 
