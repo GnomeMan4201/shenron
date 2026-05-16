@@ -24,8 +24,9 @@ def _get_timeline_log_compat():
     return p
 
 def _get_timeline_log():
-    TIMELINE_LOG.parent.mkdir(parents=True, exist_ok=True)
-    return TIMELINE_LOG
+    p = _timeline_log_path()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    return p
 
 # ── Built-in scenarios ────────────────────────────────────────────────────────
 BUILTIN_SCENARIOS = {
