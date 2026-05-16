@@ -43,10 +43,21 @@ def load_timeline(path: Path = None) -> list:
 
 
 def get_campaign_runs(timeline: list) -> list:
+    """
+    Parse timeline into a unified run list.
+    Handles both record families:
+      - bananatree_campaign_start/phase_end/campaign_end  (bananaTREE campaigns)
+      - scenario_start/stage_start/scenario_end           (--scenario runs)
+    Both are normalised to the same dict shape so score_by_run_id and
+    compare_runs work against either without modification.
+    """
     runs = []
     current = None
+
     for record in timeline:
         rt = record.get("record_type", "")
+
+        # ── bananaTREE campaign records ──────────────────────────────────────
         if rt == "bananatree_campaign_start":
             current = {
                 "run_id":        record.get("run_id"),
@@ -54,9 +65,11 @@ def get_campaign_runs(timeline: list) -> list:
                 "timestamp":     record.get("timestamp"),
                 "dry_run":       record.get("dry_run", True),
                 "scenario":      record.get("scenario"),
+                "all_mitre":     [],
                 "phases":        [],
+                "_type":         "bananatree",
             }
-        elif rt == "bananatree_phase_end" and current:
+        elif rt == "bananatree_phase_end" and current and current.get("_type") == "bananatree":
             current["phases"].append({
                 "phase":       record.get("phase"),
                 "layers_run":  record.get("layers_run", []),
@@ -64,12 +77,42 @@ def get_campaign_runs(timeline: list) -> list:
                 "mitre":       record.get("mitre_techniques", []),
                 "errors":      record.get("errors", []),
             })
-        elif rt == "bananatree_campaign_end" and current:
+        elif rt == "bananatree_campaign_end" and current and current.get("_type") == "bananatree":
             current["completed_at"] = record.get("timestamp")
             current["total_layers"] = record.get("total_layers", 0)
             current["all_mitre"]    = record.get("all_mitre", [])
             runs.append(current)
             current = None
+
+        # ── scenario records ─────────────────────────────────────────────────
+        elif rt == "scenario_start":
+            current = {
+                "run_id":        record.get("scenario_id"),
+                "campaign_name": record.get("scenario_name"),
+                "timestamp":     record.get("timestamp"),
+                "dry_run":       record.get("dry_run", True),
+                "scenario":      record.get("scenario_name"),
+                "all_mitre":     record.get("mitre_coverage", []),
+                "phases":        [],
+                "_type":         "scenario",
+                "_stages":       [],
+            }
+        elif rt == "stage_start" and current and current.get("_type") == "scenario":
+            current["_stages"].append(record.get("layer", ""))
+        elif rt == "scenario_end" and current and current.get("_type") == "scenario":
+            current["completed_at"] = record.get("timestamp")
+            current["total_layers"] = record.get("stages_run", 0)
+            # Synthesise a single phase containing all layers so score_run works
+            current["phases"] = [{
+                "phase":      "SCENARIO",
+                "layers_run": current.pop("_stages", []),
+                "findings":   [],
+                "mitre":      current.get("all_mitre", []),
+                "errors":     [],
+            }]
+            runs.append(current)
+            current = None
+
     return runs
 
 
