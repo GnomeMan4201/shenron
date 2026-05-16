@@ -47,3 +47,9 @@ Active development. Orchestrator operational. Layer registration coverage expand
 ## Collective
 
 LANimals collective // gnomeman4201 // bad_banana
+
+---
+
+## Launch Article
+
+[Observable Adversarial Behavior, Not Portable Adversarial Procedure](https://dev.to/gnomeman4201/REPLACE_WITH_ACTUAL_SLUG)
