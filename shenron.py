@@ -123,6 +123,12 @@ def main():
                    help="run a layer, category, or 'all'")
     p.add_argument("--layer",      type=str,             help="run a single layer (legacy)")
     p.add_argument("--dry-run",    action="store_true",  help="validate without executing")
+    p.add_argument("--compare", nargs=2, metavar=("RUN_A", "RUN_B"),
+                help="diff two validation runs by run ID prefix")
+    p.add_argument("--navigator", type=str, nargs="?", const="latest", metavar="RUN_ID",
+                help="export ATT&CK Navigator layer for a run (default: latest)")
+    p.add_argument("--navigator-out", type=str, default=None, metavar="PATH",
+                help="output path for Navigator JSON")
     p.add_argument("--stats",      action="store_true",  help="show operational dashboard")
     p.add_argument("--scenario",   type=str, metavar="NAME", help="run a scenario")
     p.add_argument("--scenarios",  action="store_true",      help="list available scenarios")
@@ -162,7 +168,82 @@ def main():
             print(f'  [COVERAGE]    {cov.coverage_percent}%')
             print(f'  [SAFETY FAIL] {cov.safety_failure_count}')
             print(f'  [VERDICT]     {cov.verdict}')
-            print()
+
+    elif args.compare:
+        from core.validation.scorer import score_by_run_id
+        from core.reports.evidence import load_timeline, get_campaign_runs
+        from core.compare import compare_runs, print_compare, compare_report_to_markdown
+        from pathlib import Path as _Path
+
+        id_a, id_b = args.compare
+        timeline = load_timeline()
+        all_runs = get_campaign_runs(timeline)
+
+        def _find_run(prefix, runs):
+            matches = [r for r in runs if r.get("run_id", "").startswith(prefix)]
+            return matches[-1] if matches else None
+
+        run_a = _find_run(id_a, all_runs)
+        run_b = _find_run(id_b, all_runs)
+        if not run_a:
+            print(f"  [!] Run A not found: {id_a}"); sys.exit(1)
+        if not run_b:
+            print(f"  [!] Run B not found: {id_b}"); sys.exit(1)
+
+        cov_a = score_by_run_id(run_a["run_id"])
+        cov_b = score_by_run_id(run_b["run_id"])
+        if not cov_a or not cov_b:
+            print("  [!] Could not score one or both runs"); sys.exit(1)
+
+        result = compare_runs(
+            cov_a, cov_b,
+            mitre_a=run_a.get("all_mitre", []),
+            mitre_b=run_b.get("all_mitre", []),
+        )
+        print_compare(result)
+        reports_dir = _Path("reports")
+        reports_dir.mkdir(exist_ok=True)
+        out_path = reports_dir / f"compare_{id_a[:8]}_{id_b[:8]}.md"
+        out_path.write_text(compare_report_to_markdown(result))
+        print(f"  [REPORT]      {out_path}")
+
+    elif args.navigator is not None:
+        from core.reports.evidence import load_timeline, get_campaign_runs
+        from core.navigator import export_navigator_layer, print_navigator_summary
+        from pathlib import Path as _Path
+
+        timeline = load_timeline()
+        all_runs = get_campaign_runs(timeline)
+        if not all_runs:
+            print("  [!] No runs found in timeline"); sys.exit(1)
+
+        if args.navigator == "latest":
+            run = all_runs[-1]
+        else:
+            matches = [r for r in all_runs if r.get("run_id","").startswith(args.navigator)]
+            if not matches:
+                print(f"  [!] Run not found: {args.navigator}"); sys.exit(1)
+            run = matches[-1]
+
+        techniques = run.get("all_mitre", [])
+        run_id     = run.get("run_id", "")
+        campaign   = run.get("campaign_name", "unknown")
+        if not techniques:
+            print("  [!] No MITRE techniques for this run")
+            print("  Tip: run a full bananaTREE campaign, not --run all --dry-run")
+            sys.exit(1)
+
+        reports_dir = _Path("reports")
+        reports_dir.mkdir(exist_ok=True)
+        out_path = args.navigator_out or str(
+            reports_dir / f"navigator_{run_id[:8]}_{campaign}.json"
+        )
+        export_navigator_layer(techniques=techniques, output_path=out_path,
+                               run_id=run_id, campaign_name=campaign)
+        print_navigator_summary(techniques, run_id, campaign)
+        print(f"  [OUTPUT]      {out_path}")
+        print(f"  [IMPORT]      https://mitre-attack.github.io/attack-navigator/")
+        print(f"                Open Navigator -> Open Existing Layer -> Upload File")
     elif args.report_v2 is not None:
         run_id = args.report_v2
         rpt = load_report_by_run_id(run_id) if run_id != 'latest' else load_latest_report()
