@@ -46,7 +46,7 @@ Active development. Orchestrator operational. Layer registration coverage expand
 
 ## Collective
 
-LANimals collective // gnomeman4201 // bad_banana
+gnomeman4201 // bad_banana
 
 ---
 
