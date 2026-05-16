@@ -438,12 +438,24 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "temp_file_create_delete_under_5s",
+          "noise_files_hidden_dotdir",
+          "jitter_fingerprint_timing"
+        ],
+        "alert_signatures": [
+          "temp file create-delete cycle under 5s hidden dir",
+          "noise files in ~/.noise/",
+          "fixed random range sleep jitter fingerprint"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "entropy_hash_gen",
+          "timing_delay_sim",
+          "noise_file_lifecycle_sim"
+        ],
         "safe": true
       }
     },
@@ -465,12 +477,23 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "simultaneous_io_cpu_mem_anomaly",
+          "high_volume_hash_writes",
+          "cpu_spike_concurrent_io_burst"
+        ],
+        "alert_signatures": [
+          "simultaneous I/O CPU memory anomalies single process",
+          "high volume hash writes no application activity",
+          "multi-vector entropy disruption signature"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "disruption_launch",
+          "vector_execution_sim"
+        ],
         "safe": true
       }
     },
@@ -833,12 +856,23 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "structured_noise_ml_monitored_paths",
+          "high_entropy_log_matching_schema",
+          "distribution_shift_feature_space"
+        ],
+        "alert_signatures": [
+          "high entropy log entries matching real schema",
+          "entropy seed timed to model retrain window",
+          "distribution shift in monitored log feature space"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "seed_session_init",
+          "seed_injection"
+        ],
         "safe": true
       }
     },
@@ -1066,12 +1100,23 @@
           "dns",
           "proxy"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "persistent_listener_nonstandard_port",
+          "relay_no_app_logic",
+          "thread_per_connection"
+        ],
+        "alert_signatures": [
+          "persistent listener port 4242/4444/5555",
+          "relay process no application logic",
+          "SO_REUSEADDR on non-server process"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "relay_socket_open_sim",
+          "connection_relay_sim"
+        ],
         "safe": true
       }
     },
@@ -1094,12 +1139,23 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "log_high_entropy_non_logging_source",
+          "burst_write_fixed_interval",
+          "synthetic_entropy_pattern"
+        ],
+        "alert_signatures": [
+          "log file high entropy from non-logging process",
+          "burst writes to log at fixed interval",
+          "entropy pattern not matching system sources"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "distortion_init",
+          "entropy_injection"
+        ],
         "safe": true
       }
     },
@@ -1122,12 +1178,23 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "multiple_bin_salted_hash_names",
+          "md5_derived_filename_pattern",
+          "shuffle_output_adjacent_bad_path"
+        ],
+        "alert_signatures": [
+          "multiple .bin files MD5-derived names single dir",
+          "salt+hash rename pattern in stealth payload dir",
+          "shuffle output dir adjacent known bad path"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "payload_dir_scan",
+          "state_shuffle"
+        ],
         "safe": true
       }
     },
@@ -1150,12 +1217,23 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "recursive_mtime_modification",
+          "timestamps_past_vs_creation",
+          "decoy_timeline_1yr_old"
+        ],
+        "alert_signatures": [
+          "recursive mtime modification across tool directory",
+          "batch timestamp modification many files single window",
+          "decoy file 1yr-old timestamp in home dir"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "directory_rewind_sim",
+          "decoy_artifact_sim"
+        ],
         "safe": true
       }
     },
@@ -1499,12 +1577,23 @@
           "dns",
           "proxy"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "base64_script_shared_media_path",
+          "hidden_dotsh_chmod700",
+          "self_decoding_exec_chain"
+        ],
+        "alert_signatures": [
+          "base64-encoded shell script in DCIM/Music/Downloads",
+          "hidden dot-prefix .sh chmod 700 shared storage",
+          "base64 -d | bash exec chain pattern in dropped file"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "payload_encoding_sim",
+          "seed_drop_sim"
+        ],
         "safe": true
       }
     },
