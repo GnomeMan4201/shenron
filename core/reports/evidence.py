@@ -79,7 +79,12 @@ def group_artifacts_by_layer(artifacts: list) -> dict:
 
 def verify_safety(artifacts: list) -> SafetyVerification:
     sv = SafetyVerification()
-    return sv.evaluate(artifacts)
+    # Only validate actual simulation artifacts — not timeline/header records
+    sim_arts = [
+        a for a in artifacts
+        if "artifact_id" in a and "layer" in a
+    ]
+    return sv.evaluate(sim_arts)
 
 
 def _load_manifest_index() -> dict:
