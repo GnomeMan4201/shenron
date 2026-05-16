@@ -127,12 +127,23 @@
           "dns",
           "proxy"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "multi_interface_beacon",
+          "web_service_c2",
+          "channel_mirror"
+        ],
+        "alert_signatures": [
+          "beacon cloned across interfaces",
+          "web service used as c2 channel",
+          "protocol spoof detected"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "interface_enumeration",
+          "signal_clone"
+        ],
         "safe": true
       }
     },
@@ -348,12 +359,23 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "fake_log_event",
+          "log_source_spoof",
+          "event_injection"
+        ],
+        "alert_signatures": [
+          "log events from unknown source",
+          "impossible event sequence",
+          "log timestamp collision"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "target_selection",
+          "log_injection_sim"
+        ],
         "safe": true
       }
     },
@@ -844,12 +866,23 @@
           "process",
           "authentication"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "lan_sweep",
+          "multi_vector_probe",
+          "seed_drop_attempt"
+        ],
+        "alert_signatures": [
+          "sequential lan sweep",
+          "adb/ssh probe from single host",
+          "seed file drop on remote share"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "host_sweep",
+          "spread_attempt"
+        ],
         "safe": true
       }
     },
@@ -1265,12 +1298,23 @@
           "dns",
           "proxy"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "covert_channel_traffic",
+          "encoded_packet_sequence",
+          "non_standard_protocol"
+        ],
+        "alert_signatures": [
+          "icmp timing anomaly",
+          "dns txt exfil pattern",
+          "tcp seq number encoding"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "channel_establishment",
+          "packet_weave"
+        ],
         "safe": true
       }
     },
@@ -1417,12 +1461,23 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "timestamp_rollback",
+          "clock_drift_anomaly",
+          "mtime_spoof"
+        ],
+        "alert_signatures": [
+          "log file timestamp in past",
+          "clock drift from ntp",
+          "file mtime before creation time"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "clock_drift_sim",
+          "timestamp_forge"
+        ],
         "safe": true
       }
     },
@@ -1445,12 +1500,23 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "time_gated_execution",
+          "obfuscated_payload_detected",
+          "deobfuscation_attempt"
+        ],
+        "alert_signatures": [
+          "payload active only in time window",
+          "high entropy file with timing trigger",
+          "staged decode sequence"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "obfuscation_analysis",
+          "timing_gate"
+        ],
         "safe": true
       }
     },
