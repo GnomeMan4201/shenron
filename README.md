@@ -1,3 +1,5 @@
+![SHENRON](assets/shenron_banner.png)
+
 # SHENRON
 
 Adaptive polymorphic payload framework. Part of the BANANA_TREE ecosystem.
