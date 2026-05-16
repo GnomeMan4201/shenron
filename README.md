@@ -52,4 +52,4 @@ gnomeman4201 // bad_banana
 
 ## Launch Article
 
-[Observable Adversarial Behavior, Not Portable Adversarial Procedure]()
+[Observable Adversarial Behavior, Not Portable Adversarial Procedure](DEVTO_URL_PENDING)
