@@ -161,7 +161,7 @@ def run_release_demo(out_dir: str, version: str = VERSION, verbose: bool = True)
     tmp_demo = out / "_tmp_demo"
     tmp_demo.mkdir(exist_ok=True)
 
-    repo_root = Path(__file__).parent
+    repo_root = Path(__file__).parent.parent
 
     if verbose:
         print(f"\n  [RELEASE-DEMO] SHENRON {version}")
