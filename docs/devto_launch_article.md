@@ -107,6 +107,8 @@ After a campaign run, `--validate latest` compares every expected detection sign
 1. **Exact match** — signal string matches an artifact field after normalization
 2. **Partial match** — at least 50% of tokens appear in the artifact signal
 3. **MITRE match** — expected detection maps to a MITRE technique in the artifacts
+
+```
 [VALIDATION]  c2_shape_detection_test
 [EXPECTED]    31
 [OBSERVED]    31
@@ -115,6 +117,8 @@ After a campaign run, `--validate latest` compares every expected detection sign
 [COVERAGE]    100.0%
 [SAFETY FAIL] 0
 [VERDICT]     PASS
+```
+
 PASS requires ≥80% coverage AND zero safety violations. Any safety failure produces UNSAFE regardless of coverage score.
 
 ---
