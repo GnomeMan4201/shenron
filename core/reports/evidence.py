@@ -82,7 +82,7 @@ def verify_safety(artifacts: list) -> SafetyVerification:
     # Only validate actual simulation artifacts — not timeline/header records
     sim_arts = [
         a for a in artifacts
-        if "artifact_id" in a and "layer" in a
+        if "artifact_id" in a
     ]
     return sv.evaluate(sim_arts)
 
