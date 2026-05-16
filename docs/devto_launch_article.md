@@ -250,7 +250,7 @@ The safety boundary does not move between versions.
 ---
 
 **Repo:** https://github.com/GnomeMan4201/shenron  
-**Tag:** v0.1.0 — 50 layers, 117 tests, zero hardcoded paths, PASS verdict.
+**Tag:** v0.1.0 — 50 layers, 154 tests, zero hardcoded paths, PASS verdict.
 
 *gnomeman4201 / badBANANA Research Collective*
 > Observable adversarial behavior, not portable adversarial procedure.
