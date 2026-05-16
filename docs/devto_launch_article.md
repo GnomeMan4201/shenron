@@ -160,21 +160,13 @@ These are structural limitations, not gaps to be filled by relaxing the safety b
 ```bash
 git clone https://github.com/GnomeMan4201/shenron
 cd shenron
-python3 -m pytest tests/ -q    # 117 tests
-python3 shenron.py --run all --dry-run    # 50 ok | 0 failed
-python3 shenron.py --scenario apt_kill_chain    # 9-stage APT kill chain
+python3 -m pytest tests/ -q
+python3 shenron.py --run all --dry-run
 python3 shenron.py --validate latest
 python3 shenron.py --report-v2 latest --include-validation
 ```
 
-Run a bananaTREE campaign:
-
-```python
-from core.scenarios.runner import run_scenario
-run_scenario("scenarios/examples/c2_shape_detection_test.json", dry_run=False)
-```
-
----
+See [docs/EXAMPLE_WORKFLOW.md](https://github.com/GnomeMan4201/shenron/blob/main/docs/EXAMPLE_WORKFLOW.md) for full usage including bananaTREE campaign scenarios.
 
 ## What comes next
 
