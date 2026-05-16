@@ -224,7 +224,7 @@ def main():
         # Write safety verification markdown
         from core.safety.contract import verification_to_markdown
         safety_md = os.path.join(out_dir, "safety_verification.md")
-        Path(safety_md).write_text(verification_to_markdown(result, source=jsonl_path))
+        open(safety_md, "w").write(verification_to_markdown(result, source=jsonl_path))
         print(f"  [SAFETY MD]   {safety_md}")
         print()
         print(f"  [DEMO DONE]")
