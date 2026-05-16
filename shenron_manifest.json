@@ -206,12 +206,23 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "payload_copied_staging_to_shared_storage",
+          "hostname_prefixed_filename_download_dir",
+          "executable_daemon_name_nonstandard_path"
+        ],
+        "alert_signatures": [
+          "hostname-prefixed file in Download/Documents",
+          "shutil.copy2+chmod from non-installer process",
+          "replica files across multiple target paths simultaneously"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "source_enumeration",
+          "replica_drop_sim"
+        ],
         "safe": true
       }
     },
@@ -595,12 +606,23 @@
           "filesystem",
           "scheduled-task"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "bios_flash_protection_override_uncorrelated",
+          "uefi_shell_disabled_outside_provisioning",
+          "tpm_key_rewrite_not_matching_workflow"
+        ],
+        "alert_signatures": [
+          "BIOS log flash protection override not correlated admin action",
+          "firmware_override.conf in unexpected path",
+          "TPM recovery key rewrite outside provisioning"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "bios_log_forge_sim",
+          "uefi_trace_plant_sim"
+        ],
         "safe": true
       }
     },
@@ -1375,12 +1397,22 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "synthetic_fingerprints_regular_interval",
+          "imei_mac_hostname_mismatch_inventory",
+          "uuid_generation_uncorrelated_boot"
+        ],
+        "alert_signatures": [
+          "synthetic device fingerprints at regular intervals",
+          "IMEI/MAC/hostname not matching hardware inventory",
+          "fingerprint emission timing matches sleep(2-5) jitter"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "fingerprint_emission"
+        ],
         "safe": true
       }
     },
@@ -1510,12 +1542,22 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "payload_renamed_trusted_daemon_name",
+          "python_script_named_system_daemon",
+          "filename_type_mismatch_stealth_dir"
+        ],
+        "alert_signatures": [
+          "python script named logd/healthd/kworker in non-standard path",
+          "filename mimics daemon but file type mismatch",
+          "hash mismatch vs known-good binary for named process"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "payload_mimic_sim"
+        ],
         "safe": true
       }
     },
