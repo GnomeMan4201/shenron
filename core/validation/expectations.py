@@ -11,6 +11,7 @@ MANIFEST_PATH = Path(__file__).parent.parent.parent / "shenron_manifest.json"
 def _normalize(name: str) -> str:
     """Lowercase, strip punctuation, collapse whitespace."""
     name = name.lower().strip()
+    name = re.sub(r"-", "_", name)
     name = re.sub(r"[^a-z0-9_\s]", "", name)
     name = re.sub(r"[\s_]+", "_", name)
     return name

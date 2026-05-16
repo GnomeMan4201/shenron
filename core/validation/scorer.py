@@ -148,9 +148,13 @@ def score_run(run: dict, artifacts: list, scenario: Optional[dict] = None) -> De
         for l in phase.get("layers_run", []):
             all_layer_names.add(l)
 
+    # Filter to artifacts whose layer is in this run AND that have artifact_id
+    # (excludes timeline records and pre-standardization artifacts without safety fields)
     run_artifacts = [
         a for a in artifacts
-        if a.get("layer") in all_layer_names or not a.get("layer")
+        if a.get("layer") in all_layer_names
+        and "artifact_id" in a
+        and a.get("simulation_only") is True
     ]
 
     artifacts_by_layer = group_artifacts_by_layer(run_artifacts)
