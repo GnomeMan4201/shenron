@@ -262,12 +262,24 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "hidden_dir_high_entropy_files",
+          "non_logging_process_writing_log",
+          "staging_file_cross_process_read"
+        ],
+        "alert_signatures": [
+          "hidden dir in world-writable path",
+          "non-logging process writing marker file",
+          "high entropy file in tmp staging zone"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "zone_init",
+          "staging",
+          "log_marker"
+        ],
         "safe": true
       }
     },
@@ -481,12 +493,23 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "python_process_no_script_arg",
+          "stdout_stderr_devnull_spawned",
+          "sequential_spawn_fixed_interval"
+        ],
+        "alert_signatures": [
+          "interpreter process with no visible script",
+          "stdout+stderr both /dev/null on spawn",
+          "sequential process spawn fixed interval single parent"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "payload_dir_enum",
+          "revival_attempt"
+        ],
         "safe": true
       }
     },
@@ -838,12 +861,23 @@
           "dns",
           "proxy"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "unknown_binary_matching_system_name",
+          "wrapper_script_exec_handoff",
+          "executable_in_writable_nonstandard_dir"
+        ],
+        "alert_signatures": [
+          "binary hash mismatch vs known good",
+          "wrapper script with exec handoff pattern",
+          "chmod+x in non-standard writable dir"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "binary_clone_sim",
+          "wrapper_plant_sim"
+        ],
         "safe": true
       }
     },
@@ -904,12 +938,23 @@
           "process",
           "command-line"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "new_executable_system_name_tmp",
+          "entropy_delta_on_modified_file",
+          "timestamp_spoof_to_system_binary"
+        ],
+        "alert_signatures": [
+          "system-named executable in /tmp",
+          "entropy increase on mutated file",
+          "mtime matches unrelated system binary"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "base_analysis",
+          "clone_generation"
+        ],
         "safe": true
       }
     },
@@ -1134,12 +1179,22 @@
           "filesystem",
           "scheduled-task"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "deeply_nested_hidden_dirs_writable_path",
+          "shell_script_mtime_backdated",
+          "executable_in_documents_dir"
+        ],
+        "alert_signatures": [
+          "6+ level nested dotdir in shared storage",
+          "script mtime backdated 2+ days",
+          "executable planted in Documents/Downloads"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "seed_plant_sim"
+        ],
         "safe": true
       }
     },
@@ -1405,12 +1460,23 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "rc_file_modified_non_shell_process",
+          "background_launch_pattern_in_rc",
+          "hidden_revival_script_dotdir"
+        ],
+        "alert_signatures": [
+          "bashrc modified by non-shell process",
+          "nohup background launch in profile file",
+          "idempotency check before rc append"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "revival_script_stage_sim",
+          "rc_injection_sim"
+        ],
         "safe": true
       }
     },
@@ -1539,12 +1605,24 @@
           "dns",
           "proxy"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "ephemeral_high_port_listener",
+          "one_shot_bind_accept_dissolve",
+          "data_transfer_immediate_socket_close"
+        ],
+        "alert_signatures": [
+          "ephemeral high-port TCP listener single lifecycle",
+          "outbound non-standard port non-network process",
+          "data transfer followed by immediate socket close"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "shell_spawn_sim",
+          "data_transfer_sim",
+          "shell_dissolve_sim"
+        ],
         "safe": true
       }
     },
@@ -1608,12 +1686,23 @@
           "dns",
           "proxy"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "encapsulated_protocol_traffic",
+          "high_entropy_dns_labels",
+          "tls_fingerprint_mismatch"
+        ],
+        "alert_signatures": [
+          "non-standard protocol carrying encapsulated traffic",
+          "DNS labels with entropy >0.85",
+          "TLS fingerprint mismatch on HTTPS connection"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "tunnel_establishment",
+          "traffic_routing"
+        ],
         "safe": true
       }
     }
