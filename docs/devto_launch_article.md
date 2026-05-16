@@ -96,6 +96,8 @@ A campaign is a JSON file specifying which layers run in each phase and what det
 }
 }
 }
+```
+
 The runner validates the scenario, executes phases in order, and returns a complete cycle object with run ID, phase results, and MITRE coverage aggregation.
 
 ---
