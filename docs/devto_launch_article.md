@@ -174,6 +174,13 @@ from core.scenarios.runner import run_scenario
 run_scenario("scenarios/examples/c2_shape_detection_test.json", dry_run=False)
 ```
 
+Run a bananaTREE campaign:
+
+```python
+from core.scenarios.runner import run_scenario
+run_scenario("scenarios/examples/c2_shape_detection_test.json", dry_run=False)
+```
+
 ---
 
 ## What comes next
