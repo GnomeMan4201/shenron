@@ -156,10 +156,77 @@ SHENRON tests the telemetry pipeline layer — logging, SIEM ingestion, correlat
 
 ---
 
+## What the output actually looks like
+
+A useful way to judge SHENRON is not by asking whether it behaves like malware.
+
+It does not.
+
+The better question is:
+
+> Can it produce adversarial-shaped telemetry that is structured enough to test defensive logic without creating portable adversarial procedure?
+
+A generated event can still be useful to a defender because a detector, parser, report generator, or SIEM pipeline can ask practical questions:
+
+- Did the expected field exist?
+- Did the rule map the signal correctly?
+- Did the campaign phase survive parsing?
+- Did the report preserve the technique context?
+- Did the validation layer observe the signal it expected?
+
+But the event is not useful for offensive reuse because there is no payload, no execution primitive, no live network behavior, and no procedure to port.
+
+## Visualizing the synthetic signal shape
+
+The most useful SHENRON output is not a single event. It is the shape of the event set.
+
+A campaign can produce:
+
+- a synthetic event timeline
+- signal frequency counts
+- technique or layer frequency counts
+- expected-vs-observed validation
+- a human-readable report
+
+That makes the project more like a defensive telemetry wind tunnel than an exploit simulator.
+
+The point is not:
+
+> Can this attack a system?
+
+The point is:
+
+> Can this generate enough observable structure to test whether defensive tooling recognizes what it claims to recognize?
+
+## Important limitation
+
+Synthetic telemetry validates the shape and routing of detection logic, not real adversary execution.
+
+If a rule fails here, it likely has a vocabulary, field-mapping, parser, or correlation problem.
+
+If a rule passes here, that only means the rule recognized the simulated signal. Real adversarial emulation is still required to test process behavior, network controls, endpoint response, and environmental side effects.
+
+## The shortest version
+
+SHENRON is not a red-team tool.
+
+It is a defensive simulation harness for generating adversarial-shaped telemetry without adversarial execution.
+
+That boundary matters because detection engineering needs realistic signal structure, but publishing portable adversarial procedure creates a different risk category entirely.
+
+The goal is not to make attacks easier to run.
+
+The goal is to make defensive assumptions easier to inspect.
+
+
+
 ## What v0.1.0 can and cannot do
 
 **Can:**
 - Generate realistic-shape adversarial telemetry across 50 technique categories
+
+> By realistic-shape telemetry, I mean structurally similar event fields, timing patterns, technique labels, and correlation sequences — not real execution.
+
 - Organize simulation campaigns through bananaTREE phases
 - Score expected detection coverage against produced telemetry
 - Generate 10-section markdown reports with MITRE coverage tables
@@ -203,3 +270,23 @@ The safety boundary does not move between versions.
 *gnomeman4201 / badBANANA Research Collective*
 
 > Observable adversarial behavior, not portable adversarial procedure.
+
+
+## Example visual output
+
+Synthetic technique / layer frequency:
+
+![SHENRON synthetic technique frequency](https://raw.githubusercontent.com/gnomeman4201/shenron/main/docs/assets/shenron-demo/technique_frequency.png)
+
+Synthetic signal frequency:
+
+![SHENRON synthetic signal frequency](https://raw.githubusercontent.com/gnomeman4201/shenron/main/docs/assets/shenron-demo/signal_frequency.png)
+
+Synthetic phase frequency:
+
+![SHENRON synthetic phase frequency](https://raw.githubusercontent.com/gnomeman4201/shenron/main/docs/assets/shenron-demo/phase_frequency.png)
+
+Safety boundary:
+
+![SHENRON safety boundary](https://raw.githubusercontent.com/gnomeman4201/shenron/main/docs/assets/shenron-demo/safety_boundary.png)
+
