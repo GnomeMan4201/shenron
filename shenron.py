@@ -2,6 +2,8 @@ import sys, os, argparse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from core.engine import payload_registry
 from core.engine.scenario_engine import run_scenario, list_scenarios, BUILTIN_SCENARIOS
+from core.reports.evidence import load_latest_report, load_report_by_run_id
+from core.reports.markdown import write_report, render_markdown
 from core.engine.layer_loader import (
     load_all, load_layer, discover_canonical,
     get_by_category, CATEGORIES, _TYPE_TO_CAT
@@ -123,7 +125,10 @@ def main():
     p.add_argument("--stats",      action="store_true",  help="show operational dashboard")
     p.add_argument("--scenario",   type=str, metavar="NAME", help="run a scenario")
     p.add_argument("--scenarios",  action="store_true",      help="list available scenarios")
-    p.add_argument("--report",     action="store_true",      help="generate detection coverage report")
+    p.add_argument("--report",     action="store_true",      help="generate detection coverage report (legacy)")
+    p.add_argument("--report-v2",  type=str, nargs="?", const="latest", metavar="RUN_ID",
+                   help="generate v2 report: latest or <run_id>")
+    p.add_argument("--format",     type=str, default="markdown", help="report format (markdown)")
     args = p.parse_args()
 
     if args.list:           cmd_list(args)
@@ -137,6 +142,16 @@ def main():
     elif args.stats:        cmd_stats(args)
     elif args.scenario:     run_scenario(args.scenario, dry_run=args.dry_run)
     elif args.scenarios:    list_scenarios()
+    elif args.report_v2 is not None:
+        run_id = args.report_v2
+        rpt = load_report_by_run_id(run_id) if run_id != 'latest' else load_latest_report()
+        if rpt is None:
+            print(f'  [!] No report found for: {run_id}')
+        else:
+            from pathlib import Path as _P
+            path_out = write_report(rpt, output_dir='reports')
+            print(f'  [+] Report written: {path_out}')
+            print(f'  [+] Safety contract: {"PASS" if rpt.safety.all_passed else "FAIL"}')
     elif getattr(args, 'report', False):
         import importlib.util, os
         spec = importlib.util.spec_from_file_location("generate_report",
