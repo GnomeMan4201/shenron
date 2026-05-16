@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-# SHENRON: Mutation History — tracks layer load events, mutation types and stealth scores
+# SHENRON: Mutation History — operational logging infrastructure
+# ROLE: Core audit log module — records every layer load and execution event
+# MECHANISM: Appends structured JSON entries to ~/SHENRON/logs/mutation_history.json
+# NOTE: This module IS the mutation audit trail. It is not a simulator.
+#       It is called by layer_loader.py on every load and by payload_registry.run() on execution.
+#       Do not convert to a stub — it is active operational infrastructure.
+#       Similar role to polymorph_chain_stats (dashboard) and dark_signature_morpher (mutation engine).
 from core.engine.payload_registry import register_payload
 import os
 import json

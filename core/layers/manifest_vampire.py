@@ -1,74 +1,187 @@
 from core.engine.payload_registry import register_payload
 
 #!/usr/bin/env python3
-# manifest_vampire.py - SHENRON Layer 4: Manifest Leech + Clone Engine
+# SHENRON: Manifest Vampire — filesystem collection and mimic telemetry simulator
+# PURPOSE: Emit defender-observable telemetry for file leeching and script mimicry patterns
+# PRINCIPLE: Observable adversarial behavior, not portable adversarial procedure
+# MITRE: T1005 (Data from Local System), T1119 (Automated Collection)
+# DETECTION NOTES:
+#   - Blue teams should alert on: recursive home directory walk from non-backup process
+#   - Script files (.sh .py .conf .rc) being read and cached in hidden dotdir
+#   - Mimic scripts generated in ~/.shenron_manifest_cache/mimics/
+#   - Hash-deduplication pattern during file collection indicates systematic leeching
+#   - Collection targeting shell configs, rc files, and Python scripts specifically
 
 import os
-import re
-from pathlib import Path
+import json
+import uuid
+import random
 import hashlib
+from datetime import datetime, timezone
+from pathlib import Path
 
-SEARCH_PATHS = [
-    Path.home(),
-    Path.home() / "storage",
-    Path("/data/data/com.termux/files/usr/etc/"),
-    Path.home() / "bin"
+ARTIFACT_LOG = Path("/home/gnomeman4201/SHENRON/logs/simulation_artifacts.jsonl")
+
+def _get_artifact_log():
+    ARTIFACT_LOG.parent.mkdir(parents=True, exist_ok=True)
+    return ARTIFACT_LOG
+
+FAKE_SEARCH_PATHS_SIM = [
+    "~/home_sim/",
+    "~/storage_sim/",
+    "/data/local/etc_sim/",
+    "~/bin_sim/",
 ]
 
-VAMPIRE_DIR = Path.home() / ".shenron_manifest_cache"
-VAMPIRE_DIR.mkdir(exist_ok=True, parents=True)
+TARGET_EXTENSIONS_SIM = [".sh", ".conf", ".py", ".rc", ".bashrc", ".zshrc", ".json"]
 
-MIMIC_OUTPUT_DIR = VAMPIRE_DIR / "mimics"
-MIMIC_OUTPUT_DIR.mkdir(exist_ok=True)
+FAKE_COLLECTED_FILES_SIM = [
+    {"path_sim": "~/.bashrc_sim",            "ext": ".bashrc", "size_sim": 2048},
+    {"path_sim": "~/.zshrc_sim",             "ext": ".zshrc",  "size_sim": 1536},
+    {"path_sim": "~/bin/deploy_sim.sh",      "ext": ".sh",     "size_sim": 4096},
+    {"path_sim": "~/config/settings_sim.py", "ext": ".py",     "size_sim": 3072},
+    {"path_sim": "/etc/cron.d/jobs_sim.conf","ext": ".conf",   "size_sim": 512},
+    {"path_sim": "~/scripts/update_sim.sh",  "ext": ".sh",     "size_sim": 1024},
+]
 
-TARGET_EXTS = [".sh", ".conf", ".py", ".rc", ".bashrc", ".zshrc", ".json"]
+VAMPIRE_CACHE_SIM = "~/.shenron_manifest_cache_sim/"
+MIMIC_OUTPUT_SIM = "~/.shenron_manifest_cache_sim/mimics_sim/"
 
-def hash_file(fp):
-    return hashlib.sha256(fp.read_bytes()).hexdigest()
+COLLECTION_BEHAVIOR_CLASSES = [
+    "recursive_walk_home_collect_scripts_sim",
+    "hash_dedup_file_collection_sim",
+    "targeted_extension_filter_sim",
+]
 
-def mimic_script(content):
-    lines = content.strip().splitlines()
-    mimic = []
-    for line in lines:
-        line = re.sub(r"\s*#.*", "", line)
-        if re.match(r"^\s*$", line): continue
-        if "echo" in line or "printf" in line:
-            mimic.append('echo "[~] Simulated Output"')
-        elif "rm" in line or "cp" in line or "mv" in line:
-            mimic.append(": # command suppressed")
-        else:
-            mimic.append(":" if len(line) > 100 else line)
-    return "\n".join(mimic)
+MIMIC_BEHAVIOR_CLASSES = [
+    "strip_comments_generate_mimic_sim",
+    "suppress_destructive_commands_sim",
+    "replace_output_stubs_sim",
+]
 
-def scan_and_leech():
-    seen_hashes = set()
-    for base in SEARCH_PATHS:
-        for root, dirs, files in os.walk(base):
-            for f in files:
-                p = Path(root) / f
-                if any(str(p).endswith(ext) for ext in TARGET_EXTS):
-                    try:
-                        content = p.read_text(errors="ignore")
-                        h = hash_file(p)
-                        if h in seen_hashes:
-                            continue
-                        seen_hashes.add(h)
+DETECTION_OPPORTUNITIES = [
+    "recursive_home_walk_non_backup_process",
+    "script_files_read_cached_hidden_dotdir",
+    "mimic_scripts_generated_shenron_cache",
+    "hash_dedup_during_collection_systematic_leeching",
+    "collection_targeting_shell_configs_rc_python_specifically",
+]
 
-                        out_file = VAMPIRE_DIR / f"{p.name.replace('/', '_')}.leech"
-                        out_file.write_text(content)
+def _sim_hash():
+    return hashlib.sha256(os.urandom(16)).hexdigest()
 
-                        mimic_out = MIMIC_OUTPUT_DIR / f"mimic_{p.name}"
-                        mimic_out.write_text(mimic_script(content))
+def simulate_manifest_vampire():
+    session_id = str(uuid.uuid4())
+    events = []
 
-                        print(f"[+] Leeched & Mimicked: {p}")
-                    except Exception as e:
-                        print(f"[!] Failed on {p}: {e}")
+    # Phase 1: Filesystem scan simulation
+    scan_event = {
+        "artifact_id": str(uuid.uuid4()),
+        "session_id": session_id,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "layer": "manifest_vampire",
+        "phase": "filesystem_scan_sim",
+        "mitre_techniques": ["T1119"],
+        "behavior_class": "recursive_walk_home_collect_scripts_sim",
+        "search_paths_sim": FAKE_SEARCH_PATHS_SIM,
+        "target_extensions_sim": TARGET_EXTENSIONS_SIM,
+        "cache_dir_sim": VAMPIRE_CACHE_SIM,
+        "mimic_dir_sim": MIMIC_OUTPUT_SIM,
+        "detection_opportunities": [
+            "recursive_home_walk_non_backup_process",
+            "collection_targeting_shell_configs_rc_python_specifically",
+        ],
+        "simulation_only": True,
+        "executable": False,
+        "no_payload_present": True,
+        "files_read": False,
+        "files_written": False,
+    }
+    events.append(scan_event)
+    with open(_get_artifact_log(), "a") as f:
+        f.write(json.dumps(scan_event) + "\n")
+
+    # Phase 2: Collection and mimic generation
+    collected = random.sample(FAKE_COLLECTED_FILES_SIM,
+                               random.randint(3, len(FAKE_COLLECTED_FILES_SIM)))
+    seen_hashes_sim = set()
+
+    for file_sim in collected:
+        hash_sim = _sim_hash()
+        is_dup = hash_sim in seen_hashes_sim
+        seen_hashes_sim.add(hash_sim)
+        collect_behavior = random.choice(COLLECTION_BEHAVIOR_CLASSES)
+        mimic_behavior = random.choice(MIMIC_BEHAVIOR_CLASSES)
+
+        leech_event = {
+            "artifact_id": str(uuid.uuid4()),
+            "session_id": session_id,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "layer": "manifest_vampire",
+            "phase": "leech_and_mimic_sim",
+            "mitre_techniques": ["T1005"],
+            "collect_behavior_class": collect_behavior,
+            "mimic_behavior_class": mimic_behavior,
+            "source_path_sim": file_sim["path_sim"],
+            "extension_sim": file_sim["ext"],
+            "size_sim": file_sim["size_sim"],
+            "hash_sim": hash_sim,
+            "duplicate_sim": is_dup,
+            "skipped_sim": is_dup,
+            "leech_output_sim": f"{VAMPIRE_CACHE_SIM}{Path(file_sim['path_sim']).name}_sim.leech",
+            "mimic_output_sim": f"{MIMIC_OUTPUT_SIM}mimic_{Path(file_sim['path_sim']).name}_sim",
+            "mimic_transformations_sim": [
+                "strip_comments", "suppress_rm_cp_mv", "replace_echo_with_stub"
+            ],
+            "detection_opportunities": [
+                "script_files_read_cached_hidden_dotdir",
+                "mimic_scripts_generated_shenron_cache",
+                "hash_dedup_during_collection_systematic_leeching",
+            ],
+            "simulation_only": True,
+            "executable": False,
+            "no_payload_present": True,
+            "files_read": False,
+            "files_written": False,
+        }
+        events.append(leech_event)
+        with open(_get_artifact_log(), "a") as f:
+            f.write(json.dumps(leech_event) + "\n")
+
+    return session_id, collected, events
+
+def print_simulation(session_id, collected, events):
+    leeched = [e for e in events if e["phase"] == "leech_and_mimic_sim" and not e["skipped_sim"]]
+    print(f"\n  [SIMULATION]  manifest_vampire")
+    print(f"  [SESSION]     {session_id}")
+    print(f"  [SCANNED_SIM] {len(collected)} files")
+    print(f"  [LEECHED_SIM] {len(leeched)} unique")
+    print(f"  [EVENTS]      {len(events)}")
+    print(f"  [MITRE]       T1005, T1119")
+    print(f"  [FILES]       NOT READ OR WRITTEN — telemetry only")
+    print(f"  [EXECUTABLE]  FALSE — no filesystem access")
+    print()
+    for e in events:
+        if e["phase"] == "filesystem_scan_sim":
+            print(f"  [PHASE 1: FILESYSTEM SCAN]")
+            print(f"    paths_sim     : {e['search_paths_sim']}")
+            print(f"    extensions    : {e['target_extensions_sim']}")
+            print(f"    detection     : {e['detection_opportunities'][0]}")
+        elif e["phase"] == "leech_and_mimic_sim":
+            flag = "SKIP" if e["skipped_sim"] else "LEECH"
+            print(f"\n  [{flag}] {e['source_path_sim']}")
+            print(f"    collect       : {e['collect_behavior_class']}")
+            print(f"    mimic         : {e['mimic_behavior_class']}")
+            print(f"    transforms    : {e['mimic_transformations_sim']}")
+            print(f"    detection     : {e['detection_opportunities'][0]}")
+    print()
+    print(f"  [LOGGED]      {_get_artifact_log()}")
+    print(f"  [SAFE]        no filesystem access — telemetry only")
 
 @register_payload(name="manifest_vampire")
 def main():
-    print("[*] Starting manifest vampire crawl...")
-    scan_and_leech()
-    print(f"[✓] Leeching complete. Output in: {VAMPIRE_DIR}")
+    session_id, collected, events = simulate_manifest_vampire()
+    print_simulation(session_id, collected, events)
 
 if __name__ == "__main__":
     main()

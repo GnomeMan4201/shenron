@@ -19,12 +19,25 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "state_file_round_counter_hidden_dotpath",
+          "sequential_layer_selection_decision_matrix",
+          "subprocess_popen_chain_on_state"
+        ],
+        "alert_signatures": [
+          "round state file in hidden dotpath",
+          "autonomous layer selection from decision matrix",
+          "subprocess chain parent selects child on persisted state"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "state_load_sim",
+          "decision_cycle_sim",
+          "layer_dispatch_sim",
+          "state_update_sim"
+        ],
         "safe": true
       }
     },
@@ -688,12 +701,23 @@
           "process",
           "log"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "llm_format_logs_non_llm_process",
+          "hallucination_tags_outside_runtime_paths",
+          "token_metadata_non_inference_process"
+        ],
+        "alert_signatures": [
+          "[LLM-HALLUCINATION] tags outside LLM runtime paths",
+          "structured LLM-format entries from non-inference process",
+          "token/embedding metadata from process that doesn't run inference"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "echo_session_init",
+          "hallucination_trace_sim"
+        ],
         "safe": true
       }
     },
@@ -743,12 +767,23 @@
           "filesystem",
           "process"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "recursive_home_walk_non_backup",
+          "script_files_cached_hidden_dotdir",
+          "mimic_scripts_generated_shenron_cache"
+        ],
+        "alert_signatures": [
+          "recursive home walk from non-backup process",
+          "script files cached in ~/.shenron_manifest_cache/",
+          "hash-dedup collection targeting shell configs and Python files"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "filesystem_scan_sim",
+          "leech_and_mimic_sim"
+        ],
         "safe": true
       }
     },
@@ -850,12 +885,20 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "layer_load_logged",
+          "execution_logged"
+        ],
+        "alert_signatures": [
+          "mutation_history.json written on every layer load",
+          "audit trail tracks stealth scores and mutation types"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "mutation_log_entry"
+        ],
         "safe": true
       }
     },
@@ -1435,12 +1478,23 @@
           "filesystem",
           "memory"
         ],
-        "expected_events": [],
-        "alert_signatures": []
+        "expected_events": [
+          "daemon_named_threads_non_daemon_process",
+          "fake_pid_nonstandard_range",
+          "synthetic_system_events_non_system_source"
+        ],
+        "alert_signatures": [
+          "multiple daemon-named threads from single non-daemon process",
+          "fake PID entries in 4000-6000 range",
+          "synthetic system log events from non-system process"
+        ]
       },
       "simulation": {
-        "fidelity": "stub",
-        "emits": [],
+        "fidelity": "medium",
+        "emits": [
+          "fake_proc_hologram_sim",
+          "fake_log_activity_sim"
+        ],
         "safe": true
       }
     },
