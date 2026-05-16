@@ -9,10 +9,11 @@ from datetime import datetime
 from pathlib import Path
 from collections import defaultdict
 
-TIMELINE_LOG = Path("/home/gnomeman4201/SHENRON/logs/scenario_timelines.jsonl")
-ARTIFACT_LOG = Path("/home/gnomeman4201/SHENRON/logs/simulation_artifacts.jsonl")
+from core.config import artifact_log_path, timeline_log_path, get_report_dir
+TIMELINE_LOG = timeline_log_path()
+ARTIFACT_LOG = artifact_log_path()
 MANIFEST_PATH = Path(__file__).parent.parent / "shenron_manifest.json"
-REPORTS_DIR = Path("/home/gnomeman4201/SHENRON/reports")
+REPORTS_DIR = get_report_dir()
 
 def load_timeline():
     if not TIMELINE_LOG.exists():
