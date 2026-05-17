@@ -1,30 +1,42 @@
-name: persistence_coverage_assumption
-description: >
-  Claims that our detection stack can observe persistence-shaped adversarial telemetry.
-  This assumption covers scheduled task, service install, and registry run-key signals.
+id: persistence_coverage
+description: Validates artifact contains persistence mechanism telemetry
 
 claims:
-  - "We can observe persistence-shaped telemetry"
-  - "We can detect suspicious scheduled task behavior"
-  - "We can detect service creation shape"
-  - "We can detect registry run-key modification shape"
-  - "We can detect hidden directory creation"
+  - id: scheduled_task_evidence
+    type: positive_evidence
+    severity: medium
+    requires_techniques:
+      - T1053
+    requires_signals:
+      - scheduled_task_creation
+      - cron_modification_sim
 
-expected_techniques:
-  - T1053.005
-  - T1543.003
-  - T1547.001
-  - T1053
-  - T1543
-  - T1547
+  - id: autostart_evidence
+    type: positive_evidence
+    severity: medium
+    requires_techniques:
+      - T1547
+    requires_signals:
+      - autostart_registry_modification_sim
 
-expected_signals:
-  - scheduled_task_creation
-  - service_install_signal
-  - reg_run_key_signal
-  - hidden_temp_directory
-  - process_injection_attempt
+  - id: process_injection_evidence
+    type: positive_evidence
+    severity: high
+    requires_techniques:
+      - T1055
+    requires_signals:
+      - process_injection_attempt_sim
 
-expected_phases:
-  - EXECUTE
-  - ADAPT
+  - id: no_c2_overclaim
+    type: out_of_scope_claim
+    severity: high
+    requires_techniques:
+      - T1071
+    requires_signals:
+      - periodic_beacon_to_external_host
+
+  - id: no_exfil_overclaim
+    type: out_of_scope_claim
+    severity: high
+    requires_techniques:
+      - T1041

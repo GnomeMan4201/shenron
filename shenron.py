@@ -4,6 +4,12 @@ from core.engine import payload_registry
 from core.engine.scenario_engine import run_scenario, list_scenarios, BUILTIN_SCENARIOS
 from core.reports.evidence import load_latest_report, load_report_by_run_id
 from core.validation.scorer import score_latest, score_by_run_id
+from core.assumptions.validator import validate_assumption, print_result as print_assumption_result
+from core.assumptions.scope import generate_scope_report, update_assumption_index
+from core.assumptions.loader import load_artifacts as load_artifact_jsonl
+from core.assumptions.validator import validate_assumption, print_result as print_assumption_result
+from core.assumptions.scope import generate_scope_report, update_assumption_index
+from core.assumptions.loader import load_artifacts as load_artifact_jsonl
 from core.reports.markdown import write_report, render_markdown
 from core.engine.layer_loader import (
     load_all, load_layer, discover_canonical,
@@ -169,6 +175,28 @@ def main():
                    help="run detector validation: latest or <run_id>")
     p.add_argument("--include-validation", action="store_true",
                    help="include detector validation in report-v2 output")
+    p.add_argument("--validate-assumption", type=str, metavar="YAML",
+                   help="validate assumption YAML against artifact JSONL")
+    p.add_argument("--events", type=str, metavar="JSONL",
+                   help="artifact JSONL file for assumption validation")
+    p.add_argument("--scope-report", action="store_true",
+                   help="generate scope report after assumption validation")
+    p.add_argument("--assumption-index", action="store_true",
+                   help="show assumption audit index")
+    p.add_argument("--compare-assumptions", type=str, nargs="+", metavar="YAML",
+                   help="compare multiple assumption YAMLs against same artifact")
+                   help="include detector validation in report-v2 output")
+    p.add_argument("--validate-assumption", type=str, metavar="YAML",
+                   help="validate assumption YAML against artifact JSONL")
+    p.add_argument("--events", type=str, metavar="JSONL",
+                   help="artifact JSONL file for assumption validation")
+    p.add_argument("--scope-report", action="store_true",
+                   help="generate scope report after assumption validation")
+    p.add_argument("--assumption-index", action="store_true",
+                   help="show assumption audit index")
+    p.add_argument("--compare-assumptions", type=str, nargs="+", metavar="YAML",
+                   help="compare multiple assumption YAMLs against same artifact")
+                   help="include detector validation in report-v2 output")
     args = p.parse_args()
 
     if args.list:           cmd_list(args)
@@ -182,6 +210,97 @@ def main():
     elif args.stats:        cmd_stats(args)
     elif args.scenario:     run_scenario(args.scenario, dry_run=args.dry_run)
     elif args.scenarios:    list_scenarios()
+    elif getattr(args, 'validate_assumption', None):
+        yaml_path = args.validate_assumption
+        events_path = getattr(args, 'events', None)
+        if not events_path:
+            print("  [!] --validate-assumption requires --events <jsonl>")
+        else:
+            result = validate_assumption(yaml_path, events_path)
+            print_assumption_result(result)
+            idx = update_assumption_index(result)
+            print(f"  [+] Index updated: {idx}")
+            if getattr(args, 'scope_report', False):
+                arts = load_artifact_jsonl(events_path)
+                scope_path = generate_scope_report(result, arts)
+                print(f"  [+] Scope report: {scope_path}")
+    elif getattr(args, 'compare_assumptions', None):
+        events_path = getattr(args, 'events', None)
+        yamls = args.compare_assumptions
+        if not events_path:
+            print("  [!] --compare-assumptions requires --events <jsonl>")
+        else:
+            print(f"\n  Artifact: {events_path}\n")
+            for yaml_path in yamls:
+                result = validate_assumption(yaml_path, events_path)
+                name = result.assumption_id
+                status = result.status.value
+                sup = result.supported_count
+                uns = result.unsupported_count
+                print(f"  {name}:")
+                print(f"    status:    {status}")
+                print(f"    supported: {sup}")
+                print(f"    unsupported: {uns}")
+                if result.out_of_scope_violations:
+                    print(f"    oos_violations: {result.out_of_scope_violations}")
+                print()
+            print(f"  Conclusion:")
+            for yaml_path in yamls:
+                result = validate_assumption(yaml_path, events_path)
+                for line in result.safe_conclusion.split(". "):
+                    if line.strip():
+                        print(f"    {line.strip()}.")
+            print()
+    elif getattr(args, 'assumption_index', False):
+        from core.config import get_report_dir
+        idx = get_report_dir() / "assumptions" / "index.md"
+        if idx.exists():
+            print(idx.read_text())
+        else:
+            print("  [!] No assumption index found. Run --validate-assumption first.")
+    elif getattr(args, 'validate_assumption', None):
+        yaml_path  = args.validate_assumption
+        events_path = getattr(args, 'events', None)
+        if not events_path:
+            print("  [!] --validate-assumption requires --events <jsonl>")
+        else:
+            result = validate_assumption(yaml_path, events_path)
+            print_assumption_result(result)
+            idx = update_assumption_index(result)
+            print(f"  [+] Index updated: {idx}")
+            if getattr(args, 'scope_report', False):
+                arts = load_artifact_jsonl(events_path)
+                scope_path = generate_scope_report(result, arts)
+                print(f"  [+] Scope report: {scope_path}")
+    elif getattr(args, 'compare_assumptions', None):
+        events_path = getattr(args, 'events', None)
+        if not events_path:
+            print("  [!] --compare-assumptions requires --events <jsonl>")
+        else:
+            print(f"\n  Artifact: {events_path}\n")
+            for yaml_path in args.compare_assumptions:
+                r = validate_assumption(yaml_path, events_path)
+                print(f"  {r.assumption_id}:")
+                print(f"    status:      {r.status.value}")
+                print(f"    supported:   {r.supported_count}")
+                print(f"    unsupported: {r.unsupported_count}")
+                if r.out_of_scope_violations:
+                    print(f"    oos:         {r.out_of_scope_violations}")
+                print()
+            print("  Conclusion:")
+            for yaml_path in args.compare_assumptions:
+                r = validate_assumption(yaml_path, events_path)
+                for line in r.safe_conclusion.split(". "):
+                    if line.strip():
+                        print(f"    {line.strip()}.")
+            print()
+    elif getattr(args, 'assumption_index', False):
+        from core.config import get_report_dir
+        idx = get_report_dir() / "assumptions" / "index.md"
+        if idx.exists():
+            print(idx.read_text())
+        else:
+            print("  [!] No assumption index. Run --validate-assumption first.")
     elif args.validate is not None:
         run_id = args.validate
         cov = score_by_run_id(run_id) if run_id != 'latest' else score_latest()
