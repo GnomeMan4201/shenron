@@ -1,0 +1,31 @@
+name: c2_lateral_coverage_assumption
+description: >
+  Claims that our detection stack can observe C2 beaconing and lateral movement
+  shaped telemetry. Does not claim coverage of persistence or evasion shapes.
+
+claims:
+  - "We can detect periodic C2 beaconing patterns"
+  - "We can detect lateral movement across internal hosts"
+  - "We can detect DNS tunneling shape"
+  - "We can detect SMB probing behavior"
+  - "We can detect subnet sweep patterns"
+
+expected_techniques:
+  - T1071
+  - T1071.001
+  - T1021
+  - T1046
+  - T1135
+  - T1572
+
+expected_signals:
+  - periodic_outbound_connection
+  - subnet_sweep
+  - smb_port_probe
+  - dns_subdomain_query
+  - sequential_host_requests
+  - multi_vector_probe
+
+expected_phases:
+  - OBSERVE
+  - SIMULATE

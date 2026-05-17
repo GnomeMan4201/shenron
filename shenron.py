@@ -129,6 +129,10 @@ def main():
                 help="export ATT&CK Navigator layer for a run (default: latest)")
     p.add_argument("--navigator-out", type=str, default=None, metavar="PATH",
                 help="output path for Navigator JSON")
+    p.add_argument("--assumption",    type=str, metavar="YAML_PATH",
+                help="audit a coverage assumption file against JSONL events")
+    p.add_argument("--events",        type=str, default=None, metavar="JSONL_PATH",
+                help="JSONL events file for --assumption (default: latest demo run)")
     p.add_argument("--release-demo",  action="store_true",
                 help="build complete release artifact bundle")
     p.add_argument("--demo",          action="store_true",
@@ -180,6 +184,65 @@ def main():
             print(f'  [COVERAGE]    {cov.coverage_percent}%')
             print(f'  [SAFETY FAIL] {cov.safety_failure_count}')
             print(f'  [VERDICT]     {cov.verdict}')
+
+    elif args.assumption:
+        import json as _json
+        from pathlib import Path as _Path
+        from core.assumption.parser import load_assumption
+        from core.assumption.evaluator import evaluate
+        from core.assumption.reporter import to_markdown, to_json, print_summary
+
+        # Load assumption
+        try:
+            assumption = load_assumption(args.assumption)
+        except (FileNotFoundError, ValueError) as e:
+            print(f"  [!] {e}")
+            sys.exit(1)
+
+        # Load events
+        events_path = args.events
+        if not events_path:
+            # Default to latest demo run
+            candidates = [
+                "artifacts/demo/shenron_demo_run.jsonl",
+                "artifacts/shenron_demo_run.jsonl",
+            ]
+            for c in candidates:
+                if _Path(c).exists():
+                    events_path = c
+                    break
+        if not events_path or not _Path(events_path).exists():
+            print(f"  [!] No events file found. Run --demo first or pass --events PATH")
+            sys.exit(1)
+
+        records = []
+        with open(events_path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        records.append(_json.loads(line))
+                    except _json.JSONDecodeError:
+                        pass
+
+        result = evaluate(assumption, records)
+        print_summary(result)
+
+        # Write reports
+        import os as _os
+        out_dir = getattr(args, "out_dir", None) or "reports/assumptions"
+        _os.makedirs(out_dir, exist_ok=True)
+
+        safe_name = assumption.name.replace(" ", "_").replace("/", "_")
+        md_path   = _Path(out_dir) / f"assumption_{safe_name}.md"
+        json_path = _Path(out_dir) / f"assumption_{safe_name}.json"
+
+        md_path.write_text(to_markdown(result), encoding="utf-8")
+        json_path.write_text(to_json(result), encoding="utf-8")
+
+        print(f"  [MD]          {md_path}")
+        print(f"  [JSON]        {json_path}")
+        print()
 
     elif args.release_demo:
         from scripts.release_demo import run_release_demo
