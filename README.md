@@ -30,33 +30,34 @@ cd shenron
 python3 -m pytest tests/ -q
 python3 shenron.py --run all --dry-run
 python3 shenron.py --validate latest
-python3 shenron.py --report-v2 latest --include-validation
 ```
 
 ---
 
 ## Reproducible demo
 
-Clone the repo and run one command to produce the full safe demo artifact set:
+One command produces the complete artifact bundle:
 
 ```bash
-python3 shenron.py --demo --charts --out-dir artifacts/demo
+python3 shenron.py --release-demo
 ```
 
-Output:
+Output — `release/shenron-v0.3.3-demo/`:
 
 ```
-artifacts/demo/shenron_demo_run.jsonl       — 40 synthetic events, 4 phases
-artifacts/demo/shenron_demo_report.md       — markdown report with MITRE descriptor table
-artifacts/demo/safety_verification.md       — safety contract verification, all 8 fields
-docs/assets/shenron-demo/phase_frequency.png
-docs/assets/shenron-demo/technique_frequency.png
-docs/assets/shenron-demo/signal_frequency.png
-docs/assets/shenron-demo/event_timeline.png
-docs/assets/shenron-demo/safety_boundary.png
+shenron_demo_run.jsonl          40 synthetic telemetry events
+shenron_demo_report.md          human-readable run report
+safety_verification.md          safety contract field-by-field verification
+navigator_layer.json            ATT&CK Navigator import layer (synthetic)
+shenron_demo_run_ecs.json       ECS-formatted events
+shenron_demo_run_ecs_bulk.ndjson  Elastic bulk API format
+shenron_demo_run_splunk_hec.json  Splunk HEC format
+narrative.md                    tactic profile narrative
+charts/                         5 dark-mode PNGs
+MANIFEST.md                     bundle index with import commands
 ```
 
-Every record in the JSONL carries:
+Every record carries:
 
 ```json
 "safety": {
@@ -81,12 +82,8 @@ Inspect the safety contract on any JSONL artifact:
 python3 shenron.py --verify-safety artifacts/demo/shenron_demo_run.jsonl
 ```
 
-Output:
-
 ```
-  [SOURCE]      artifacts/demo/shenron_demo_run.jsonl
   [RECORDS]     40
-
   executable                           PASS
   network_connection                   PASS
   payload_present                      PASS
@@ -95,15 +92,12 @@ Output:
   shell_invoked                        PASS
   simulation_only                      PASS
   subprocess_spawned                   PASS
-
   [VERDICT]     PASS
 ```
 
 ---
 
 ## bananaTREE campaign model
-
-bananaTREE organizes SHENRON campaigns into four phases:
 
 | Phase | Intent |
 |-------|--------|
@@ -120,13 +114,7 @@ python3 shenron.py --scenario apt_kill_chain --dry-run
 python3 shenron.py --scenario persistence_runbook --dry-run
 ```
 
-Built-in scenarios:
-
-- `basic_c2_persistence` — C2 establishment, lateral movement, dual persistence
-- `recon_to_exfil` — Network recon, C2 check-in, data staging
-- `persistence_runbook` — All six persistence mechanisms in sequence
-- `evasion_stress_test` — Anti-forensics, log manipulation, masquerading
-- `apt_kill_chain` — Full APT kill chain: C2, recon, lateral, persistence, evasion, exfil
+Built-in scenarios: `basic_c2_persistence`, `recon_to_exfil`, `persistence_runbook`, `evasion_stress_test`, `apt_kill_chain`.
 
 ---
 
@@ -135,8 +123,6 @@ Built-in scenarios:
 ```bash
 python3 shenron.py --validate latest
 ```
-
-Output:
 
 ```
   [VALIDATION]  c2_shape_detection_test
@@ -156,108 +142,263 @@ PASS requires ≥80% coverage AND zero safety violations.
 Compare two runs to track detection coverage changes over time:
 
 ```bash
-python3 shenron.py --compare <run_id_a> <run_id_b>
-```
-
-Example — `apt_kill_chain` vs `persistence_runbook`:
-
-```
-  [COMPARE]
-  RUN A         1972a90e  apt_kill_chain        100.0%  PASS
-  RUN B         32491bae  persistence_runbook   100.0%  PASS
-  DELTA         ▲ +0.0%
-
-  [LOST -13]
-    ✗  dns_subdomain_query
-    ✗  periodic_outbound_connection
-    ✗  subnet_sweep
-    ✗  smb_port_probe
-    ✗  timestamp_rollback
-    ... 8 more
-
-  [MITRE LOST]  T1021, T1036, T1046, T1070, T1071, T1132, T1135
-```
-
-A detection stack validated only against `persistence_runbook` has no coverage signal for C2 beaconing, lateral movement, DNS tunneling, or anti-forensics. The compare output makes that gap explicit before an incident does.
-
-Export a coverage gap as an ATT&CK Navigator layer:
-
-```bash
+python3 shenron.py --compare <run_a> <run_b>
+python3 shenron.py --compare <run_a> <run_b> --narrate
 python3 shenron.py --compare <run_a> <run_b> --navigator-out reports/gap_layer.json
 ```
 
-Import at https://mitre-attack.github.io/attack-navigator/ → Open Existing Layer → Upload File.
+The `--narrate` flag generates an analyst-language defensive narrative that names the specific tactic families missing between runs, provides analyst concern language for each gap, and recommends which scenarios to run next.
+
+Example output — `apt_kill_chain` vs `persistence_runbook`:
+
+```
+  [NARRATIVE]   apt_kill_chain → persistence_runbook
+
+  Coverage gap families (4):
+    ✗  Command-and-Control
+    ✗  Defense Evasion
+    ✗  Lateral Movement
+    ✗  Discovery
+
+  Primary concern:
+    If C2-shaped telemetry is not in your validation set, your detectors
+    have not been tested against the phase where most APT campaigns are
+    first visible — initial callback after compromise.
+```
+
+---
+
+## Coverage assumption auditing
+
+Define what you believe your detection stack covers, then audit it against synthetic telemetry:
+
+```bash
+# Create an assumption file
+cat > assumptions/my_assumption.yaml << 'EOF'
+name: persistence_coverage_assumption
+description: We can detect persistence-shaped adversarial telemetry
+claims:
+  - "We can observe persistence-shaped telemetry"
+  - "We can detect suspicious scheduled task behavior"
+expected_techniques:
+  - T1053.005
+  - T1543.003
+  - T1547.001
+expected_signals:
+  - scheduled_task_creation
+  - service_install_signal
+expected_phases:
+  - EXECUTE
+EOF
+
+# Audit it
+python3 shenron.py --assumption assumptions/my_assumption.yaml \
+  --events artifacts/demo/shenron_demo_run.jsonl
+```
+
+SHENRON scores each claim against artifact evidence, identifies missing technique descriptors, and produces a markdown report with a "what this proves / what this does not prove" section.
+
+Example output:
+
+```
+  [ASSUMPTION]  persistence_coverage_assumption
+  [RECORDS]     40
+
+  Claims        0 supported  0 partial  2 unsupported
+  Techniques    3 observed   3 missing
+  Signals       2 observed   3 missing
+
+  [COVERAGE]    38.9%
+  [VERDICT]     FAIL
+```
+
+See `assumptions/examples/` for complete example files.
+
+---
+
+## Coverage history
+
+Track technique coverage drift across all your runs:
+
+```bash
+python3 shenron.py --coverage-history --out-dir reports/history
+python3 shenron.py --coverage-history --history-campaign c2_shape_detection_test
+```
+
+Output:
+- `coverage_history.md` — trend table per campaign, drift events, technique sets
+- `coverage_history.json` — machine-readable snapshot index
+- `coverage_history_trend.png` — technique count chart over time
+
+With 256 runs across 8 campaigns, SHENRON can show you whether your detection signal vocabulary has expanded, contracted, or stayed consistent across repeated validation runs.
+
+---
+
+## Format export
+
+Export synthetic events into formats your SIEM can ingest:
+
+```bash
+# Elastic Common Schema
+python3 shenron.py --export-format ecs \
+  --events artifacts/demo/shenron_demo_run.jsonl \
+  --out-dir artifacts/demo
+
+# Splunk HEC
+python3 shenron.py --export-format splunk \
+  --events artifacts/demo/shenron_demo_run.jsonl \
+  --out-dir artifacts/demo
+```
+
+Elastic import:
+
+```bash
+curl -X POST 'http://localhost:9200/_bulk' \
+     -H 'Content-Type: application/x-ndjson' \
+     --data-binary @artifacts/demo/shenron_demo_run_ecs_bulk.ndjson
+```
+
+All ECS events carry `event.dataset: shenron.synthetic`, `labels.simulation_only: true`, and the full safety contract in `labels.*` fields. Every event includes `[SHENRON SYNTHETIC]` in the `message` field. These are not real events.
+
+---
+
+## Mutation variants
+
+Test whether your analysis pipeline is brittle to incomplete, noisy, or mislabeled telemetry:
+
+```bash
+python3 shenron.py --mutate \
+  --events artifacts/demo/shenron_demo_run.jsonl \
+  --out-dir artifacts/mutations
+
+# Run specific mutation types
+python3 shenron.py --mutate \
+  --mutation-types field_drop,timing_jitter,label_ambiguity \
+  --events artifacts/demo/shenron_demo_run.jsonl
+```
+
+Available mutation types:
+
+| Type | What it does | Tests |
+|------|-------------|-------|
+| `field_drop` | Remove non-critical fields | Optional field dependencies |
+| `timing_jitter` | Add random timestamp offset | Timing-sensitive correlation rules |
+| `label_ambiguity` | Replace specific signals with generic names | Signal specificity requirements |
+| `signal_density_high` | 3× record duplication | High-volume burst handling |
+| `signal_density_low` | Drop 50% of records | Sparse telemetry detection |
+| `phase_imbalance` | Relabel all records to one phase | Phase-aware analysis brittleness |
+| `technique_noise` | Add unrelated technique IDs | MITRE-based correlation robustness |
+
+All safe mutation types preserve `simulation_only: true`. The `missing_safety_fields` type (opt-in only) intentionally violates the safety contract — use it only with `--verify-safety` to test contract validation.
+
+After mutation:
+
+```bash
+python3 shenron.py --verify-safety artifacts/mutations/mutation_field_drop.jsonl
+```
 
 ---
 
 ## ATT&CK Navigator export
 
-Export any run as a Navigator layer:
-
 ```bash
 python3 shenron.py --navigator latest
 python3 shenron.py --navigator <run_id> --navigator-out reports/my_layer.json
+
+# Gap layer from compare
+python3 shenron.py --compare <run_a> <run_b> --navigator-out reports/gap_layer.json
 ```
 
-Navigator layers carry synthetic coverage metadata. They are MITRE-style descriptor coverage from synthetic telemetry — not real ATT&CK validation or confirmed detector coverage.
+Import at https://mitre-attack.github.io/attack-navigator/ → Open Existing Layer → Upload File.
 
----
-
-## Report generation
-
-```bash
-python3 shenron.py --report-v2 latest --include-validation
-```
-
-Reports are written to `reports/` as markdown. Each report includes executive summary, bananaTREE phase breakdown, layer execution table, MITRE descriptor table, safety contract verification, and detection opportunity list.
+Navigator layers carry synthetic coverage metadata. They represent MITRE-style descriptor coverage from synthetic telemetry — not real ATT&CK validation.
 
 ---
 
 ## Full workflow
 
 ```bash
-# 1. Reproducible safe demo
+# 1. Run the safe demo pipeline
 python3 shenron.py --demo --charts --out-dir artifacts/demo
 
 # 2. Verify safety contract
 python3 shenron.py --verify-safety artifacts/demo/shenron_demo_run.jsonl
 
-# 3. Run scenarios
+# 3. Export to SIEM formats
+python3 shenron.py --export-format ecs --events artifacts/demo/shenron_demo_run.jsonl
+
+# 4. Run scenarios
 python3 shenron.py --scenario apt_kill_chain --dry-run
 python3 shenron.py --scenario persistence_runbook --dry-run
 
-# 4. Compare coverage profiles
-python3 shenron.py --compare <apt_run_id> <persistence_run_id> \
+# 5. Compare and narrate
+python3 shenron.py --compare <apt_id> <persistence_id> --narrate \
   --navigator-out reports/gap_layer.json
 
-# 5. Export Navigator layer
-python3 shenron.py --navigator latest
+# 6. Audit a coverage assumption
+python3 shenron.py --assumption assumptions/examples/persistence_coverage.yaml \
+  --events artifacts/demo/shenron_demo_run.jsonl
 
-# 6. Generate report
-python3 shenron.py --report-v2 latest --include-validation
+# 7. Track coverage history
+python3 shenron.py --coverage-history --out-dir reports/history
+
+# 8. Generate mutation variants
+python3 shenron.py --mutate --events artifacts/demo/shenron_demo_run.jsonl
+
+# 9. Build the full release bundle
+python3 shenron.py --release-demo
 ```
 
 ---
 
 ## CLI reference
 
+**Demo and safety**
+
 ```
 --demo                    Run safe 40-event demo pipeline
 --charts                  Generate charts from demo JSONL (use with --demo)
---out-dir DIR             Output directory for --demo (default: artifacts/demo)
---verify-safety [PATH]    Verify safety contract on JSONL file or 'latest'
---run TARGET              Run a layer, category, or 'all'
---dry-run                 Validate without executing
+--verify-safety [PATH]    Verify safety contract on JSONL or 'latest'
+--out-dir DIR             Output directory (default: artifacts/demo)
+--release-demo            Build complete 9-file release artifact bundle
+```
+
+**Scenarios and validation**
+
+```
 --scenario NAME           Run a built-in or custom scenario
 --scenarios               List available scenarios
+--run TARGET              Run a layer, category, or 'all'
+--dry-run                 Validate without executing
 --validate [RUN_ID]       Run detector validation
---compare RUN_A RUN_B     Diff two validation runs by run ID prefix
---navigator [RUN_ID]      Export ATT&CK Navigator layer
---navigator-out PATH      Output path for Navigator JSON
 --report-v2 [RUN_ID]      Generate markdown report
 --include-validation      Include validation results in report
---stats                   Show operational dashboard
---list                    List all canonical layers
+```
+
+**Comparison and analysis**
+
+```
+--compare RUN_A RUN_B     Diff two validation runs by run ID prefix
+--narrate                 Generate analyst narrative from --compare
+--navigator [RUN_ID]      Export ATT&CK Navigator layer
+--navigator-out PATH      Output path for Navigator JSON
+--assumption YAML_PATH    Audit a coverage assumption file
+--events JSONL_PATH       JSONL events file for --assumption or --export-format
+```
+
+**History and mutation**
+
+```
+--coverage-history        Build coverage trend report from all timeline runs
+--history-campaign NAME   Filter --coverage-history to a specific campaign
+--mutate                  Generate safe telemetry mutation variants
+--mutation-types TYPES    Comma-separated mutation types (default: all safe)
+```
+
+**Format export**
+
+```
+--export-format FORMAT    Export events as ECS or Splunk HEC (ecs|splunk)
 ```
 
 ---
@@ -269,8 +410,9 @@ python3 shenron.py --report-v2 latest --include-validation
 - Substitute for adversarial emulation where real execution is required
 - Prove that detection rules fire on production telemetry
 - Measure detection of kernel-level artifacts
+- Replace a red team
 
-SHENRON tests the telemetry pipeline layer: logging, SIEM ingestion, correlation rules, analyst workflows. It is complementary to adversarial emulation, not a substitute.
+SHENRON tests the telemetry pipeline layer: logging, SIEM ingestion, correlation rules, analyst workflows, and detection assumptions. It is complementary to adversarial emulation, not a substitute.
 
 ---
 
@@ -280,44 +422,57 @@ SHENRON tests the telemetry pipeline layer: logging, SIEM ingestion, correlation
 python3 -m pytest tests/ -q
 ```
 
-154 tests. 35 specifically cover validation and safety systems.
+283 tests. Covers safety contracts, format adapters, assumption auditing, narration engine, coverage history, mutation engine, and validation scoring.
 
 ---
 
 ## Project structure
 
 ```
-shenron.py                  — CLI entrypoint
+shenron.py                    CLI entrypoint
 core/
   engine/
-    scenario_engine.py      — bananaTREE campaign runner
-    layer_loader.py         — canonical layer discovery
-    payload_registry.py     — layer execution registry
+    scenario_engine.py        bananaTREE campaign runner
+    layer_loader.py           canonical layer discovery
+    payload_registry.py       layer execution registry
   reports/
-    evidence.py             — artifact loader, run parser
-    model.py                — report dataclasses
-    markdown.py             — markdown renderer
+    evidence.py               artifact loader, run parser
+    model.py                  report dataclasses
+    markdown.py               markdown renderer
   validation/
-    coverage.py             — detection coverage dataclasses
-    scorer.py               — validation scorer
-    expectations.py         — expected detection loader
-  compare.py                — run comparison engine
-  navigator.py              — ATT&CK Navigator exporter
+    coverage.py               detection coverage dataclasses
+    scorer.py                 validation scorer
+    expectations.py           expected detection loader
   safety/
-    contract.py             — shared safety contract, single source of truth
+    contract.py               shared safety contract — single source of truth
+  compare.py                  run comparison engine
+  navigator.py                ATT&CK Navigator exporter
+  narration/
+    engine.py                 deterministic analyst-language narrative generator
+  assumption/
+    parser.py                 YAML assumption loader and validator
+    evaluator.py              claim scorer against JSONL artifact records
+    reporter.py               markdown + JSON report writer
+  formats/
+    adapter.py                ECS and Splunk HEC format adapters
+  history/
+    tracker.py                coverage trend tracking and drift detection
+  mutation/
+    engine.py                 7 safe telemetry mutation variant generators
 scripts/
-  generate_demo_artifacts.py  — safe 40-event JSONL generator
-  generate_charts.py          — publication chart generator
-scenarios/                  — custom scenario JSON files
-artifacts/                  — generated JSONL and reports
-docs/assets/shenron-demo/   — chart PNGs
+  generate_demo_artifacts.py  safe 40-event JSONL generator
+  generate_charts.py          publication chart generator
+  release_demo.py             complete release bundle generator
+assumptions/examples/         example assumption YAML files
+scenarios/                    custom scenario JSON files
+tests/                        283 tests
 ```
 
 ---
 
-## Tag
+## Version
 
-`v0.1.0` — 50 layers · 154 tests · zero hardcoded paths · PASS verdict
+`v0.3.3` — 50 layers · 283 tests · zero hardcoded paths · PASS verdict
 
 *gnomeman4201 / badBANANA Research Collective*
 
