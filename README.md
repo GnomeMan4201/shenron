@@ -26,8 +26,6 @@ python3 shenron.py --compare-assumptions \
 
 ---
 
----
-
 ## Safety boundary
 
 SHENRON does not contain:
