@@ -185,18 +185,6 @@ def main():
                    help="show assumption audit index")
     p.add_argument("--compare-assumptions", type=str, nargs="+", metavar="YAML",
                    help="compare multiple assumption YAMLs against same artifact")
-                   help="include detector validation in report-v2 output")
-    p.add_argument("--validate-assumption", type=str, metavar="YAML",
-                   help="validate assumption YAML against artifact JSONL")
-    p.add_argument("--events", type=str, metavar="JSONL",
-                   help="artifact JSONL file for assumption validation")
-    p.add_argument("--scope-report", action="store_true",
-                   help="generate scope report after assumption validation")
-    p.add_argument("--assumption-index", action="store_true",
-                   help="show assumption audit index")
-    p.add_argument("--compare-assumptions", type=str, nargs="+", metavar="YAML",
-                   help="compare multiple assumption YAMLs against same artifact")
-                   help="include detector validation in report-v2 output")
     args = p.parse_args()
 
     if args.list:           cmd_list(args)
