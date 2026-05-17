@@ -1,0 +1,21 @@
+title: SHENRON Process Injection Persistence
+id: shenron-persistence-002
+status: test
+description: Detects process injection and watchdog revival telemetry
+author: gnomeman4201 / badBANANA Research Collective
+tags:
+    - attack.persistence
+    - attack.defense_evasion
+    - attack.t1055
+logsource:
+    product: shenron
+    category: simulation
+detection:
+    injection:
+        behavior_class: process_injection_watchdog_sim
+        detection_opp: process_injection_attempt_sim
+    token_manip:
+        behavior_class: memory_injection_token_sim
+        detection_opp: token_impersonation_sim
+    condition: injection or token_manip
+level: high

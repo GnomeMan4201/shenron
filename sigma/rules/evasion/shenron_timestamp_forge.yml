@@ -1,0 +1,18 @@
+title: SHENRON Timestamp Manipulation / Indicator Removal
+id: shenron-evasion-001
+status: test
+description: Detects timestamp forging and log manipulation telemetry
+author: gnomeman4201 / badBANANA Research Collective
+tags:
+    - attack.defense_evasion
+    - attack.t1070
+    - attack.t1036
+logsource:
+    product: shenron
+    category: simulation
+detection:
+    timestamp:
+        mitre_technique: T1070
+        phase: timestamp_forge_sim
+    condition: timestamp
+level: medium

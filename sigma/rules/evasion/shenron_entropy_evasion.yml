@@ -1,0 +1,17 @@
+title: SHENRON High Entropy Evasion Pattern
+id: shenron-evasion-002
+status: test
+description: Detects high entropy output and obfuscation telemetry
+author: gnomeman4201 / badBANANA Research Collective
+tags:
+    - attack.defense_evasion
+    - attack.t1027
+logsource:
+    product: shenron
+    category: simulation
+detection:
+    entropy:
+        mitre_technique: T1027
+        detection_opp: log_file_high_entropy_content_non_logging_source
+    condition: entropy
+level: medium

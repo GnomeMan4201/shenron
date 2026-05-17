@@ -1,0 +1,18 @@
+title: SHENRON C2 Beacon Detection
+id: shenron-c2-001
+status: test
+description: Detects periodic beacon and HTTP C2 channel telemetry
+author: gnomeman4201 / badBANANA Research Collective
+tags:
+    - attack.command_and_control
+    - attack.t1071
+    - attack.t1132
+logsource:
+    product: shenron
+    category: simulation
+detection:
+    beacon:
+        mitre_technique: T1071
+        layer: beacon_emitter_cloak
+    condition: beacon
+level: high

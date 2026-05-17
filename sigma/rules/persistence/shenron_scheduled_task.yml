@@ -1,0 +1,21 @@
+title: SHENRON Scheduled Task Persistence
+id: shenron-persistence-001
+status: test
+description: Detects scheduled task and cron-based persistence telemetry in SHENRON artifacts
+author: gnomeman4201 / badBANANA Research Collective
+tags:
+    - attack.persistence
+    - attack.t1053
+    - attack.t1547
+logsource:
+    product: shenron
+    category: simulation
+detection:
+    scheduled_task:
+        behavior_class: persistence_trigger_sim
+        detection_opp: scheduled_task_creation
+    cron_mod:
+        behavior_class: persistence_trigger_sim
+        detection_opp: cron_modification_sim
+    condition: scheduled_task or cron_mod
+level: high

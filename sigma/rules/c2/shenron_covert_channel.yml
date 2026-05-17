@@ -1,0 +1,18 @@
+title: SHENRON Covert Channel / Protocol Tunneling
+id: shenron-c2-002
+status: test
+description: Detects DNS tunneling and covert channel telemetry
+author: gnomeman4201 / badBANANA Research Collective
+tags:
+    - attack.command_and_control
+    - attack.t1095
+    - attack.t1572
+logsource:
+    product: shenron
+    category: simulation
+detection:
+    tunneling:
+        mitre_technique: T1095
+        layer: spectral_packet_weaver
+    condition: tunneling
+level: high
