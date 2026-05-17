@@ -129,6 +129,8 @@ def main():
                 help="export ATT&CK Navigator layer for a run (default: latest)")
     p.add_argument("--navigator-out", type=str, default=None, metavar="PATH",
                 help="output path for Navigator JSON")
+    p.add_argument("--narrate",       action="store_true",
+                help="generate analyst narrative from --compare output")
     p.add_argument("--export-format", type=str, metavar="FORMAT",
                 choices=["ecs", "splunk"],
                 help="export events as ECS or Splunk HEC (ecs|splunk)")
@@ -434,6 +436,18 @@ def main():
         out_path = reports_dir / f"compare_{id_a[:8]}_{id_b[:8]}.md"
         out_path.write_text(compare_report_to_markdown(result))
         print(f"  [REPORT]      {out_path}")
+
+        # If --narrate is passed, generate analyst narrative
+        if getattr(args, "narrate", False):
+            from core.narration.engine import narrate, print_narrative_summary
+            from pathlib import Path as _NPath
+
+            narrative_md = narrate(result)
+            print_narrative_summary(result)
+
+            narr_path = _NPath("reports") / f"narrative_{id_a[:8]}_{id_b[:8]}.md"
+            narr_path.write_text(narrative_md, encoding="utf-8")
+            print(f"  [NARRATIVE]   {narr_path}")
 
         # If --navigator-out is also passed, export gap Navigator layer
         if args.navigator_out:
