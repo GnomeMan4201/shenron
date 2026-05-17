@@ -129,6 +129,9 @@ def main():
                 help="export ATT&CK Navigator layer for a run (default: latest)")
     p.add_argument("--navigator-out", type=str, default=None, metavar="PATH",
                 help="output path for Navigator JSON")
+    p.add_argument("--export-format", type=str, metavar="FORMAT",
+                choices=["ecs", "splunk"],
+                help="export events as ECS or Splunk HEC (ecs|splunk)")
     p.add_argument("--assumption",    type=str, metavar="YAML_PATH",
                 help="audit a coverage assumption file against JSONL events")
     p.add_argument("--events",        type=str, default=None, metavar="JSONL_PATH",
@@ -184,6 +187,60 @@ def main():
             print(f'  [COVERAGE]    {cov.coverage_percent}%')
             print(f'  [SAFETY FAIL] {cov.safety_failure_count}')
             print(f'  [VERDICT]     {cov.verdict}')
+
+    elif args.export_format:
+        import json as _json
+        from pathlib import Path as _Path
+        from core.formats.adapter import (
+            write_ecs_array, write_ecs_bulk, write_splunk_hec, print_format_summary
+        )
+        import os as _os
+
+        # Resolve events source
+        events_path = getattr(args, "events", None)
+        if not events_path:
+            candidates = [
+                "artifacts/demo/shenron_demo_run.jsonl",
+                "artifacts/shenron_demo_run.jsonl",
+            ]
+            for c in candidates:
+                if _Path(c).exists():
+                    events_path = c
+                    break
+        if not events_path or not _Path(events_path).exists():
+            print("  [!] No events file found. Run --demo first or pass --events PATH")
+            sys.exit(1)
+
+        records = []
+        with open(events_path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        records.append(_json.loads(line))
+                    except _json.JSONDecodeError:
+                        pass
+
+        out_dir = getattr(args, "out_dir", None) or "artifacts/demo"
+        _os.makedirs(out_dir, exist_ok=True)
+
+        stem = _Path(events_path).stem
+        out_paths = {}
+
+        if args.export_format == "ecs":
+            ecs_array_path = str(_Path(out_dir) / f"{stem}_ecs.json")
+            ecs_bulk_path  = str(_Path(out_dir) / f"{stem}_ecs_bulk.ndjson")
+            write_ecs_array(records, ecs_array_path)
+            write_ecs_bulk(records,  ecs_bulk_path)
+            out_paths["ecs_array"] = ecs_array_path
+            out_paths["ecs_bulk"]  = ecs_bulk_path
+
+        elif args.export_format == "splunk":
+            splunk_path = str(_Path(out_dir) / f"{stem}_splunk_hec.json")
+            write_splunk_hec(records, splunk_path)
+            out_paths["splunk_hec"] = splunk_path
+
+        print_format_summary(records, out_paths)
 
     elif args.assumption:
         import json as _json
