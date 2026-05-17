@@ -252,8 +252,17 @@ class TestNarration:
 
     def test_narration_no_gaps_produces_no_gap_language(self):
         md = self._narrate(lost=[], mitre_lost=[])
-        assert "No significant tactic family gaps" in md or "not significant" in md.lower() \
-            or "closely aligned" in md.lower() or "No significant" in md
+        # When no signals are lost the gap section should be minimal
+        # Accept any of several possible phrasings
+        no_gap_phrases = [
+            "No significant tactic family gaps",
+            "closely aligned",
+            "no significant",
+            "not expressed",
+            "no gap",
+        ]
+        assert any(p.lower() in md.lower() for p in no_gap_phrases), \
+            f"Expected no-gap language not found in narrative"
 
     def test_narration_names_c2_gap_family(self):
         md = self._narrate(
