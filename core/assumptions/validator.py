@@ -96,7 +96,7 @@ def _safe_conclusion(assumption_id: str, results: list) -> str:
                                                    ClaimStatus.PARTIALLY_SUPPORTED)]
     oos = [r for r in results if r.status == ClaimStatus.OUT_OF_SCOPE]
 
-    if supported and not unsupported and not oos:
+    if supported and not unsupported:
         base = f"This artifact supports validation claims about {assumption_id}-shaped telemetry."
     elif supported and unsupported:
         base = (f"This artifact partially supports {assumption_id} claims. "
