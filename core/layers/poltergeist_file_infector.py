@@ -66,6 +66,10 @@ def simulate_poltergeist():
         "scan_path_sim": "~/",
         "safe": True,
         "simulation_only": True,
+        "behavior_class": "file_infection_sim",
+        "detection_opportunities": ["script_file_modification_sim", "loader_stub_injection_sim", "hash_modification_sim", "file_candidate_scan_sim"],
+        "executable": False,
+        "no_payload_present": True,
         "files_modified": False,
     }
     events.append(scan_event)
@@ -93,6 +97,10 @@ def simulate_poltergeist():
             "selected": selected,
             "safe": True,
             "simulation_only": True,
+        "behavior_class": "file_infection_sim",
+        "detection_opportunities": ["script_file_modification_sim", "loader_stub_injection_sim", "hash_modification_sim", "file_candidate_scan_sim"],
+        "executable": False,
+        "no_payload_present": True,
             "files_modified": False,
         }
         events.append(eval_event)
@@ -117,6 +125,10 @@ def simulate_poltergeist():
             "hash_after_sim": _fake_hash(),
             "safe": True,
             "simulation_only": True,
+        "behavior_class": "file_infection_sim",
+        "detection_opportunities": ["script_file_modification_sim", "loader_stub_injection_sim", "hash_modification_sim", "file_candidate_scan_sim"],
+        "executable": False,
+        "no_payload_present": True,
             "files_modified": False,
         }
         events.append(infect_event)

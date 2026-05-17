@@ -69,6 +69,10 @@ def simulate_memory_latch():
         "success_sim": random.choice([True, True, False]),
         "safe": True,
         "simulation_only": True,
+        "behavior_class": "process_injection_watchdog_sim",
+        "detection_opportunities": ["process_injection_attempt_sim", "watchdog_revival_sim", "signal_block_sim", "process_hollowing_sim"],
+        "executable": False,
+        "no_payload_present": True,
         "processes_spawned": False,
         "signals_manipulated": False,
     }
@@ -89,6 +93,10 @@ def simulate_memory_latch():
         "effect": "process_immune_to_termination_sim",
         "safe": True,
         "simulation_only": True,
+        "behavior_class": "process_injection_watchdog_sim",
+        "detection_opportunities": ["process_injection_attempt_sim", "watchdog_revival_sim", "signal_block_sim", "process_hollowing_sim"],
+        "executable": False,
+        "no_payload_present": True,
         "processes_spawned": False,
         "signals_manipulated": False,
     }
@@ -114,6 +122,10 @@ def simulate_memory_latch():
             "check_interval_sim": random.randint(3, 7),
             "safe": True,
             "simulation_only": True,
+        "behavior_class": "process_injection_watchdog_sim",
+        "detection_opportunities": ["process_injection_attempt_sim", "watchdog_revival_sim", "signal_block_sim", "process_hollowing_sim"],
+        "executable": False,
+        "no_payload_present": True,
             "processes_spawned": False,
             "signals_manipulated": False,
         }

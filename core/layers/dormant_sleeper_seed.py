@@ -70,6 +70,10 @@ def simulate_sleeper_seed():
         "armed": True,
         "safe": True,
         "simulation_only": True,
+        "behavior_class": "persistence_trigger_sim",
+        "detection_opportunities": ["scheduled_task_creation", "cron_modification_sim", "autostart_registry_modification_sim", "persistence_mechanism_install_sim"],
+        "executable": False,
+        "no_payload_present": True,
         "shell_commands_executed": False,
     }
     events.append(install_event)
@@ -91,6 +95,10 @@ def simulate_sleeper_seed():
         "check_interval_sim": trigger["check_interval_sim"],
         "safe": True,
         "simulation_only": True,
+        "behavior_class": "persistence_trigger_sim",
+        "detection_opportunities": ["scheduled_task_creation", "cron_modification_sim", "autostart_registry_modification_sim", "persistence_mechanism_install_sim"],
+        "executable": False,
+        "no_payload_present": True,
         "shell_commands_executed": False,
     }
     events.append(trigger_event)
@@ -113,6 +121,10 @@ def simulate_sleeper_seed():
             "activated": "activation simulated" in outcome,
             "safe": True,
             "simulation_only": True,
+        "behavior_class": "persistence_trigger_sim",
+        "detection_opportunities": ["scheduled_task_creation", "cron_modification_sim", "autostart_registry_modification_sim", "persistence_mechanism_install_sim"],
+        "executable": False,
+        "no_payload_present": True,
             "shell_commands_executed": False,
         }
         events.append(check_event)

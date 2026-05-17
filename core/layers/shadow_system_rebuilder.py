@@ -70,6 +70,10 @@ def simulate_shadow_rebuild():
         "results": scan_results,
         "safe": True,
         "simulation_only": True,
+        "behavior_class": "shadow_restore_sim",
+        "detection_opportunities": ["autostart_registry_modification_sim", "shadow_copy_restoration_sim", "filesystem_integrity_check_sim", "service_persistence_sim"],
+        "executable": False,
+        "no_payload_present": True,
         "filesystem_modified": False,
     }
     events.append(scan_event)
@@ -92,6 +96,10 @@ def simulate_shadow_rebuild():
                 "timestamp_adjusted_sim": True,
                 "safe": True,
                 "simulation_only": True,
+        "behavior_class": "shadow_restore_sim",
+        "detection_opportunities": ["autostart_registry_modification_sim", "shadow_copy_restoration_sim", "filesystem_integrity_check_sim", "service_persistence_sim"],
+        "executable": False,
+        "no_payload_present": True,
                 "filesystem_modified": False,
             }
             events.append(restore_event)

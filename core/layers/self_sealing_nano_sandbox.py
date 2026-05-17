@@ -61,6 +61,10 @@ def simulate_nano_sandbox():
         "hidden": True,
         "safe": True,
         "simulation_only": True,
+        "behavior_class": "sandbox_execution_sim",
+        "detection_opportunities": ["process_injection_attempt_sim", "hidden_sandbox_creation_sim", "chroot_sim", "sandbox_seal_destroy_sim"],
+        "executable": False,
+        "no_payload_present": True,
         "filesystem_modified": False,
         "subprocess_called": False,
     }
@@ -85,6 +89,10 @@ def simulate_nano_sandbox():
             "exit_code_sim": 0,
             "safe": True,
             "simulation_only": True,
+        "behavior_class": "sandbox_execution_sim",
+        "detection_opportunities": ["process_injection_attempt_sim", "hidden_sandbox_creation_sim", "chroot_sim", "sandbox_seal_destroy_sim"],
+        "executable": False,
+        "no_payload_present": True,
             "filesystem_modified": False,
             "subprocess_called": False,
         }
@@ -105,6 +113,10 @@ def simulate_nano_sandbox():
         "artifacts_removed_sim": True,
         "safe": True,
         "simulation_only": True,
+        "behavior_class": "sandbox_execution_sim",
+        "detection_opportunities": ["process_injection_attempt_sim", "hidden_sandbox_creation_sim", "chroot_sim", "sandbox_seal_destroy_sim"],
+        "executable": False,
+        "no_payload_present": True,
         "filesystem_modified": False,
         "subprocess_called": False,
     }

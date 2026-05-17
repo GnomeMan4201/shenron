@@ -68,6 +68,10 @@ def simulate_memory_hijack():
         "size_sim": region["size_sim"],
         "safe": True,
         "simulation_only": True,
+        "behavior_class": "memory_injection_token_sim",
+        "detection_opportunities": ["process_injection_attempt_sim", "token_impersonation_sim", "reflective_injection_sim", "memory_probe_sim"],
+        "executable": False,
+        "no_payload_present": True,
         "memory_accessed": False,
     }
     events.append(probe_event)
@@ -88,6 +92,10 @@ def simulate_memory_hijack():
         "success_sim": random.choice([True, True, False]),
         "safe": True,
         "simulation_only": True,
+        "behavior_class": "memory_injection_token_sim",
+        "detection_opportunities": ["process_injection_attempt_sim", "token_impersonation_sim", "reflective_injection_sim", "memory_probe_sim"],
+        "executable": False,
+        "no_payload_present": True,
         "memory_accessed": False,
     }
     events.append(inject_event)
@@ -107,6 +115,10 @@ def simulate_memory_hijack():
         "impersonation_sim": True,
         "safe": True,
         "simulation_only": True,
+        "behavior_class": "memory_injection_token_sim",
+        "detection_opportunities": ["process_injection_attempt_sim", "token_impersonation_sim", "reflective_injection_sim", "memory_probe_sim"],
+        "executable": False,
+        "no_payload_present": True,
         "memory_accessed": False,
     }
     events.append(token_event)
@@ -129,6 +141,10 @@ def simulate_memory_hijack():
             "anomaly_detected": "detected" in outcome or "triggered" in outcome,
             "safe": True,
             "simulation_only": True,
+        "behavior_class": "memory_injection_token_sim",
+        "detection_opportunities": ["process_injection_attempt_sim", "token_impersonation_sim", "reflective_injection_sim", "memory_probe_sim"],
+        "executable": False,
+        "no_payload_present": True,
             "memory_accessed": False,
         }
         events.append(monitor_event)
