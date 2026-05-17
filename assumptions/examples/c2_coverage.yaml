@@ -5,26 +5,23 @@ claims:
   - id: beacon_evidence
     type: positive_evidence
     severity: high
+    description: Artifact contains application layer C2 telemetry
     requires_techniques:
       - T1071
-    requires_signals:
-      - periodic_beacon_to_external_host
-      - http_beacon_sim
 
   - id: covert_channel_evidence
     type: positive_evidence
     severity: high
+    description: Artifact contains covert channel / tunneling telemetry
     requires_techniques:
       - T1095
       - T1572
-    requires_signals:
-      - covert_channel_traffic
-      - dns_tunneling_high_entropy
 
   - id: no_persistence_overclaim
     type: out_of_scope_claim
     severity: medium
+    description: This artifact should not be used to claim persistence detection
     requires_techniques:
       - T1053
-    requires_signals:
-      - scheduled_task_creation
+      - T1547
+      - T1055

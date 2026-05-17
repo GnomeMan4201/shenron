@@ -5,38 +5,37 @@ claims:
   - id: scheduled_task_evidence
     type: positive_evidence
     severity: medium
+    description: Artifact contains scheduled task / sleep seed telemetry
     requires_techniques:
       - T1053
-    requires_signals:
-      - scheduled_task_creation
-      - cron_modification_sim
-
-  - id: autostart_evidence
-    type: positive_evidence
-    severity: medium
-    requires_techniques:
       - T1547
-    requires_signals:
-      - autostart_registry_modification_sim
 
   - id: process_injection_evidence
     type: positive_evidence
     severity: high
+    description: Artifact contains process injection telemetry
     requires_techniques:
       - T1055
-    requires_signals:
-      - process_injection_attempt_sim
+
+  - id: autostart_evidence
+    type: positive_evidence
+    severity: medium
+    description: Artifact contains boot autostart / service persistence telemetry
+    requires_techniques:
+      - T1543
 
   - id: no_c2_overclaim
     type: out_of_scope_claim
     severity: high
+    description: This artifact should not be used to claim C2 detection coverage
     requires_techniques:
       - T1071
-    requires_signals:
-      - periodic_beacon_to_external_host
+      - T1095
 
   - id: no_exfil_overclaim
     type: out_of_scope_claim
     severity: high
+    description: This artifact should not be used to claim exfiltration detection
     requires_techniques:
       - T1041
+      - T1048
