@@ -1,10 +1,30 @@
 # SHENRON
 
-**Observable adversarial behavior, not portable adversarial procedure.**
+SHENRON is a safe synthetic telemetry and blue-team reasoning tool.
 
-A Python-based defensive adversarial telemetry simulation platform. SHENRON generates structured synthetic telemetry across 50 technique categories, organized through a four-phase campaign model called bananaTREE: OBSERVE, SIMULATE, EXECUTE, ADAPT.
+It does not prove that a detection stack is effective.
 
-Every artifact carries an explicit safety contract. No real network calls, no subprocess spawning, no executable payloads, no file writes outside the log directory.
+It helps answer a narrower and more honest question:
+
+> Does this artifact support the validation claim being made about it?
+
+---
+
+## Quick start
+
+```bash
+git clone https://github.com/GnomeMan4201/shenron
+cd shenron
+python3 shenron.py --run persistence
+python3 shenron.py --validate-assumption assumptions/examples/persistence_coverage.yaml \
+  --events ~/SHENRON/logs/simulation_artifacts.jsonl
+python3 shenron.py --compare-assumptions \
+  assumptions/examples/persistence_coverage.yaml \
+  assumptions/examples/c2_coverage.yaml \
+  --events ~/SHENRON/logs/simulation_artifacts.jsonl
+```
+
+---
 
 ---
 
