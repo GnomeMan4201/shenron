@@ -22,7 +22,7 @@ from core.engine.layer_loader import (
 
 _SUBCOMMANDS = frozenset({
     "quickstart", "run", "sigma", "assumption",
-    "report", "history", "artifact", "schema",
+    "report", "history", "artifact", "schema", "export",
 })
 
 BANNER = "  SHENRON // polymorphic framework // LANimals collective // gnomeman4201"

@@ -154,78 +154,65 @@ def to_ecs(record: dict) -> dict:
     """
     Convert a single SHENRON JSONL record to ECS format.
     Preserves the full SHENRON safety contract in labels.*.
+    Field mapping is aligned to real SHENRON event schema (flat safety fields,
+    mitre_techniques array, behavior_class, session_id).
     """
-    technique_id = record.get("mitre_technique", "")
+    # SHENRON uses mitre_techniques (list); take first for primary ECS mapping
+    techniques = record.get("mitre_techniques", [])
+    technique_id = techniques[0] if techniques else ""
     cats, types, tactic, tech_name = _resolve_technique(technique_id) \
         if technique_id else (["host"], ["info"], "unknown", "")
 
-    # Timestamp — use record's timestamp or now
     ts_raw = record.get("timestamp", "")
     try:
-        if ts_raw:
-            ts = ts_raw if ts_raw.endswith("Z") else ts_raw
-        else:
-            ts = datetime.now(timezone.utc).isoformat()
+        ts = ts_raw if ts_raw else datetime.now(timezone.utc).isoformat()
     except Exception:
         ts = datetime.now(timezone.utc).isoformat()
 
-    signal  = record.get("signal", "")
-    layer   = record.get("layer", "")
-    phase   = record.get("phase", "")
-    desc    = record.get("description", f"{signal} — {layer}")
-    run_id  = record.get("run_id", "")
-    safety  = record.get("safety", {})
-    entropy = record.get("entropy")
+    layer    = record.get("layer", "")
+    phase    = record.get("phase", "")
+    behavior = record.get("behavior_class", "")
+    session  = record.get("session_id", "")
+    desc     = f"{behavior} — {layer}" if behavior else layer
 
     ecs = {
         "@timestamp": ts,
 
-        # Event fields
         "event.kind":     "event",
         "event.category": cats,
         "event.type":     types,
         "event.dataset":  DATASET,
         "event.module":   "shenron",
         "event.provider": VERSION,
-        "event.sequence": record.get("sequence", 0),
+        "event.sequence": record.get("event_index", 0),
         "event.reason":   desc,
-        "event.severity": 50,  # informational — synthetic only
+        "event.severity": 50,
 
-        # Message — always includes synthetic disclaimer
-        "message": f"[SHENRON SYNTHETIC] {signal} — {layer}",
+        "message": f"[SHENRON SYNTHETIC] {behavior} — {layer}",
 
-        # Threat fields (MITRE ATT&CK descriptor — synthetic only)
-        "threat.framework":       "MITRE ATT&CK",
-        "threat.technique.id":    [technique_id] if technique_id else [],
-        "threat.technique.name":  [tech_name]    if tech_name    else [],
-        "threat.tactic.name":     [tactic]       if tactic       else [],
+        "threat.framework":      "MITRE ATT&CK",
+        "threat.technique.id":   techniques,
+        "threat.technique.name": [_TECHNIQUE_NAMES.get(t, t) for t in techniques],
+        "threat.tactic.name":    [tactic] if tactic else [],
 
-        # SHENRON labels — safety contract + metadata
-        "labels.simulation_only":                safety.get("simulation_only", True),
-        "labels.executable":                     safety.get("executable", False),
-        "labels.payload_present":                safety.get("payload_present", False),
-        "labels.portable_adversarial_procedure": safety.get("portable_adversarial_procedure", False),
-        "labels.network_connection":             safety.get("network_connection", False),
-        "labels.subprocess_spawned":             safety.get("subprocess_spawned", False),
-        "labels.real_file_written":              safety.get("real_file_written", False),
-        "labels.shell_invoked":                  safety.get("shell_invoked", False),
-        "labels.shenron_layer":                  layer,
-        "labels.shenron_phase":                  phase,
-        "labels.shenron_signal":                 signal,
-        "labels.shenron_run_id":                 run_id,
-        "labels.shenron_version":                VERSION,
+        # Safety contract — flat fields on real SHENRON events
+        "labels.simulation_only":    record.get("simulation_only", True),
+        "labels.executable":         record.get("executable", False),
+        "labels.no_payload_present": record.get("no_payload_present", True),
+        "labels.subprocess_spawned": record.get("subprocess_spawned", False),
+        "labels.subprocess_called":  record.get("subprocess_called", False),
 
-        # Observer
+        "labels.shenron_layer":   layer,
+        "labels.shenron_phase":   phase,
+        "labels.shenron_behavior":behavior,
+        "labels.shenron_session": session,
+        "labels.shenron_version": VERSION,
+        "labels.artifact_id":     record.get("artifact_id", ""),
+
         "observer.type":    "synthetic-telemetry-generator",
         "observer.version": VERSION,
         "observer.name":    "shenron",
     }
-
-    if entropy is not None:
-        ecs["labels.entropy"] = entropy
-
-    if record.get("artifact_hash"):
-        ecs["labels.artifact_hash"] = record["artifact_hash"]
 
     return ecs
 
@@ -234,8 +221,9 @@ def to_ecs(record: dict) -> dict:
 
 def to_splunk_hec(record: dict) -> dict:
     """
-    Convert a SHENRON record to Splunk HEC event format.
-    Compatible with Splunk HTTP Event Collector.
+    Convert a SHENRON JSONL record to Splunk HEC event format.
+    Aligned to real SHENRON event schema (flat safety fields, mitre_techniques array).
+    Compatible with Splunk HTTP Event Collector /services/collector/event endpoint.
     """
     ts_raw = record.get("timestamp", "")
     try:
@@ -247,29 +235,28 @@ def to_splunk_hec(record: dict) -> dict:
     except Exception:
         epoch = datetime.now(timezone.utc).timestamp()
 
-    technique_id = record.get("mitre_technique", "")
-    _, _, tactic, tech_name = _resolve_technique(technique_id) \
+    techniques = record.get("mitre_techniques", [])
+    technique_id = techniques[0] if techniques else ""
+    _, _, tactic, _ = _resolve_technique(technique_id) \
         if technique_id else ([], [], "unknown", "")
 
-    safety = record.get("safety", {})
+    layer    = record.get("layer", "")
+    behavior = record.get("behavior_class", "")
 
     event_body = {
-        "shenron_layer":   record.get("layer", ""),
-        "shenron_phase":   record.get("phase", ""),
-        "shenron_signal":  record.get("signal", ""),
-        "shenron_run_id":  record.get("run_id", ""),
-        "mitre_technique": technique_id,
-        "mitre_tactic":    tactic,
-        "description":     record.get("description", ""),
-        "message":         f"[SHENRON SYNTHETIC] {record.get('signal','')} — {record.get('layer','')}",
-        "simulation_only": safety.get("simulation_only", True),
-        "payload_present": safety.get("payload_present", False),
-        "executable":      safety.get("executable", False),
-        "portable_adversarial_procedure": safety.get("portable_adversarial_procedure", False),
+        "shenron_layer":    layer,
+        "shenron_phase":    record.get("phase", ""),
+        "shenron_behavior": behavior,
+        "shenron_session":  record.get("session_id", ""),
+        "artifact_id":      record.get("artifact_id", ""),
+        "mitre_techniques": techniques,
+        "mitre_tactic":     tactic,
+        "message":          f"[SHENRON SYNTHETIC] {behavior} — {layer}",
+        "simulation_only":  record.get("simulation_only", True),
+        "no_payload_present": record.get("no_payload_present", True),
+        "executable":       record.get("executable", False),
+        "subprocess_spawned": record.get("subprocess_spawned", False),
     }
-
-    if record.get("entropy") is not None:
-        event_body["entropy"] = record["entropy"]
 
     return {
         "time":       epoch,
