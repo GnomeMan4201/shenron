@@ -20,6 +20,11 @@ from core.engine.layer_loader import (
     get_by_category, CATEGORIES, _TYPE_TO_CAT
 )
 
+_SUBCOMMANDS = frozenset({
+    "quickstart", "run", "sigma", "assumption",
+    "report", "history", "artifact",
+})
+
 BANNER = "  SHENRON // polymorphic framework // LANimals collective // gnomeman4201"
 DIVIDER = "  " + "=" * 70
 
@@ -123,8 +128,21 @@ def cmd_stats(args):
     spec.loader.exec_module(mod)
     mod.main()
 
+
 def main():
-    banner()
+    from core.cli import print_banner, build_parser
+    print_banner()
+    if len(sys.argv) > 1 and sys.argv[1] in _SUBCOMMANDS:
+        p = build_parser()
+        args = p.parse_args()
+        if hasattr(args, "func"):
+            args.func(args)
+        else:
+            p.print_help()
+        return
+    _legacy_dispatch()
+
+def _legacy_dispatch():
     p = argparse.ArgumentParser(prog="shenron", add_help=True)
     p.add_argument("--list",       action="store_true",  help="list all canonical layers")
     p.add_argument("--cats",       action="store_true",  help="list categories")
