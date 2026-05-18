@@ -6,6 +6,18 @@ All notable changes to SHENRON are documented here.
 
 ## [Unreleased] — current main
 
+*(nothing yet)*
+
+---
+
+## [v0.4.2] — 2026-05-18
+
+### Security
+- Purged `basic_windows_keylogger.ps1`, `windows_reverse_shell.bat`, `mirror_module.sh` from all git history via `git filter-repo`
+- Rewrote `dark_signature_morpher.py` as simulation-only — no real file writes, no subprocess
+- Removed 4402 unsafe mutation variant files from git tracking; added `.gitignore` rule
+- Identified generation-time safety constraint gap in mutation engine — variants were synthesizing real capability from canonical layer patterns
+
 ### Added
 - CLI subcommand grammar (`shenron run`, `shenron sigma`, `shenron assumption`, etc.) — legacy `--flags` preserved for backward compatibility
 - `shenron quickstart` — one-command evidence bundle in 60 seconds
