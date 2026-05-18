@@ -34,7 +34,25 @@ This is not a disclaimer. It is an architectural constraint.
 
 ---
 
-## Quick start
+## Quickstart — one command, complete evidence bundle
+
+```bash
+git clone https://github.com/GnomeMan4201/shenron
+cd shenron
+python3 shenron.py --quickstart
+```
+
+Produces in `reports/demo/`:
+- `sigma_validation.txt` — which detection rules fire on synthetic telemetry
+- `assumption_validation.txt` — which claims the artifact supports
+- `attack_navigator_layer.json` — import into ATT&CK Navigator
+- `shenron_report.html` — open in any browser
+
+No setup. No external dependencies. No prior knowledge required.
+
+---
+
+## Full CLI
 
 ```bash
 git clone https://github.com/GnomeMan4201/shenron
