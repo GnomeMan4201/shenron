@@ -8,6 +8,7 @@ from core.assumptions.validator import validate_assumption, print_result as prin
 from core.assumptions.scope import generate_scope_report, update_assumption_index
 from core.assumptions.loader import load_artifacts as load_artifact_jsonl
 from core.sigma.evaluator import evaluate_sigma_rule, print_result as print_sigma_result
+from core.reports.html_report import generate_html_report
 from core.assumptions.scope import generate_scope_report, update_assumption_index
 from core.assumptions.loader import load_artifacts as load_artifact_jsonl
 from core.reports.markdown import write_report, render_markdown
@@ -183,6 +184,8 @@ def main():
                    help="show assumption audit index")
     p.add_argument("--compare-assumptions", type=str, nargs="+", metavar="YAML",
                    help="compare multiple assumption YAMLs against same artifact")
+    p.add_argument("--report-html", action="store_true",
+                   help="generate standalone HTML report from latest run")
     p.add_argument("--validate-sigma", type=str, metavar="RULE_YML",
                    help="validate a Sigma rule against artifact JSONL")
     p.add_argument("--validate-sigma-dir", type=str, metavar="DIR",
@@ -200,6 +203,51 @@ def main():
     elif args.stats:        cmd_stats(args)
     elif args.scenario:     run_scenario(args.scenario, dry_run=args.dry_run)
     elif args.scenarios:    list_scenarios()
+    elif getattr(args, 'report_html', False):
+        from core.reports.evidence import build_report_from_run, get_campaign_runs
+        from core.validation.scorer import score_latest
+        from core.assumptions.validator import validate_assumption
+        runs = get_campaign_runs()
+        if not runs:
+            print("  [!] No runs found. Run a campaign first.")
+        else:
+            latest_run = runs[-1]
+            run_id = latest_run.get("run_id", "unknown")
+            campaign = latest_run.get("campaign_name", "unknown")
+            # Build base report data
+            report_data = {
+                "run_id":        run_id,
+                "campaign_name": campaign,
+                "timestamp":     latest_run.get("timestamp", ""),
+                "safety":        {"verdict": "PASS", "violations": []},
+                "coverage":      {"score": 0.0, "verdict": "UNKNOWN"},
+                "findings":      [],
+                "mitre_coverage": {},
+            }
+            # Add sigma results if rules exist
+            sigma_results = []
+            sigma_dir = Path("sigma/rules")
+            events_path = getattr(args, 'events', None)
+            if not events_path:
+                from core.config import artifact_log_path
+                events_path = str(artifact_log_path())
+            if sigma_dir.exists() and Path(events_path).exists():
+                for rp in sorted(sigma_dir.rglob("*.yml")):
+                    r = evaluate_sigma_rule(str(rp), events_path)
+                    sigma_results.append(r.to_dict())
+            # Add assumption results if examples exist
+            assumption_results = []
+            assumption_dir = Path("assumptions/examples")
+            if assumption_dir.exists() and Path(events_path).exists():
+                for ap in sorted(assumption_dir.glob("*.yaml")):
+                    r = validate_assumption(str(ap), events_path)
+                    assumption_results.append(r.to_dict())
+            out = generate_html_report(
+                report_data,
+                sigma_results=sigma_results,
+                assumption_results=assumption_results,
+            )
+            print(f"  [+] HTML report: {out}")
     elif getattr(args, 'validate_sigma', None):
         rule_path   = args.validate_sigma
         events_path = getattr(args, 'events', None)
