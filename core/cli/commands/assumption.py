@@ -20,6 +20,11 @@ def register(subparsers):
     cmp.add_argument("--events", type=str, required=True, metavar="JSONL")
     cmp.set_defaults(func=_handle_compare)
 
+    # assumption diff <yaml> <yaml> --events <jsonl>
+    dff = sub.add_parser('diff', help='diff two assumptions against the same artifact')
+    dff.add_argument('yamls', nargs=2, metavar='YAML_PATH')
+    dff.add_argument('--events', type=str, required=True, metavar='JSONL')
+    dff.set_defaults(func=_handle_diff)
     # assumption index
     idx = sub.add_parser("index", help="show assumption audit index")
     idx.set_defaults(func=_handle_index)
@@ -76,3 +81,42 @@ def _handle_index(args):
         print(idx.read_text())
     else:
         print("  [!] No assumption index found. Run 'assumption validate' first.")
+
+
+def _handle_diff(args):
+    from core.assumptions.validator import validate_assumption
+
+    ya, yb = args.yamls
+    ra = validate_assumption(ya, args.events)
+    rb = validate_assumption(yb, args.events)
+
+    print()
+    print(f'  SHENRON assumption diff')
+    print(f'  artifact : {args.events}')
+    print()
+    print(f'  {"ASSUMPTION":<40} {"STATUS":<22} SUP  UNSUP  OOS')
+    print(f'  {"-"*39} {"-"*21} {"---"} {"-----"} {"---"}')
+    for r in (ra, rb):
+        oos = len(r.out_of_scope_violations)
+        print(f'  {r.assumption_id:<40} {r.status.value:<22} {r.supported_count:<4} {r.unsupported_count:<6} {oos}')
+    print()
+
+    # Claim-level diff
+    claim_ids_a = {cr.claim.id: cr for cr in ra.claim_results}
+    claim_ids_b = {cr.claim.id: cr for cr in rb.claim_results}
+    all_ids = sorted(set(claim_ids_a) | set(claim_ids_b))
+
+    if all_ids:
+        print(f'  {"CLAIM":<40} {"A STATUS":<22} {"B STATUS"}')
+        print(f'  {"-"*39} {"-"*21} {"-"*21}')
+        for cid in all_ids:
+            sa = claim_ids_a[cid].status.value if cid in claim_ids_a else "(absent)"
+            sb = claim_ids_b[cid].status.value if cid in claim_ids_b else "(absent)"
+            marker = "<<" if sa != sb else "  "
+            print(f'  {cid:<40} {sa:<22} {sb}  {marker}')
+        print()
+
+    print(f'  Interpretation:')
+    print(f'    A: {ra.safe_conclusion}')
+    print(f'    B: {rb.safe_conclusion}')
+    print()

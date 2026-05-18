@@ -1,0 +1,35 @@
+id: broad_detection_claim
+description: Overclaims broad detection coverage not supported by this artifact
+
+claims:
+  - id: phishing_detection_claim
+    type: positive_evidence
+    severity: high
+    description: Claims artifact supports phishing delivery detection
+    requires_techniques:
+      - T1566
+      - T1598
+
+  - id: credential_access_claim
+    type: positive_evidence
+    severity: high
+    description: Claims artifact supports credential dumping detection
+    requires_techniques:
+      - T1003
+      - T1110
+
+  - id: valid_accounts_claim
+    type: positive_evidence
+    severity: medium
+    description: Claims artifact supports valid accounts abuse detection
+    requires_techniques:
+      - T1078
+
+  - id: no_evasion_overclaim
+    type: out_of_scope_claim
+    severity: high
+    description: This artifact should not be used to claim full evasion coverage
+    requires_techniques:
+      - T1027
+      - T1036
+      - T1070
