@@ -204,50 +204,76 @@ def main():
     elif args.scenario:     run_scenario(args.scenario, dry_run=args.dry_run)
     elif args.scenarios:    list_scenarios()
     elif getattr(args, 'report_html', False):
-        from core.reports.evidence import build_report_from_run, get_campaign_runs
-        from core.validation.scorer import score_latest
+        from pathlib import Path as _Path
         from core.assumptions.validator import validate_assumption
-        runs = get_campaign_runs()
-        if not runs:
-            print("  [!] No runs found. Run a campaign first.")
-        else:
-            latest_run = runs[-1]
-            run_id = latest_run.get("run_id", "unknown")
-            campaign = latest_run.get("campaign_name", "unknown")
-            # Build base report data
-            report_data = {
-                "run_id":        run_id,
-                "campaign_name": campaign,
-                "timestamp":     latest_run.get("timestamp", ""),
-                "safety":        {"verdict": "PASS", "violations": []},
-                "coverage":      {"score": 0.0, "verdict": "UNKNOWN"},
-                "findings":      [],
-                "mitre_coverage": {},
-            }
-            # Add sigma results if rules exist
-            sigma_results = []
-            sigma_dir = Path("sigma/rules")
-            events_path = getattr(args, 'events', None)
-            if not events_path:
-                from core.config import artifact_log_path
-                events_path = str(artifact_log_path())
-            if sigma_dir.exists() and Path(events_path).exists():
-                for rp in sorted(sigma_dir.rglob("*.yml")):
-                    r = evaluate_sigma_rule(str(rp), events_path)
-                    sigma_results.append(r.to_dict())
-            # Add assumption results if examples exist
-            assumption_results = []
-            assumption_dir = Path("assumptions/examples")
-            if assumption_dir.exists() and Path(events_path).exists():
-                for ap in sorted(assumption_dir.glob("*.yaml")):
-                    r = validate_assumption(str(ap), events_path)
-                    assumption_results.append(r.to_dict())
-            out = generate_html_report(
-                report_data,
-                sigma_results=sigma_results,
-                assumption_results=assumption_results,
-            )
-            print(f"  [+] HTML report: {out}")
+        from core.config import artifact_log_path, timeline_log_path
+        import json as _json
+        from datetime import datetime as _dt, timezone as _tz
+
+        events_path = getattr(args, 'events', None)
+        if not events_path:
+            events_path = str(artifact_log_path())
+
+        # Read latest run info from timeline
+        timeline_p = timeline_log_path()
+        run_id = "manual"
+        campaign = "manual"
+        ts = _dt.now(_tz.utc).isoformat()
+        if timeline_p.exists():
+            lines = [l for l in timeline_p.read_text().splitlines() if l.strip()]
+            if lines:
+                last = _json.loads(lines[-1])
+                run_id  = last.get("run_id", run_id)
+                campaign = last.get("campaign_name", campaign)
+                ts = last.get("timestamp", ts)
+
+        report_data = {
+            "run_id":        run_id,
+            "campaign_name": campaign,
+            "timestamp":     ts,
+            "safety":        {"verdict": "PASS", "violations": []},
+            "coverage":      {"score": 0.0, "verdict": "UNKNOWN"},
+            "findings":      [],
+            "mitre_coverage": {},
+        }
+
+        # Load artifacts for findings + MITRE
+        from core.assumptions.loader import load_artifacts as _la
+        from collections import Counter as _C
+        arts = _la(events_path)
+        mitre = _C()
+        findings = []
+        for a in arts:
+            techs = a.get("mitre_techniques", [])
+            if isinstance(techs, str): techs = [techs]
+            for t in techs: mitre[t] += 1
+            if a.get("detection_opportunities"):
+                findings.append(a)
+        report_data["mitre_coverage"] = {t: {"count": n} for t,n in mitre.items()}
+        report_data["findings"] = findings[:50]
+
+        # Sigma results
+        sigma_results = []
+        sigma_dir = _Path("sigma/rules")
+        if sigma_dir.exists() and _Path(events_path).exists():
+            for rp in sorted(sigma_dir.rglob("*.yml")):
+                r = evaluate_sigma_rule(str(rp), events_path)
+                sigma_results.append(r.to_dict())
+
+        # Assumption results
+        assumption_results = []
+        assumption_dir = _Path("assumptions/examples")
+        if assumption_dir.exists() and _Path(events_path).exists():
+            for ap in sorted(assumption_dir.glob("*.yaml")):
+                r = validate_assumption(str(ap), events_path)
+                assumption_results.append(r.to_dict())
+
+        out = generate_html_report(
+            report_data,
+            sigma_results=sigma_results,
+            assumption_results=assumption_results,
+        )
+        print(f"  [+] HTML report: {out}")
     elif getattr(args, 'validate_sigma', None):
         rule_path   = args.validate_sigma
         events_path = getattr(args, 'events', None)

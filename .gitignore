@@ -7,3 +7,5 @@ Observable
 uuid
 reports/
 release/
+!core/reports/
+!core/reports/*.py
