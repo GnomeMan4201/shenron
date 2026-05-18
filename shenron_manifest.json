@@ -45,7 +45,7 @@
       "name": "airlock_quarantine_cloak",
       "category": "evasion",
       "file": "airlock_quarantine_cloak.py",
-      "description": "SHENRON: Airlock Quarantine Cloak \u2014 Simulates malware quarantine to fool antivirus",
+      "description": "SHENRON: Airlock Quarantine Cloak — Simulates malware quarantine to fool antivirus",
       "variant_count": 61,
       "mitre": {
         "techniques": [
@@ -240,38 +240,10 @@
       }
     },
     {
-      "name": "dark_signature_morpher",
-      "category": "evasion",
-      "file": "dark_signature_morpher.py",
-      "description": "SHENRON Layer: Dark Signature Morpher",
-      "variant_count": 0,
-      "mitre": {
-        "techniques": [
-          "T1027",
-          "T1036"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [],
-        "alert_signatures": []
-      },
-      "simulation": {
-        "fidelity": "stub",
-        "emits": [],
-        "safe": true
-      }
-    },
-    {
       "name": "deadzone_payload",
       "category": "payload",
       "file": "deadzone_payload.py",
-      "description": "SHENRON: Deadzone Payload \u2014 inert payload staging and dead-drop zone manager",
+      "description": "SHENRON: Deadzone Payload — inert payload staging and dead-drop zone manager",
       "variant_count": 128,
       "mitre": {
         "techniques": [
@@ -352,7 +324,7 @@
       "name": "dragons_breath_destructor",
       "category": "llm",
       "file": "dragons_breath_destructor.py",
-      "description": "SHENRON: Dragons Breath Destructor \u2014 aggressive file/process scorched-earth cleanup layer",
+      "description": "SHENRON: Dragons Breath Destructor — aggressive file/process scorched-earth cleanup layer",
       "variant_count": 31,
       "mitre": {
         "techniques": [
@@ -380,7 +352,7 @@
       "name": "dreamdive_overlay",
       "category": "c2",
       "file": "dreamdive_overlay.py",
-      "description": "SHENRON: DreamDive Overlay \u2014 Hallucinogenic Log Distortion",
+      "description": "SHENRON: DreamDive Overlay — Hallucinogenic Log Distortion",
       "variant_count": 65,
       "mitre": {
         "techniques": [
@@ -419,7 +391,7 @@
       "name": "encrypted_echo_chamber",
       "category": "llm",
       "file": "encrypted_echo_chamber.py",
-      "description": "SHENRON: Encrypted Echo Chamber \u2013 internal secure comms channel creator",
+      "description": "SHENRON: Encrypted Echo Chamber – internal secure comms channel creator",
       "variant_count": 60,
       "mitre": {
         "techniques": [
@@ -447,7 +419,7 @@
       "name": "entropy_anchor_dropper",
       "category": "entropy",
       "file": "entropy_anchor_dropper.py",
-      "description": "SHENRON: Entropy Anchor Dropper \u2014 Timing and Pattern Camouflage Engine",
+      "description": "SHENRON: Entropy Anchor Dropper — Timing and Pattern Camouflage Engine",
       "variant_count": 64,
       "mitre": {
         "techniques": [
@@ -487,7 +459,7 @@
       "name": "entropy_flux_disruptor",
       "category": "entropy",
       "file": "entropy_flux_disruptor.py",
-      "description": "SHENRON: Entropy Flux Disruptor \u2014 ML Pattern Confuser",
+      "description": "SHENRON: Entropy Flux Disruptor — ML Pattern Confuser",
       "variant_count": 65,
       "mitre": {
         "techniques": [
@@ -525,7 +497,7 @@
       "name": "ethereal_payload_reanimator",
       "category": "payload",
       "file": "ethereal_payload_reanimator.py",
-      "description": "SHENRON: Ethereal Payload Reanimator \u2014 subprocess-based dormant payload revival engine",
+      "description": "SHENRON: Ethereal Payload Reanimator — subprocess-based dormant payload revival engine",
       "variant_count": 30,
       "mitre": {
         "techniques": [
@@ -603,7 +575,7 @@
       "name": "forged_bios_artifact",
       "category": "identity",
       "file": "forged_bios_artifact.py",
-      "description": "SHENRON: Forged BIOS Artifact Seeder \u2014 Creates low-level tamper illusions",
+      "description": "SHENRON: Forged BIOS Artifact Seeder — Creates low-level tamper illusions",
       "variant_count": 60,
       "mitre": {
         "techniques": [
@@ -791,7 +763,7 @@
       "name": "memory_hijack_inheritor",
       "category": "persistence",
       "file": "memory_hijack_inheritor.py",
-      "description": "Simulated memory hijack \u2013 write our code to an unused location",
+      "description": "Simulated memory hijack – write our code to an unused location",
       "variant_count": 126,
       "mitre": {
         "techniques": [
@@ -832,7 +804,7 @@
       "name": "mirror_loop_deflector",
       "category": "evasion",
       "file": "mirror_loop_deflector.py",
-      "description": "SHENRON: Mirror Loop Deflector \u2014 Process Reflection & Cloaking",
+      "description": "SHENRON: Mirror Loop Deflector — Process Reflection & Cloaking",
       "variant_count": 59,
       "mitre": {
         "techniques": [
@@ -870,7 +842,7 @@
       "name": "mutation_history",
       "category": "meta",
       "file": "mutation_history.py",
-      "description": "SHENRON: Mutation History \u2014 tracks layer load events, mutation types and stealth scores",
+      "description": "SHENRON: Mutation History — tracks layer load events, mutation types and stealth scores",
       "variant_count": 1,
       "mitre": {
         "techniques": [
@@ -1058,38 +1030,10 @@
       }
     },
     {
-      "name": "phantom_thread_fabricator",
-      "category": "meta",
-      "file": "phantom_thread_fabricator.py",
-      "description": "SHENRON: Phantom Thread Fabricator \u2014 simulates IO and thread noise for anti-forensic interference",
-      "variant_count": 131,
-      "mitre": {
-        "techniques": [
-          "T1055.003",
-          "T1036"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [],
-        "alert_signatures": []
-      },
-      "simulation": {
-        "fidelity": "stub",
-        "emits": [],
-        "safe": true
-      }
-    },
-    {
       "name": "poltergeist_file_infector",
       "category": "persistence",
       "file": "poltergeist_file_infector.py",
-      "description": "SHENRON: Poltergeist File Infector \u2014 randomized file-level infection and persistence dropper",
+      "description": "SHENRON: Poltergeist File Infector — randomized file-level infection and persistence dropper",
       "variant_count": 33,
       "mitre": {
         "techniques": [
@@ -1129,7 +1073,7 @@
       "name": "polymorph_chain_stats",
       "category": "meta",
       "file": "polymorph_chain_stats.py",
-      "description": "SHENRON: Polymorph Chain Stats \u2014 real-time operational dashboard",
+      "description": "SHENRON: Polymorph Chain Stats — real-time operational dashboard",
       "variant_count": 0,
       "mitre": {
         "techniques": [],
@@ -1150,7 +1094,7 @@
       "name": "quantum_entanglement_relay",
       "category": "entropy",
       "file": "quantum_entanglement_relay.py",
-      "description": "SHENRON: Quantum Entanglement Relay \u2014 threaded socket relay for covert channel bridging",
+      "description": "SHENRON: Quantum Entanglement Relay — threaded socket relay for covert channel bridging",
       "variant_count": 30,
       "mitre": {
         "techniques": [
@@ -1228,7 +1172,7 @@
       "name": "quantum_state_shuffler",
       "category": "entropy",
       "file": "quantum_state_shuffler.py",
-      "description": "SHENRON: Quantum State Shuffler \u2013 Dynamic payload state randomizer for heuristic evasion",
+      "description": "SHENRON: Quantum State Shuffler – Dynamic payload state randomizer for heuristic evasion",
       "variant_count": 66,
       "mitre": {
         "techniques": [
@@ -1267,7 +1211,7 @@
       "name": "quantum_trace_rewinder",
       "category": "entropy",
       "file": "quantum_trace_rewinder.py",
-      "description": "SHENRON: Quantum Trace Rewinder \u2014 Timeline Spoofing + Anti-Forensics",
+      "description": "SHENRON: Quantum Trace Rewinder — Timeline Spoofing + Anti-Forensics",
       "variant_count": 64,
       "mitre": {
         "techniques": [
@@ -1306,7 +1250,7 @@
       "name": "recursive_payload_seedbank",
       "category": "payload",
       "file": "recursive_payload_seedbank.py",
-      "description": "SHENRON: Recursive Payload Seedbank \u2014 plants dormant recursive payloads",
+      "description": "SHENRON: Recursive Payload Seedbank — plants dormant recursive payloads",
       "variant_count": 63,
       "mitre": {
         "techniques": [
@@ -1385,7 +1329,7 @@
       "name": "shadow_system_rebuilder",
       "category": "persistence",
       "file": "shadow_system_rebuilder.py",
-      "description": "SHENRON: Shadow System Rebuilder \u2014 Restores original file states post-compromise",
+      "description": "SHENRON: Shadow System Rebuilder — Restores original file states post-compromise",
       "variant_count": 61,
       "mitre": {
         "techniques": [
@@ -1658,7 +1602,7 @@
       "name": "synthetic_splinter_seed",
       "category": "entropy",
       "file": "synthetic_splinter_seed.py",
-      "description": "SHENRON: Synthetic Splinter Seeder \u2014 Polymorphic Micro-Worm Propagation",
+      "description": "SHENRON: Synthetic Splinter Seeder — Polymorphic Micro-Worm Propagation",
       "variant_count": 69,
       "mitre": {
         "techniques": [
@@ -1897,13 +1841,13 @@
     "total_variants": 4354,
     "by_category": {
       "identity": 4,
-      "evasion": 6,
+      "evasion": 7,
       "payload": 8,
       "persistence": 6,
       "entropy": 8,
       "c2": 8,
       "llm": 4,
-      "meta": 6
+      "meta": 5
     }
   }
 }
