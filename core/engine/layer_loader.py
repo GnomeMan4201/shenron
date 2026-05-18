@@ -19,7 +19,9 @@ def _log_mutation_safe(layer_type, status, notes=""):
     except Exception:
         pass
 
-LAYERS_DIR = Path(os.path.expanduser("~/research_hub/repos/shenron/core/layers"))
+# Resolve layers dir relative to this file — works from any clone location
+REPO_ROOT  = Path(__file__).resolve().parents[2]
+LAYERS_DIR = REPO_ROOT / "core" / "layers"
 
 CATEGORIES = {
     "identity":    ["shenron_bio_replication","forged_bios_artifact","cognitive_replicator","stealth_mimic"],

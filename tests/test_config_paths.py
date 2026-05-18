@@ -92,6 +92,7 @@ def test_no_hardcoded_paths_in_core():
     """Verify no hardcoded /home/gnomeman4201 paths remain in core/ or scripts/."""
     bad = []
     path_marker = "/home/gnomeman4201/SHENRON"
+    personal_path = "research_hub/repos/shenron"
     for f in Path("core").rglob("*.py"):
         try:
             c = f.read_text(encoding="utf-8", errors="ignore")
@@ -112,3 +113,4 @@ def test_no_hardcoded_paths_in_shenron_py():
     """shenron.py should not contain hardcoded /home/gnomeman4201 paths."""
     content = Path("shenron.py").read_text()
     assert "/home/gnomeman4201/SHENRON" not in content
+    assert "research_hub/repos/shenron" not in content

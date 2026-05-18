@@ -115,7 +115,7 @@ def build_manifest(
         f"## Reproduce",
         f"",
         f"```bash",
-        f"git clone https://github.com/GnomeMan4201/shenron",
+        f"git clone https://github.com/{os.environ.get('SHENRON_REPO', 'GnomeMan4201/shenron')}",
         f"cd shenron",
         f"python3 shenron.py --release-demo",
         f"```",
