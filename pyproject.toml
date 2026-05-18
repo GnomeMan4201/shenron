@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "shenron"
+version = "0.4.0"
+description = "Synthetic adversarial telemetry and detection validation pipeline for blue teams"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "gnomeman4201", email = "badbanana@proton.me"}
+]
+keywords = ["blue-team", "detection", "sigma", "mitre", "telemetry", "simulation", "security"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Software Development :: Testing",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "pyyaml",
+]
+
+[project.scripts]
+shenron = "shenron:main"
+
+[project.urls]
+Homepage = "https://github.com/GnomeMan4201/shenron"
+Repository = "https://github.com/GnomeMan4201/shenron"
+Changelog = "https://github.com/GnomeMan4201/shenron/blob/main/CHANGELOG.md"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["core*", "schemas*", "sigma*", "assumptions*", "scenarios*", "scripts*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.yaml", "*.yml", "*.json", "*.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
