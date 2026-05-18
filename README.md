@@ -57,34 +57,49 @@ No setup. No external dependencies. No prior knowledge required.
 ```bash
 git clone https://github.com/GnomeMan4201/shenron
 cd shenron
-python3 -m pytest tests/ -q                         # 319 tests
+python3 -m pytest tests/ -q                         # 335 tests
 
 # Run a campaign
-python3 shenron.py --run persistence
-python3 shenron.py --run c2
-python3 shenron.py --run all --dry-run              # 50 ok | 0 failed
+python3 shenron.py run persistence
+python3 shenron.py run c2
+python3 shenron.py run all --dry-run                # 50 ok | 0 failed
 
 # Validate Sigma rules against synthetic telemetry
-python3 shenron.py --validate-sigma-dir sigma/rules/ \
-  --events ~/SHENRON/logs/simulation_artifacts.jsonl
+python3 shenron.py sigma validate-dir sigma/rules/ \
+  --events artifacts/demo/shenron_demo_run.jsonl
 
 # Validate assumption claims against artifact
-python3 shenron.py --validate-assumption \
+python3 shenron.py assumption validate \
   assumptions/examples/persistence_coverage.yaml \
-  --events ~/SHENRON/logs/simulation_artifacts.jsonl
+  --events artifacts/demo/shenron_demo_run.jsonl
+
+# Diff two assumptions against the same artifact
+python3 shenron.py assumption diff \
+  assumptions/examples/persistence_coverage.yaml \
+  assumptions/examples/broad_detection_claim.yaml \
+  --events artifacts/demo/shenron_demo_run.jsonl
 
 # Compare multiple assumptions — same artifact, different claims
-python3 shenron.py --compare-assumptions \
+python3 shenron.py assumption compare \
   assumptions/examples/persistence_coverage.yaml \
   assumptions/examples/c2_coverage.yaml \
-  --events ~/SHENRON/logs/simulation_artifacts.jsonl
+  --events artifacts/demo/shenron_demo_run.jsonl
+
+# Validate events against JSON schema
+python3 shenron.py schema validate \
+  --events artifacts/demo/shenron_demo_run.jsonl
+
+# Export to Elastic ECS or Splunk HEC
+python3 shenron.py export ecs \
+  --events artifacts/demo/shenron_demo_run.jsonl --out reports/ecs.json
+python3 shenron.py export hec \
+  --events artifacts/demo/shenron_demo_run.jsonl --out reports/hec.ndjson
 
 # Generate standalone HTML report
-python3 shenron.py --report-html
+python3 shenron.py report html
 
 # View validation history
-python3 shenron.py --history
-python3 shenron.py --history-compare persistence_coverage
+python3 shenron.py history show
 ```
 
 ---
@@ -115,11 +130,11 @@ bananatree/     — campaign model (phases, taxonomy, cycle)
 layers/         — 50 canonical simulation layers
 engine/         — layer loader and payload registry
 config.py       — centralized path configuration
-assumptions/examples/   — 12 assumption YAML files
+assumptions/examples/   — 14 assumption YAML files
 sigma/rules/            — Sigma rules (persistence, c2, evasion, entropy)
 artifacts/demo/         — committed demo artifact for immediate use
 scenarios/examples/     — bananaTREE scenario JSON files
-tests/                  — 319 tests
+tests/                  — 335 tests
 
 ---
 
@@ -127,12 +142,12 @@ tests/                  — 319 tests
 
 ```bash
 # Immediate demo from fresh clone
-python3 shenron.py --compare-assumptions \
+python3 shenron.py assumption compare \
   assumptions/examples/persistence_coverage.yaml \
   assumptions/examples/c2_coverage.yaml \
   --events artifacts/demo/shenron_demo_run.jsonl
 
-python3 shenron.py --validate-sigma-dir sigma/rules/ \
+python3 shenron.py sigma validate-dir sigma/rules/ \
   --events artifacts/demo/shenron_demo_run.jsonl
 ```
 
@@ -142,12 +157,12 @@ python3 shenron.py --validate-sigma-dir sigma/rules/ \
 
 | Check | Result |
 |-------|--------|
-| Test suite | 319 passed |
+| Test suite | 335 passed |
 | Layer dry-run | 50 ok, 0 failed |
 | Hardcoded paths | 0 |
 | Safety failures | 0 |
 | Sigma rules | 7 |
-| Assumption YAMLs | 12 |
+| Assumption YAMLs | 14 |
 | Simulation layers | 50 |
 
 ---
