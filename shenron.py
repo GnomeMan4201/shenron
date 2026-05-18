@@ -8,6 +8,7 @@ from core.assumptions.validator import validate_assumption, print_result as prin
 from core.assumptions.scope import generate_scope_report, update_assumption_index
 from core.assumptions.loader import load_artifacts as load_artifact_jsonl
 from core.sigma.evaluator import evaluate_sigma_rule, print_result as print_sigma_result
+from core.quickstart import run_quickstart
 from core.validation.history import (record_validation, load_history,
     print_history, compare_history, print_comparison)
 from core.reports.html_report import generate_html_report
@@ -186,6 +187,10 @@ def main():
                    help="show assumption audit index")
     p.add_argument("--compare-assumptions", type=str, nargs="+", metavar="YAML",
                    help="compare multiple assumption YAMLs against same artifact")
+    p.add_argument("--quickstart", action="store_true",
+                   help="run complete demo pipeline and generate evidence bundle")
+    p.add_argument("--quickstart-out", type=str, metavar="DIR", default=None,
+                   help="output directory for quickstart (default: reports/demo)")
     p.add_argument("--history", action="store_true",
                    help="show validation history")
     p.add_argument("--history-compare", type=str, metavar="ID",
@@ -209,6 +214,8 @@ def main():
     elif args.stats:        cmd_stats(args)
     elif args.scenario:     run_scenario(args.scenario, dry_run=args.dry_run)
     elif args.scenarios:    list_scenarios()
+    elif getattr(args, 'quickstart', False):
+        run_quickstart(out_dir=getattr(args, 'quickstart_out', None))
     elif getattr(args, 'history', False):
         entries = load_history()
         print_history(entries)
