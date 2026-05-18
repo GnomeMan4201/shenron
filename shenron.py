@@ -8,6 +8,8 @@ from core.assumptions.validator import validate_assumption, print_result as prin
 from core.assumptions.scope import generate_scope_report, update_assumption_index
 from core.assumptions.loader import load_artifacts as load_artifact_jsonl
 from core.sigma.evaluator import evaluate_sigma_rule, print_result as print_sigma_result
+from core.validation.history import (record_validation, load_history,
+    print_history, compare_history, print_comparison)
 from core.reports.html_report import generate_html_report
 from core.assumptions.scope import generate_scope_report, update_assumption_index
 from core.assumptions.loader import load_artifacts as load_artifact_jsonl
@@ -184,6 +186,10 @@ def main():
                    help="show assumption audit index")
     p.add_argument("--compare-assumptions", type=str, nargs="+", metavar="YAML",
                    help="compare multiple assumption YAMLs against same artifact")
+    p.add_argument("--history", action="store_true",
+                   help="show validation history")
+    p.add_argument("--history-compare", type=str, metavar="ID",
+                   help="show history for a specific assumption/rule ID")
     p.add_argument("--report-html", action="store_true",
                    help="generate standalone HTML report from latest run")
     p.add_argument("--validate-sigma", type=str, metavar="RULE_YML",
@@ -203,6 +209,13 @@ def main():
     elif args.stats:        cmd_stats(args)
     elif args.scenario:     run_scenario(args.scenario, dry_run=args.dry_run)
     elif args.scenarios:    list_scenarios()
+    elif getattr(args, 'history', False):
+        entries = load_history()
+        print_history(entries)
+    elif getattr(args, 'history_compare', None):
+        id_ = args.history_compare
+        entries = compare_history(id_)
+        print_comparison(id_, entries)
     elif getattr(args, 'report_html', False):
         from pathlib import Path as _Path
         from core.assumptions.validator import validate_assumption as _validate_assumption
@@ -282,6 +295,7 @@ def main():
         else:
             result = evaluate_sigma_rule(rule_path, events_path)
             print_sigma_result(result)
+            record_validation(result, 'sigma')
     elif getattr(args, 'validate_sigma_dir', None):
         events_path = getattr(args, 'events', None)
         if not events_path:
@@ -343,6 +357,7 @@ def main():
         else:
             result = validate_assumption(yaml_path, events_path)
             print_assumption_result(result)
+            record_validation(result, 'assumption')
             idx = update_assumption_index(result)
             print(f"  [+] Index updated: {idx}")
             if getattr(args, 'scope_report', False):
