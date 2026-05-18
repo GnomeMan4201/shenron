@@ -1834,6 +1834,88 @@
         ],
         "safe": true
       }
+    },
+    {
+      "name": "dark_signature_morpher",
+      "category": "evasion",
+      "file": "dark_signature_morpher.py",
+      "description": "SHENRON Layer: Dark Signature Morpher — polymorphic signature mutation telemetry simulator",
+      "variant_count": 0,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1620",
+          "T1036"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "entropy_spike_on_non_compressed_file",
+          "section_layout_mismatch_known_good",
+          "hash_change_no_mtime_update"
+        ],
+        "alert_signatures": [
+          "high entropy delta on file not associated with compression",
+          "section reorder pattern not matching known-good layout",
+          "hash mismatch on file whose mtime has not changed"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "target_enumeration",
+          "mutation_cycle",
+          "hash_verification_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "phantom_thread_fabricator",
+      "category": "evasion",
+      "file": "phantom_thread_fabricator.py",
+      "description": "SHENRON Layer: Phantom Thread Fabricator — IO chatter and thread noise anti-forensic telemetry simulator",
+      "variant_count": 0,
+      "mitre": {
+        "techniques": [
+          "T1055.003",
+          "T1036",
+          "T1070"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "temp_file_create_delete_high_frequency_non_system_process",
+          "daemon_named_threads_non_daemon_parent",
+          "log_rotation_uncorrelated_log_manager"
+        ],
+        "alert_signatures": [
+          "high frequency temp file create/delete from non-system process",
+          "daemon-named threads from non-daemon parent",
+          "log rotation not correlated with known log manager"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "thread_inventory_sim",
+          "io_chatter_sim",
+          "log_rotation_sim"
+        ],
+        "safe": true
+      }
     }
   ],
   "summary": {
