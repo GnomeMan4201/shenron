@@ -1,0 +1,28 @@
+id: lateral_movement_coverage
+description: Validates artifact contains lateral movement telemetry
+
+claims:
+  - id: remote_service_evidence
+    type: positive_evidence
+    severity: high
+    requires_techniques:
+      - T1021
+    requires_signals:
+      - remote_service_access_sim
+      - lateral_host_connection_sim
+
+  - id: lateral_spread_evidence
+    type: positive_evidence
+    severity: high
+    requires_techniques:
+      - T1570
+    requires_signals:
+      - lateral_file_transfer_sim
+      - propagation_confirmed_sim
+
+  - id: no_persistence_overclaim
+    type: out_of_scope_claim
+    severity: medium
+    requires_techniques:
+      - T1053
+      - T1547

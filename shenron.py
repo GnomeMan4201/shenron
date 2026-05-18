@@ -205,7 +205,7 @@ def main():
     elif args.scenarios:    list_scenarios()
     elif getattr(args, 'report_html', False):
         from pathlib import Path as _Path
-        from core.assumptions.validator import validate_assumption
+        from core.assumptions.validator import validate_assumption as _validate_assumption
         from core.config import artifact_log_path, timeline_log_path
         import json as _json
         from datetime import datetime as _dt, timezone as _tz
@@ -265,7 +265,7 @@ def main():
         assumption_dir = _Path("assumptions/examples")
         if assumption_dir.exists() and _Path(events_path).exists():
             for ap in sorted(assumption_dir.glob("*.yaml")):
-                r = validate_assumption(str(ap), events_path)
+                r = _validate_assumption(str(ap), events_path)
                 assumption_results.append(r.to_dict())
 
         out = generate_html_report(

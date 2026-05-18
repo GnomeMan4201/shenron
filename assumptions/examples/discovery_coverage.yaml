@@ -1,0 +1,27 @@
+id: discovery_coverage
+description: Validates artifact contains discovery and reconnaissance telemetry
+
+claims:
+  - id: network_scan_evidence
+    type: positive_evidence
+    severity: medium
+    requires_techniques:
+      - T1046
+    requires_signals:
+      - port_scan_sim
+      - network_enumeration_sim
+
+  - id: host_discovery_evidence
+    type: positive_evidence
+    severity: medium
+    requires_techniques:
+      - T1135
+    requires_signals:
+      - host_discovery_sim
+      - smb_share_enum_sim
+
+  - id: no_c2_overclaim
+    type: out_of_scope_claim
+    severity: high
+    requires_techniques:
+      - T1071

@@ -1,0 +1,28 @@
+id: identity_spoofing_coverage
+description: Validates artifact contains identity and token spoofing telemetry
+
+claims:
+  - id: token_impersonation_evidence
+    type: positive_evidence
+    severity: high
+    requires_techniques:
+      - T1134
+    requires_signals:
+      - token_impersonation_sim
+      - token_manipulation_sim
+
+  - id: process_injection_identity_evidence
+    type: positive_evidence
+    severity: high
+    requires_techniques:
+      - T1055
+    requires_signals:
+      - process_injection_attempt_sim
+      - reflective_injection_sim
+
+  - id: no_exfil_overclaim
+    type: out_of_scope_claim
+    severity: high
+    requires_techniques:
+      - T1041
+      - T1048

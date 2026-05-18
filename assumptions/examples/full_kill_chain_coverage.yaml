@@ -1,0 +1,33 @@
+id: full_kill_chain_coverage
+description: Validates artifact covers multiple kill chain phases
+
+claims:
+  - id: persistence_present
+    type: positive_evidence
+    severity: high
+    requires_techniques:
+      - T1053
+      - T1547
+      - T1055
+
+  - id: c2_present
+    type: positive_evidence
+    severity: high
+    requires_techniques:
+      - T1071
+      - T1095
+
+  - id: evasion_present
+    type: positive_evidence
+    severity: medium
+    requires_techniques:
+      - T1027
+      - T1070
+      - T1036
+
+  - id: lateral_present
+    type: positive_evidence
+    severity: medium
+    requires_techniques:
+      - T1021
+      - T1570

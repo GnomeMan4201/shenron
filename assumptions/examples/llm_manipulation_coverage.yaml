@@ -1,0 +1,28 @@
+id: llm_manipulation_coverage
+description: Validates artifact contains LLM-targeted manipulation telemetry
+
+claims:
+  - id: prompt_injection_evidence
+    type: positive_evidence
+    severity: high
+    requires_techniques:
+      - T1027
+    requires_signals:
+      - prompt_injection_sim
+      - llm_context_poisoning_sim
+      - adversarial_feature_injection_sim
+
+  - id: model_poisoning_evidence
+    type: positive_evidence
+    severity: high
+    requires_signals:
+      - distribution_shift_in_log_feature_space
+      - neural_noise_pattern_in_monitored_directory
+      - high_entropy_log_entries_matching_real_schema
+
+  - id: no_persistence_overclaim
+    type: out_of_scope_claim
+    severity: medium
+    requires_techniques:
+      - T1053
+      - T1547

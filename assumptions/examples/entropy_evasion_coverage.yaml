@@ -1,0 +1,33 @@
+id: entropy_evasion_coverage
+description: Validates artifact contains entropy manipulation and obfuscation telemetry
+
+claims:
+  - id: high_entropy_output_evidence
+    type: positive_evidence
+    severity: medium
+    requires_techniques:
+      - T1027
+    requires_signals:
+      - log_file_high_entropy_content_non_logging_source
+      - synthetic_entropy_pattern_not_matching_system_sources
+
+  - id: noise_file_evidence
+    type: positive_evidence
+    severity: medium
+    requires_signals:
+      - temp_file_create_delete_under_5s_hidden_dir
+      - noise_files_in_hidden_dotdir_shenron_noise
+
+  - id: timing_anomaly_evidence
+    type: positive_evidence
+    severity: medium
+    requires_signals:
+      - artificial_timing_delay_fixed_random_range_fingerprint
+      - sleep_jitter_from_non_timer_process
+
+  - id: no_c2_overclaim
+    type: out_of_scope_claim
+    severity: high
+    requires_techniques:
+      - T1071
+      - T1095

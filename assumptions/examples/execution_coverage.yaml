@@ -1,0 +1,28 @@
+id: execution_coverage
+description: Validates artifact contains execution telemetry
+
+claims:
+  - id: scripting_evidence
+    type: positive_evidence
+    severity: high
+    requires_techniques:
+      - T1059
+    requires_signals:
+      - script_execution_sim
+      - interpreter_spawn_sim
+
+  - id: scheduled_exec_evidence
+    type: positive_evidence
+    severity: high
+    requires_techniques:
+      - T1053
+    requires_signals:
+      - scheduled_task_creation
+      - cron_modification_sim
+
+  - id: no_lateral_overclaim
+    type: out_of_scope_claim
+    severity: medium
+    requires_techniques:
+      - T1021
+      - T1570

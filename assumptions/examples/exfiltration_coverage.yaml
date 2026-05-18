@@ -1,0 +1,28 @@
+id: exfiltration_coverage
+description: Validates artifact contains exfiltration telemetry
+
+claims:
+  - id: exfil_over_c2_evidence
+    type: positive_evidence
+    severity: high
+    requires_techniques:
+      - T1041
+    requires_signals:
+      - data_exfil_over_c2_sim
+      - outbound_data_transfer_sim
+
+  - id: exfil_alternate_protocol
+    type: positive_evidence
+    severity: high
+    requires_techniques:
+      - T1048
+    requires_signals:
+      - alternate_protocol_exfil_sim
+      - dns_exfil_sim
+
+  - id: no_persistence_overclaim
+    type: out_of_scope_claim
+    severity: medium
+    requires_techniques:
+      - T1053
+      - T1547
