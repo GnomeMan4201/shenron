@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ShenronEvent",
+  "description": "A single SHENRON simulation telemetry event",
+  "type": "object",
+  "required": [
+    "artifact_id",
+    "session_id",
+    "timestamp",
+    "layer",
+    "mitre_techniques",
+    "simulation_only"
+  ],
+  "properties": {
+    "artifact_id": {
+      "type": "string"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "layer": {
+      "type": "string"
+    },
+    "phase": {
+      "type": "string"
+    },
+    "simulation_only": {
+      "type": "boolean",
+      "const": true
+    },
+    "executable": {
+      "type": "boolean",
+      "const": false
+    },
+    "no_payload_present": {
+      "type": "boolean",
+      "const": true
+    },
+    "mitre_techniques": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "detection_opportunities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ShenronSafetyContract",
+  "description": "Safety contract fields that every SHENRON event must carry",
+  "type": "object",
+  "required": ["simulation_only", "executable", "no_payload_present"],
+  "properties": {
+    "simulation_only":    { "type": "boolean", "const": true },
+    "executable":         { "type": "boolean", "const": false },
+    "no_payload_present": { "type": "boolean", "const": true }
+  },
+  "additionalProperties": true
+}

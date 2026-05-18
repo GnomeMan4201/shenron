@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ShenronSigmaResult",
+  "description": "A SHENRON Sigma rule evaluation result",
+  "type": "object",
+  "required": ["rule_id", "verdict"],
+  "properties": {
+    "rule_id": { "type": "string" },
+    "verdict": {
+      "type": "string",
+      "enum": ["TRIGGERED", "PARTIAL", "NOT_TRIGGERED", "UNSUPPORTED"]
+    }
+  },
+  "additionalProperties": true
+}
