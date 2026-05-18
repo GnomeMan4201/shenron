@@ -22,7 +22,7 @@ All notable changes to SHENRON are documented here.
 - Pre-rewrite backup layers removed from `core/layers/backups/` — contained real subprocess and filesystem operations
 
 ### Changed
-- README updated to subcommand grammar, accurate test count (335), new commands documented
+- README updated to subcommand grammar, accurate test count (347), new commands documented
 - Safety contract wording made precise: generated telemetry never represents real subprocess execution; CLI utility commands may invoke local helper scripts only
 
 ---

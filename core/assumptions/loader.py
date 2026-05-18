@@ -1,50 +1,31 @@
 import json
+import yaml
 from pathlib import Path
 from core.assumptions.model import Claim, ClaimType, ClaimSeverity
 
 
 def _load_yaml_simple(path: Path) -> dict:
-    lines = path.read_text().splitlines()
-    result = {"id": "", "description": "", "claims": []}
-    current_claim = None
-    current_list_key = None
-    for line in lines:
-        stripped = line.strip()
-        if not stripped or stripped.startswith("#"):
+    """Load assumption YAML using PyYAML. Normalizes to expected structure."""
+    with open(path, encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    if not isinstance(data, dict):
+        return {"id": "", "description": "", "claims": []}
+    result = {
+        "id":          str(data.get("id", "")),
+        "description": str(data.get("description", "")),
+        "claims":      [],
+    }
+    for claim in data.get("claims", []):
+        if not isinstance(claim, dict):
             continue
-        indent = len(line) - len(line.lstrip())
-        if indent == 0:
-            if ":" in stripped:
-                k, _, v = stripped.partition(":")
-                v = v.strip().strip('"')
-                if k in ("id", "description"):
-                    result[k] = v
-        elif indent == 2:
-            if stripped.startswith("- id:"):
-                if current_claim:
-                    result["claims"].append(current_claim)
-                val = stripped.replace("- id:", "").strip().strip('"')
-                current_claim = {"id": val, "type": "positive_evidence",
-                                 "severity": "medium", "description": "",
-                                 "requires_techniques": [], "requires_signals": []}
-                current_list_key = None
-        elif indent == 4 and current_claim is not None:
-            if ":" in stripped:
-                k, _, v = stripped.partition(":")
-                v = v.strip().strip('"')
-                if k in ("type", "severity", "description"):
-                    current_claim[k] = v
-                elif k in ("requires_techniques", "requires_signals"):
-                    current_list_key = k
-                else:
-                    current_list_key = None
-            elif stripped.startswith("- ") and current_list_key:
-                current_claim[current_list_key].append(stripped[2:].strip().strip('"'))
-        elif indent == 6 and current_claim and current_list_key:
-            if stripped.startswith("- "):
-                current_claim[current_list_key].append(stripped[2:].strip().strip('"'))
-    if current_claim:
-        result["claims"].append(current_claim)
+        result["claims"].append({
+            "id":                   str(claim.get("id", "")),
+            "type":                 str(claim.get("type", "positive_evidence")),
+            "severity":             str(claim.get("severity", "medium")),
+            "description":          str(claim.get("description", "")),
+            "requires_techniques":  [str(t) for t in claim.get("requires_techniques", [])],
+            "requires_signals":     [str(s) for s in claim.get("requires_signals", [])],
+        })
     return result
 
 

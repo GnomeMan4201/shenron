@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "shenron"
@@ -37,6 +37,9 @@ shenron = "shenron:main"
 Homepage = "https://github.com/GnomeMan4201/shenron"
 Repository = "https://github.com/GnomeMan4201/shenron"
 Changelog = "https://github.com/GnomeMan4201/shenron/blob/main/CHANGELOG.md"
+
+[tool.setuptools]
+py-modules = ["shenron"]
 
 [tool.setuptools.packages.find]
 where = ["."]
