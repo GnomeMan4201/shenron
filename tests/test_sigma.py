@@ -73,22 +73,28 @@ def _entropy_artifacts():
 # ── _value_matches tests ──────────────────────────────────────────────────────
 
 def test_exact_match():
-    assert _value_matches("persistence_trigger_sim", ["persistence_trigger_sim"])
+    matched, _ = _value_matches("persistence_trigger_sim", ["persistence_trigger_sim"])
+    assert matched
 
 def test_substring_match():
-    assert _value_matches("beacon", ["http_beacon_sim", "dns_sim"])
+    matched, _ = _value_matches("beacon", ["http_beacon_sim", "dns_sim"])
+    assert matched
 
 def test_wildcard_match():
-    assert _value_matches("*beacon*", ["http_beacon_sim"])
+    matched, _ = _value_matches("*beacon*", ["http_beacon_sim"])
+    assert matched
 
 def test_no_match():
-    assert not _value_matches("c2_exfil", ["persistence_trigger_sim"])
+    matched, _ = _value_matches("c2_exfil", ["persistence_trigger_sim"])
+    assert not matched
 
 def test_token_overlap_match():
-    assert _value_matches("scheduled_task_creation", ["scheduled_task_creation_sim"])
+    matched, _ = _value_matches("scheduled_task_creation", ["scheduled_task_creation_sim"])
+    assert matched
 
 def test_case_insensitive():
-    assert _value_matches("PERSISTENCE_TRIGGER_SIM", ["persistence_trigger_sim"])
+    matched, _ = _value_matches("PERSISTENCE_TRIGGER_SIM", ["persistence_trigger_sim"])
+    assert matched
 
 
 # ── Detection block evaluation tests ─────────────────────────────────────────

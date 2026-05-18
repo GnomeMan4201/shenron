@@ -73,32 +73,58 @@ def _get_artifact_values(art: dict, shenron_fields: list) -> list:
     return values
 
 
-def _value_matches(expected: str, actual_values: list) -> bool:
+def _value_matches(expected: str, actual_values: list,
+                   match_mode: str = "tolerant") -> tuple:
+    """
+    Returns (matched: bool, reason: str).
+    match_mode:
+      tolerant — exact, substring, token-overlap, wildcard (default, backward-compatible)
+      strict   — exact normalized match or wildcard only
+      explain  — tolerant matching with detailed per-field reason string
+    """
     exp_norm = _normalize(expected)
 
+    # Wildcard matching — all modes
     if "*" in exp_norm or "?" in exp_norm:
         pattern = re.escape(exp_norm).replace(r"\*", ".*").replace(r"\?", ".")
         for av in actual_values:
             if re.search(pattern, _normalize(av)):
-                return True
-        return False
+                reason = f"wildcard match: {exp_norm!r} matched {_normalize(av)!r}"
+                return True, reason
+        return False, f"wildcard {exp_norm!r} did not match any of {actual_values[:3]}"
 
+    # Strict mode — exact normalized only
+    if match_mode == "strict":
+        for av in actual_values:
+            if exp_norm == _normalize(av):
+                return True, f"exact match: {exp_norm!r}"
+        return False, f"strict: {exp_norm!r} not an exact match in {actual_values[:3]}"
+
+    # Tolerant / explain modes
     for av in actual_values:
         av_norm = _normalize(av)
         if exp_norm == av_norm:
-            return True
-        if exp_norm in av_norm or av_norm in exp_norm:
-            return True
+            reason = f"exact match: {exp_norm!r}"
+            return True, reason
+        if exp_norm in av_norm:
+            reason = f"substring match: {exp_norm!r} in {av_norm!r}"
+            return True, reason
+        if av_norm in exp_norm:
+            reason = f"substring match: {av_norm!r} in {exp_norm!r}"
+            return True, reason
         exp_tokens = set(exp_norm.split("_"))
         av_tokens  = set(av_norm.split("_"))
-        if exp_tokens and len(exp_tokens & av_tokens) / len(exp_tokens) >= 0.6:
-            return True
+        overlap = exp_tokens & av_tokens
+        if exp_tokens and len(overlap) / len(exp_tokens) >= 0.6:
+            reason = f"token overlap: {overlap} ({len(overlap)}/{len(exp_tokens)} tokens)"
+            return True, reason
 
-    return False
+    return False, f"no match for {exp_norm!r} in {actual_values[:3]}"
 
 
 def _evaluate_detection_block(detection_name: str, detection_def,
-                               artifacts: list) -> DetectionMatch:
+                               artifacts: list,
+                               match_mode: str = "tolerant") -> DetectionMatch:
     result = DetectionMatch(detection_name=detection_name,
                             status=MatchStatus.NOT_TRIGGERED)
 
@@ -134,10 +160,11 @@ def _evaluate_detection_block(detection_name: str, detection_def,
         art_field_results = []
         for sigma_field, expected, shenron_fields in field_requirements:
             actual = _get_artifact_values(art, shenron_fields)
-            matched = _value_matches(expected, actual)
+            matched, match_reason = _value_matches(expected, actual, match_mode)
             art_field_results.append(matched)
             fm = field_match_map[(sigma_field, expected)]
             fm.artifact_count += 1
+            fm.match_reason = match_reason
             if matched:
                 fm.matched = True
                 if actual not in fm.found_in:
@@ -172,7 +199,8 @@ def _evaluate_detection_block(detection_name: str, detection_def,
     return result
 
 
-def evaluate_sigma_rule(rule_path, artifact_path) -> SigmaResult:
+def evaluate_sigma_rule(rule_path, artifact_path,
+                        match_mode: str = "tolerant") -> SigmaResult:
     rule      = load_sigma_rule(rule_path)
     artifacts = load_artifacts(artifact_path)
 
@@ -186,7 +214,7 @@ def evaluate_sigma_rule(rule_path, artifact_path) -> SigmaResult:
     for det_name, det_def in detection.items():
         if det_name == "condition":
             continue
-        dm = _evaluate_detection_block(det_name, det_def, artifacts)
+        dm = _evaluate_detection_block(det_name, det_def, artifacts, match_mode)
         detections.append(dm)
         for fm in dm.field_matches:
             if not fm.matched and fm.field not in missed_fields:
@@ -238,7 +266,7 @@ def evaluate_sigma_rule(rule_path, artifact_path) -> SigmaResult:
     )
 
 
-def print_result(result: SigmaResult):
+def print_result(result: SigmaResult, match_mode: str = "tolerant"):
     badge = {
         RuleVerdict.TRIGGERED:     "TRIGGERED",
         RuleVerdict.NOT_TRIGGERED: "NOT TRIGGERED",
@@ -257,7 +285,10 @@ def print_result(result: SigmaResult):
         print(f"  Detection [{d.detection_name}]: {d.status.value}")
         for fm in d.field_matches:
             mark = "+" if fm.matched else "-"
-            print(f"    {mark} {fm.field}: {fm.expected!r}")
+            if match_mode == "explain" and fm.match_reason:
+                print(f"    {mark} {fm.field}: {fm.expected!r} — {fm.match_reason}")
+            else:
+                print(f"    {mark} {fm.field}: {fm.expected!r}")
         if d.matched_artifacts:
             print(f"    [{len(d.matched_artifacts)} artifact(s) triggered]")
         print()

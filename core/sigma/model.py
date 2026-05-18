@@ -25,6 +25,7 @@ class FieldMatch:
     found_in:       List[Any]   = field(default_factory=list)
     matched:        bool        = False
     artifact_count: int         = 0
+    match_reason:   str         = ""
 
 
 @dataclass

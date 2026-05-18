@@ -11,6 +11,9 @@ def register(subparsers):
     val.add_argument("rule", type=str, metavar="RULE_YML", help="path to Sigma rule YAML")
     val.add_argument("--events", type=str, required=True, metavar="JSONL",
                      help="JSONL events file")
+    val.add_argument("--match-mode", type=str, default="tolerant",
+                     choices=["tolerant", "strict", "explain"],
+                     help="matching mode: tolerant (default), strict (exact only), explain (show match reasoning)")
     val.set_defaults(func=_handle_validate)
 
     # sigma validate-dir <dir> --events <jsonl>
@@ -19,6 +22,9 @@ def register(subparsers):
                       help="directory containing .yml rule files")
     vdir.add_argument("--events", type=str, required=True, metavar="JSONL",
                       help="JSONL events file")
+    vdir.add_argument("--match-mode", type=str, default="tolerant",
+                     choices=["tolerant", "strict", "explain"],
+                     help="matching mode: tolerant (default), strict (exact only), explain (show match reasoning)")
     vdir.set_defaults(func=_handle_validate_dir)
 
 
@@ -26,8 +32,9 @@ def _handle_validate(args):
     from core.sigma.evaluator import evaluate_sigma_rule, print_result as print_sigma_result
     from core.validation.history import record_validation
 
-    result = evaluate_sigma_rule(args.rule, args.events)
-    print_sigma_result(result)
+    mode = getattr(args, "match_mode", "tolerant")
+    result = evaluate_sigma_rule(args.rule, args.events, match_mode=mode)
+    print_sigma_result(result, match_mode=mode)
     record_validation(result, "sigma")
 
 
@@ -42,8 +49,9 @@ def _handle_validate_dir(args):
 
     print(f"\n  Evaluating {len(rules)} rule(s)\n")
     counts: dict = {}
+    mode = getattr(args, "match_mode", "tolerant")
     for rp in rules:
-        r = evaluate_sigma_rule(str(rp), args.events)
+        r = evaluate_sigma_rule(str(rp), args.events, match_mode=mode)
         v = r.verdict.value
         counts[v] = counts.get(v, 0) + 1
         mark = {
