@@ -57,7 +57,7 @@ No setup. No external dependencies. No prior knowledge required.
 ```bash
 git clone https://github.com/GnomeMan4201/shenron
 cd shenron
-python3 -m pytest tests/ -q                         # 347 tests
+python3 -m pytest tests/ -q                         # 350 tests
 
 # Run a campaign
 python3 shenron.py run persistence
@@ -134,7 +134,7 @@ assumptions/examples/   — 14 assumption YAML files
 sigma/rules/            — Sigma rules (persistence, c2, evasion, entropy)
 artifacts/demo/         — committed demo artifact for immediate use
 scenarios/examples/     — bananaTREE scenario JSON files
-tests/                  — 347 tests
+tests/                  — 350 tests
 
 ---
 
@@ -157,7 +157,7 @@ python3 shenron.py sigma validate-dir sigma/rules/ \
 
 | Check | Result |
 |-------|--------|
-| Test suite | 347 passed |
+| Test suite | 350 passed |
 | Layer dry-run | 50 ok, 0 failed |
 | Hardcoded paths | 0 |
 | Safety failures | 0 |
