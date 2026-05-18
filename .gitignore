@@ -9,3 +9,13 @@ reports/
 release/
 !core/reports/
 !core/reports/*.py
+
+# Stray output files
+json
+pytest
+tempfile
+Does
+-la
+__pycache__/
+*.pyc
+shenron_manifest.json
