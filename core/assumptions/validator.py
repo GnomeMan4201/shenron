@@ -1,4 +1,6 @@
 import re
+import json
+from pathlib import Path
 from datetime import datetime, timezone
 from core.assumptions.model import (
     Claim, ClaimType, ClaimStatus, AssumptionStatus,
@@ -40,7 +42,9 @@ def _artifact_techniques(art: dict) -> set:
     return techs
 
 
-def _check_claim(claim: Claim, artifacts: list) -> ClaimResult:
+def _check_claim(claim: Claim, artifacts: list, graph: dict = None) -> ClaimResult:
+    if claim.type == ClaimType.METRIC_THRESHOLD:
+        return _check_metric_claim(claim, graph or {})
     result = ClaimResult(claim=claim)
     all_techniques, all_signals = set(), set()
     for art in artifacts:
@@ -90,7 +94,7 @@ def _check_claim(claim: Claim, artifacts: list) -> ClaimResult:
 
 
 def _safe_conclusion(assumption_id: str, results: list) -> str:
-    pos = [r for r in results if r.claim.type == ClaimType.POSITIVE_EVIDENCE]
+    pos = [r for r in results if r.claim.type in (ClaimType.POSITIVE_EVIDENCE, ClaimType.METRIC_THRESHOLD)]
     supported   = [r for r in pos if r.status == ClaimStatus.SUPPORTED]
     unsupported = [r for r in pos if r.status in (ClaimStatus.UNSUPPORTED,
                                                    ClaimStatus.PARTIALLY_SUPPORTED)]
@@ -111,12 +115,77 @@ def _safe_conclusion(assumption_id: str, results: list) -> str:
     return f"{base} {caveat}"
 
 
+
+def load_graph_artifact(path) -> dict:
+    """Load a JSON graph artifact (e.g. Jaccard botnet result)."""
+    p = Path(path)
+    if not p.exists():
+        return {}
+    with open(p) as f:
+        return json.load(f)
+
+
+def _evaluate_metric(operator: str, value: float, threshold: float) -> bool:
+    ops = {
+        "gte": value >= threshold,
+        "lte": value <= threshold,
+        "gt":  value > threshold,
+        "lt":  value < threshold,
+        "eq":  value == threshold,
+    }
+    return ops.get(operator, False)
+
+
+def _check_metric_claim(claim: Claim, graph: dict) -> ClaimResult:
+    result = ClaimResult(claim=claim)
+    supported, unsupported = [], []
+
+    for req in claim.requires_metrics:
+        field     = req.get("field", "")
+        operator  = req.get("operator", "gte")
+        threshold = float(req.get("threshold", 0))
+        value     = graph.get(field)
+
+        if value is None:
+            unsupported.append(f"{field} not present in artifact")
+        elif _evaluate_metric(operator, float(value), threshold):
+            supported.append(f"{field}={value} {operator} {threshold}")
+        else:
+            unsupported.append(f"{field}={value} failed {operator} {threshold}")
+
+    result.supported   = supported
+    result.unsupported = unsupported
+    result.matched_artifacts = 1 if graph else 0
+    total = len(supported) + len(unsupported)
+
+    if total == 0:
+        result.status = ClaimStatus.UNRESOLVED
+        result.reason = "No metric requirements specified"
+    elif not unsupported:
+        result.status = ClaimStatus.SUPPORTED
+        result.reason = f"All {len(supported)} metric(s) satisfied"
+    elif not supported:
+        result.status = ClaimStatus.UNSUPPORTED
+        result.reason = f"No metrics satisfied ({len(unsupported)} failed)"
+    else:
+        result.status = ClaimStatus.PARTIALLY_SUPPORTED
+        result.reason = f"{len(supported)} of {total} metrics satisfied"
+
+    return result
+
+
 def validate_assumption(assumption_path, artifact_path) -> AssumptionResult:
     assumption_id, _, claims = load_assumption(assumption_path)
-    artifacts     = _load(artifact_path)
-    claim_results = [_check_claim(c, artifacts) for c in claims]
+    p = Path(artifact_path)
+    if p.suffix == ".json":
+        graph     = load_graph_artifact(artifact_path)
+        artifacts = [graph] if graph else []
+    else:
+        graph     = {}
+        artifacts = _load(artifact_path)
+    claim_results = [_check_claim(c, artifacts, graph=graph) for c in claims]
 
-    pos = [r for r in claim_results if r.claim.type == ClaimType.POSITIVE_EVIDENCE]
+    pos = [r for r in claim_results if r.claim.type in (ClaimType.POSITIVE_EVIDENCE, ClaimType.METRIC_THRESHOLD)]
     supported_count   = sum(1 for r in pos if r.status == ClaimStatus.SUPPORTED)
     unsupported_count = sum(1 for r in pos if r.status in (
         ClaimStatus.UNSUPPORTED, ClaimStatus.PARTIALLY_SUPPORTED))
@@ -162,7 +231,7 @@ def print_result(result: AssumptionResult):
     print(f"  ARTIFACT:   {result.artifact_file}")
     print()
 
-    pos = [r for r in result.claim_results if r.claim.type == ClaimType.POSITIVE_EVIDENCE]
+    pos = [r for r in result.claim_results if r.claim.type in (ClaimType.POSITIVE_EVIDENCE, ClaimType.METRIC_THRESHOLD)]
     oos = [r for r in result.claim_results if r.claim.type == ClaimType.OUT_OF_SCOPE]
 
     print("  Supported claims:")

@@ -1,0 +1,46 @@
+id: github_follow_botnet
+description: Validates that Jaccard overlap evidence supports coordination claim and that cross-follow detection alone does not
+
+claims:
+  - id: jaccard_min_exceeds_threshold
+    type: metric_threshold
+    severity: high
+    description: All pairwise Jaccard scores exceed 0.99 — near-identical following behavior
+    requires_metrics:
+      - field: jaccard_min
+        operator: gte
+        threshold: 0.99
+
+  - id: all_pairs_above_threshold
+    type: metric_threshold
+    severity: high
+    description: Every pair in the cluster scores above threshold — no outliers
+    requires_metrics:
+      - field: pairs_above_0_99
+        operator: gte
+        threshold: 28
+
+  - id: cluster_size_sufficient
+    type: metric_threshold
+    severity: medium
+    description: Cluster contains enough accounts to rule out coincidence
+    requires_metrics:
+      - field: cluster_size
+        operator: gte
+        threshold: 5
+
+  - id: common_seed_list_confirmed
+    type: metric_threshold
+    severity: high
+    description: Shared follow target population confirms common seed list
+    requires_metrics:
+      - field: common_follows_all_members
+        operator: gte
+        threshold: 25000
+
+  - id: cross_follow_insufficient
+    type: out_of_scope_claim
+    severity: high
+    description: Cross-follow detection alone cannot support coordination claim — zero positives on a confirmed coordinated cluster
+    requires_signals:
+      - cross_follow_positive

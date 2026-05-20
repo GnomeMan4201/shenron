@@ -8,7 +8,7 @@ def register(subparsers):
     # assumption validate <yaml> --events <jsonl> [--scope-report]
     val = sub.add_parser("validate", help="validate a coverage assumption against events")
     val.add_argument("yaml", type=str, metavar="YAML_PATH")
-    val.add_argument("--events", type=str, required=True, metavar="JSONL")
+    val.add_argument("--events", type=str, required=True, metavar="ARTIFACT")
     val.add_argument("--scope-report", action="store_true",
                      help="generate scope report after validation")
     val.set_defaults(func=_handle_validate)

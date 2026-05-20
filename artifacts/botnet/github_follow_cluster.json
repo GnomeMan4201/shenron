@@ -1,0 +1,26 @@
+{
+    "artifact_id": "github_follow_cluster_20260519",
+    "description": "Jaccard overlap analysis of 8-account GitHub follow botnet cluster",
+    "cluster_accounts": [
+        "canestein", "hazexone", "domcomit", "kylehyne",
+        "jaderytm", "vierystein", "hanyvert", "mariwatts"
+    ],
+    "cluster_size": 8,
+    "account_age_span_years": 6,
+    "following_count_min": 29832,
+    "following_count_max": 29857,
+    "following_count_range": 25,
+    "jaccard_min": 0.9907,
+    "jaccard_max": 0.9998,
+    "jaccard_mean": 0.9962,
+    "pairs_above_0_99": 28,
+    "pairs_total": 28,
+    "common_follows_all_members": 29682,
+    "cross_follow_positives": 0,
+    "cross_follow_pairs_checked": 56,
+    "total_following_records_fetched": 238000,
+    "api_requests_made": 2400,
+    "detection_method": "following_list_overlap",
+    "naive_detector_result": "clean",
+    "overlap_detector_result": "coordinated"
+}

@@ -5,6 +5,7 @@ from typing import List
 class ClaimType(str, Enum):
     POSITIVE_EVIDENCE = "positive_evidence"
     OUT_OF_SCOPE      = "out_of_scope_claim"
+    METRIC_THRESHOLD  = "metric_threshold"
 
 class ClaimSeverity(str, Enum):
     LOW    = "low"
@@ -32,6 +33,7 @@ class Claim:
     description:         str           = ""
     requires_techniques: List[str]     = field(default_factory=list)
     requires_signals:    List[str]     = field(default_factory=list)
+    requires_metrics:   List[dict]    = field(default_factory=list)
 
 @dataclass
 class ClaimResult:

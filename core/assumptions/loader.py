@@ -25,6 +25,7 @@ def _load_yaml_simple(path: Path) -> dict:
             "description":          str(claim.get("description", "")),
             "requires_techniques":  [str(t) for t in claim.get("requires_techniques", [])],
             "requires_signals":     [str(s) for s in claim.get("requires_signals", [])],
+            "requires_metrics":    list(claim.get("requires_metrics", [])),
         })
     return result
 
@@ -43,6 +44,7 @@ def load_assumption(path) -> tuple:
             description         = c.get("description", ""),
             requires_techniques = c.get("requires_techniques", []),
             requires_signals    = c.get("requires_signals", []),
+            requires_metrics    = c.get("requires_metrics", []),
         ))
     return data.get("id", p.stem), data.get("description", ""), claims
 
