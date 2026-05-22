@@ -172,7 +172,3 @@ python3 shenron.py sigma validate-dir sigma/rules/ \
 [Observable Adversarial Behavior, Not Portable Adversarial Procedure](https://dev.to/gnomeman4201/observable-adversarial-behavior-not-portable-adversarial-procedure-4mo6)
 
 ---
-
-*gnomeman4201 / badBANANA Research Collective*
-
-> Observable adversarial behavior, not portable adversarial procedure.
