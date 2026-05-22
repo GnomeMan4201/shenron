@@ -14,7 +14,12 @@ def _log_mutation_safe(layer_type, status, notes=""):
         )
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
-        score = "100" if status == "ok" else "0"
+        try:
+            from core.validation.stealth_scorer import score_layer_from_log
+            computed = score_layer_from_log(layer_type)
+            score = str(computed) if computed >= 0 else "0"
+        except Exception:
+            score = "0"
         mod.log_mutation(layer_type, status, score, notes)
     except Exception:
         pass
