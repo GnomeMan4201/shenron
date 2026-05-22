@@ -29,3 +29,5 @@ build/
 dist/
 shenron.egg-info/
 core/layers/*_??????_*.py
+*.bak
+tead
