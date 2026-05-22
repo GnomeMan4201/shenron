@@ -22,7 +22,7 @@ def _get_artifact_log():
 
 
 # ── Output paths ──────────────────────────────────────────────────────────────
-ARTIFACT_LOG.parent.mkdir(parents=True, exist_ok=True)
+ARTIFACT_LOG = _get_artifact_log()
 
 # ── Input validation ──────────────────────────────────────────────────────────
 BLOCKLIST = [
