@@ -31,3 +31,5 @@ shenron.egg-info/
 core/layers/*_??????_*.py
 *.bak
 tead
+devto_post.sh
+github_botnet_discovery_revised.md
