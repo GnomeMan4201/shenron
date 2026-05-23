@@ -16,7 +16,7 @@ It helps answer a narrower and more honest question:
 
 **Observable adversarial behavior, not portable adversarial procedure.**
 
-SHENRON generates structured synthetic JSONL telemetry representing adversarial behavior across 50 simulation layers. It does not contain payloads, exploit code, or operational malware logic. Every artifact is synthetic. Every layer carries an explicit safety contract. Generated telemetry never represents or performs real subprocess execution. CLI utility commands may invoke local SHENRON helper scripts, but no adversarial subprocess behavior is executed or simulated as live activity.
+SHENRON generates structured synthetic JSONL telemetry representing adversarial behavior across 51 simulation layers. It does not contain payloads, exploit code, or operational malware logic. Every artifact is synthetic. Every layer carries an explicit safety contract. Generated telemetry never represents or performs real subprocess execution. CLI utility commands may invoke local SHENRON helper scripts, but no adversarial subprocess behavior is executed or simulated as live activity.
 
 ---
 
@@ -62,7 +62,7 @@ python3 -m pytest tests/ -q                         # 350 tests
 # Run a campaign
 python3 shenron.py run persistence
 python3 shenron.py run c2
-python3 shenron.py run all --dry-run                # 50 ok | 0 failed
+python3 shenron.py run all --dry-run                # 51 ok | 0 failed
 
 # Validate Sigma rules against synthetic telemetry
 python3 shenron.py sigma validate-dir sigma/rules/ \
@@ -106,7 +106,7 @@ python3 shenron.py history show
 
 ## What it does
 
-**Synthetic telemetry generation** — 50 simulation layers across 8 categories (c2, entropy, identity, evasion, payload, llm, persistence, meta), organized through the bananaTREE four-phase campaign model: OBSERVE → SIMULATE → EXECUTE → ADAPT.
+**Synthetic telemetry generation** — 51 simulation layers across 8 categories (c2, entropy, identity, evasion, payload, llm, persistence, meta), organized through the bananaTREE four-phase campaign model: OBSERVE → SIMULATE → EXECUTE → ADAPT.
 
 **Sigma rule validation** — evaluates whether your detection rules would fire on realistic synthetic telemetry. Verdicts: TRIGGERED, PARTIAL, NOT_TRIGGERED, UNSUPPORTED.
 
@@ -127,7 +127,7 @@ sigma/          — Sigma rule evaluation engine
 validation/     — detector validation scoring and history
 reports/        — markdown and HTML report generation
 bananatree/     — campaign model (phases, taxonomy, cycle)
-layers/         — 50 canonical simulation layers
+layers/         — 51 canonical simulation layers
 engine/         — layer loader and payload registry
 config.py       — centralized path configuration
 assumptions/examples/   — 14 assumption YAML files
@@ -158,7 +158,7 @@ python3 shenron.py sigma validate-dir sigma/rules/ \
 | Check | Result |
 |-------|--------|
 | Test suite | 350 passed |
-| Layer dry-run | 50 ok, 0 failed |
+| Layer dry-run | 51 ok, 0 failed |
 | Hardcoded paths | 0 |
 | Safety failures | 0 |
 | Sigma rules | 7 |
