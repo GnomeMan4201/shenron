@@ -33,3 +33,4 @@ core/layers/*_??????_*.py
 tead
 devto_post.sh
 github_botnet_discovery_revised.md
+!core/layers/social_botnet_corpus.py
