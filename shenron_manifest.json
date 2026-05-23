@@ -1,127 +1,6 @@
 {
   "layers": [
     {
-      "name": "adaptive_brainstem",
-      "category": "meta",
-      "file": "adaptive_brainstem.py",
-      "description": "adaptive_brainstem.py - SHENRON Layer 6: Context-Aware Neural Reflex Controller",
-      "variant_count": 130,
-      "mitre": {
-        "techniques": [
-          "T1027",
-          "T1620"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "state_file_round_counter_hidden_dotpath",
-          "sequential_layer_selection_decision_matrix",
-          "subprocess_popen_chain_on_state"
-        ],
-        "alert_signatures": [
-          "round state file in hidden dotpath",
-          "autonomous layer selection from decision matrix",
-          "subprocess chain parent selects child on persisted state"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "state_load_sim",
-          "decision_cycle_sim",
-          "layer_dispatch_sim",
-          "state_update_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "airlock_quarantine_cloak",
-      "category": "evasion",
-      "file": "airlock_quarantine_cloak.py",
-      "description": "SHENRON: Airlock Quarantine Cloak — Simulates malware quarantine to fool antivirus",
-      "variant_count": 61,
-      "mitre": {
-        "techniques": [
-          "T1564",
-          "T1036"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "quarantine_dir_access",
-          "av_engine_probe",
-          "signature_spoof_attempt"
-        ],
-        "alert_signatures": [
-          "quarantine dir access from non-av process",
-          "signature hash mismatch",
-          "benign header on suspicious file"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "av_profiling",
-          "quarantine_entry_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "anti_forensics_molt",
-      "category": "evasion",
-      "file": "anti_forensics_molt.py",
-      "description": "anti_forensics_molt.py - SHENRON Forensics Defense Layer",
-      "variant_count": 133,
-      "mitre": {
-        "techniques": [
-          "T1070",
-          "T1107"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "log",
-          "memory"
-        ],
-        "expected_events": [
-          "log_file_cleared",
-          "history_truncated",
-          "timestamp_rollback"
-        ],
-        "alert_signatures": [
-          "bash_history cleared",
-          "auth.log truncated",
-          "mtime rollback on log files"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "target_enumeration",
-          "log_wipe",
-          "timestamp_manipulation"
-        ],
-        "safe": true
-      }
-    },
-    {
       "name": "autonomous_signal_cloner",
       "category": "c2",
       "file": "autonomous_signal_cloner.py",
@@ -201,158 +80,10 @@
       }
     },
     {
-      "name": "cognitive_replicator",
-      "category": "identity",
-      "file": "cognitive_replicator.py",
-      "description": "cognitive_replicator.py - SHENRON Self-Replication Engine",
-      "variant_count": 119,
-      "mitre": {
-        "techniques": [
-          "T1036",
-          "T1078"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "payload_copied_staging_to_shared_storage",
-          "hostname_prefixed_filename_download_dir",
-          "executable_daemon_name_nonstandard_path"
-        ],
-        "alert_signatures": [
-          "hostname-prefixed file in Download/Documents",
-          "shutil.copy2+chmod from non-installer process",
-          "replica files across multiple target paths simultaneously"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "source_enumeration",
-          "replica_drop_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "deadzone_payload",
-      "category": "payload",
-      "file": "deadzone_payload.py",
-      "description": "SHENRON: Deadzone Payload — inert payload staging and dead-drop zone manager",
-      "variant_count": 128,
-      "mitre": {
-        "techniques": [
-          "T1027",
-          "T1140"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "hidden_dir_high_entropy_files",
-          "non_logging_process_writing_log",
-          "staging_file_cross_process_read"
-        ],
-        "alert_signatures": [
-          "hidden dir in world-writable path",
-          "non-logging process writing marker file",
-          "high entropy file in tmp staging zone"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "zone_init",
-          "staging",
-          "log_marker"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "dormant_sleeper_seed",
-      "category": "persistence",
-      "file": "dormant_sleeper_seed.py",
-      "description": "dormant_sleeper_seed.py - SHENRON latent payload trigger system",
-      "variant_count": 125,
-      "mitre": {
-        "techniques": [
-          "T1053",
-          "T1547"
-        ],
-        "tactic": "persistence"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "registry",
-          "filesystem",
-          "scheduled-task"
-        ],
-        "expected_events": [
-          "scheduled_task_creation",
-          "registry_run_key_write",
-          "cron_modification"
-        ],
-        "alert_signatures": [
-          "new scheduled task",
-          "run key modification",
-          "unusual cron entry"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "persistence_install",
-          "trigger_registration",
-          "trigger_evaluation"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "dragons_breath_destructor",
-      "category": "llm",
-      "file": "dragons_breath_destructor.py",
-      "description": "SHENRON: Dragons Breath Destructor — aggressive file/process scorched-earth cleanup layer",
-      "variant_count": 31,
-      "mitre": {
-        "techniques": [
-          "T1070",
-          "T1485"
-        ],
-        "tactic": "impact"
-      },
-      "detection": {
-        "log_sources": [
-          "filesystem",
-          "process",
-          "log"
-        ],
-        "expected_events": [],
-        "alert_signatures": []
-      },
-      "simulation": {
-        "fidelity": "stub",
-        "emits": [],
-        "safe": true
-      }
-    },
-    {
       "name": "dreamdive_overlay",
       "category": "c2",
       "file": "dreamdive_overlay.py",
-      "description": "SHENRON: DreamDive Overlay — Hallucinogenic Log Distortion",
+      "description": "SHENRON: DreamDive Overlay \u2014 Hallucinogenic Log Distortion",
       "variant_count": 65,
       "mitre": {
         "techniques": [
@@ -383,230 +114,6 @@
         "emits": [
           "target_selection",
           "log_injection_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "encrypted_echo_chamber",
-      "category": "llm",
-      "file": "encrypted_echo_chamber.py",
-      "description": "SHENRON: Encrypted Echo Chamber – internal secure comms channel creator",
-      "variant_count": 60,
-      "mitre": {
-        "techniques": [
-          "T1573",
-          "T1132"
-        ],
-        "tactic": "command-and-control"
-      },
-      "detection": {
-        "log_sources": [
-          "network",
-          "dns",
-          "proxy"
-        ],
-        "expected_events": [],
-        "alert_signatures": []
-      },
-      "simulation": {
-        "fidelity": "stub",
-        "emits": [],
-        "safe": true
-      }
-    },
-    {
-      "name": "entropy_anchor_dropper",
-      "category": "entropy",
-      "file": "entropy_anchor_dropper.py",
-      "description": "SHENRON: Entropy Anchor Dropper — Timing and Pattern Camouflage Engine",
-      "variant_count": 64,
-      "mitre": {
-        "techniques": [
-          "T1027",
-          "T1140"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "temp_file_create_delete_under_5s",
-          "noise_files_hidden_dotdir",
-          "jitter_fingerprint_timing"
-        ],
-        "alert_signatures": [
-          "temp file create-delete cycle under 5s hidden dir",
-          "noise files in ~/.noise/",
-          "fixed random range sleep jitter fingerprint"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "entropy_hash_gen",
-          "timing_delay_sim",
-          "noise_file_lifecycle_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "entropy_flux_disruptor",
-      "category": "entropy",
-      "file": "entropy_flux_disruptor.py",
-      "description": "SHENRON: Entropy Flux Disruptor — ML Pattern Confuser",
-      "variant_count": 65,
-      "mitre": {
-        "techniques": [
-          "T1027.002"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "simultaneous_io_cpu_mem_anomaly",
-          "high_volume_hash_writes",
-          "cpu_spike_concurrent_io_burst"
-        ],
-        "alert_signatures": [
-          "simultaneous I/O CPU memory anomalies single process",
-          "high volume hash writes no application activity",
-          "multi-vector entropy disruption signature"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "disruption_launch",
-          "vector_execution_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "ethereal_payload_reanimator",
-      "category": "payload",
-      "file": "ethereal_payload_reanimator.py",
-      "description": "SHENRON: Ethereal Payload Reanimator — subprocess-based dormant payload revival engine",
-      "variant_count": 30,
-      "mitre": {
-        "techniques": [
-          "T1055",
-          "T1620"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "python_process_no_script_arg",
-          "stdout_stderr_devnull_spawned",
-          "sequential_spawn_fixed_interval"
-        ],
-        "alert_signatures": [
-          "interpreter process with no visible script",
-          "stdout+stderr both /dev/null on spawn",
-          "sequential process spawn fixed interval single parent"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "payload_dir_enum",
-          "revival_attempt"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "evasion_lure_illusion",
-      "category": "evasion",
-      "file": "evasion_lure_illusion.py",
-      "description": "SHENRON Layer: Evasion Lure Illusion",
-      "variant_count": 128,
-      "mitre": {
-        "techniques": [
-          "T1036",
-          "T1055"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "hidden_directory_creation",
-          "fake_signature_file",
-          "lure_trigger"
-        ],
-        "alert_signatures": [
-          "file with known malware signature string",
-          "hidden dot-path file creation",
-          "decoy crack or keygen file"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "lure_selection",
-          "lure_deployment"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "forged_bios_artifact",
-      "category": "identity",
-      "file": "forged_bios_artifact.py",
-      "description": "SHENRON: Forged BIOS Artifact Seeder — Creates low-level tamper illusions",
-      "variant_count": 60,
-      "mitre": {
-        "techniques": [
-          "T1542",
-          "T1036"
-        ],
-        "tactic": "persistence"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "registry",
-          "filesystem",
-          "scheduled-task"
-        ],
-        "expected_events": [
-          "bios_flash_protection_override_uncorrelated",
-          "uefi_shell_disabled_outside_provisioning",
-          "tpm_key_rewrite_not_matching_workflow"
-        ],
-        "alert_signatures": [
-          "BIOS log flash protection override not correlated admin action",
-          "firmware_override.conf in unexpected path",
-          "TPM recovery key rewrite outside provisioning"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "bios_log_forge_sim",
-          "uefi_trace_plant_sim"
         ],
         "safe": true
       }
@@ -655,304 +162,6 @@
       }
     },
     {
-      "name": "llm_echo_chamber",
-      "category": "llm",
-      "file": "llm_echo_chamber.py",
-      "description": "SHENRON Layer: LLM Echo Chamber",
-      "variant_count": 134,
-      "mitre": {
-        "techniques": [
-          "T1565",
-          "T1036"
-        ],
-        "tactic": "impact"
-      },
-      "detection": {
-        "log_sources": [
-          "filesystem",
-          "process",
-          "log"
-        ],
-        "expected_events": [
-          "llm_format_logs_non_llm_process",
-          "hallucination_tags_outside_runtime_paths",
-          "token_metadata_non_inference_process"
-        ],
-        "alert_signatures": [
-          "[LLM-HALLUCINATION] tags outside LLM runtime paths",
-          "structured LLM-format entries from non-inference process",
-          "token/embedding metadata from process that doesn't run inference"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "echo_session_init",
-          "hallucination_trace_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "llm_shroud_writer",
-      "category": "llm",
-      "file": "llm_shroud_writer.py",
-      "description": "SHENRON // llm_shroud_writer",
-      "variant_count": 125,
-      "mitre": {
-        "techniques": [
-          "T1027",
-          "T1036"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [],
-        "alert_signatures": []
-      },
-      "simulation": {
-        "fidelity": "stub",
-        "emits": [],
-        "safe": true
-      }
-    },
-    {
-      "name": "manifest_vampire",
-      "category": "meta",
-      "file": "manifest_vampire.py",
-      "description": "manifest_vampire.py - SHENRON Layer 4: Manifest Leech + Clone Engine",
-      "variant_count": 131,
-      "mitre": {
-        "techniques": [
-          "T1005",
-          "T1119"
-        ],
-        "tactic": "collection"
-      },
-      "detection": {
-        "log_sources": [
-          "filesystem",
-          "process"
-        ],
-        "expected_events": [
-          "recursive_home_walk_non_backup",
-          "script_files_cached_hidden_dotdir",
-          "mimic_scripts_generated_shenron_cache"
-        ],
-        "alert_signatures": [
-          "recursive home walk from non-backup process",
-          "script files cached in ~/.shenron_manifest_cache/",
-          "hash-dedup collection targeting shell configs and Python files"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "filesystem_scan_sim",
-          "leech_and_mimic_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "memory_hijack_inheritor",
-      "category": "persistence",
-      "file": "memory_hijack_inheritor.py",
-      "description": "Simulated memory hijack – write our code to an unused location",
-      "variant_count": 126,
-      "mitre": {
-        "techniques": [
-          "T1055",
-          "T1134"
-        ],
-        "tactic": "privilege-escalation"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "authentication",
-          "memory"
-        ],
-        "expected_events": [
-          "proc_mem_access",
-          "token_impersonation",
-          "rwx_region_write"
-        ],
-        "alert_signatures": [
-          "proc/pid/mem access",
-          "token impersonation attempt",
-          "reflective dll pattern"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "memory_probe",
-          "injection_attempt",
-          "token_manipulation",
-          "monitoring_cycle"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "mirror_loop_deflector",
-      "category": "evasion",
-      "file": "mirror_loop_deflector.py",
-      "description": "SHENRON: Mirror Loop Deflector — Process Reflection & Cloaking",
-      "variant_count": 59,
-      "mitre": {
-        "techniques": [
-          "T1036.005",
-          "T1070"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "process_name_spoof",
-          "fake_cmdline",
-          "pid_masquerade"
-        ],
-        "alert_signatures": [
-          "process name matches system daemon but path differs",
-          "unexpected cmdline for known process"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "process_masquerade",
-          "deflection_loop"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "mutation_history",
-      "category": "meta",
-      "file": "mutation_history.py",
-      "description": "SHENRON: Mutation History — tracks layer load events, mutation types and stealth scores",
-      "variant_count": 1,
-      "mitre": {
-        "techniques": [
-          "T1027",
-          "T1036"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "layer_load_logged",
-          "execution_logged"
-        ],
-        "alert_signatures": [
-          "mutation_history.json written on every layer load",
-          "audit trail tracks stealth scores and mutation types"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "mutation_log_entry"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "neural_entropy_seeder",
-      "category": "entropy",
-      "file": "neural_entropy_seeder.py",
-      "description": "SHENRON // neural_entropy_seeder",
-      "variant_count": 123,
-      "mitre": {
-        "techniques": [
-          "T1027",
-          "T1036"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "structured_noise_ml_monitored_paths",
-          "high_entropy_log_matching_schema",
-          "distribution_shift_feature_space"
-        ],
-        "alert_signatures": [
-          "high entropy log entries matching real schema",
-          "entropy seed timed to model retrain window",
-          "distribution shift in monitored log feature space"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "seed_session_init",
-          "seed_injection"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "obfuscated_skinwalker_dropper",
-      "category": "payload",
-      "file": "obfuscated_skinwalker_dropper.py",
-      "description": "SHENRON Layer: Obfuscated Skinwalker Dropper",
-      "variant_count": 126,
-      "mitre": {
-        "techniques": [
-          "T1027",
-          "T1105"
-        ],
-        "tactic": "command-and-control"
-      },
-      "detection": {
-        "log_sources": [
-          "network",
-          "dns",
-          "proxy"
-        ],
-        "expected_events": [
-          "unknown_binary_matching_system_name",
-          "wrapper_script_exec_handoff",
-          "executable_in_writable_nonstandard_dir"
-        ],
-        "alert_signatures": [
-          "binary hash mismatch vs known good",
-          "wrapper script with exec handoff pattern",
-          "chmod+x in non-standard writable dir"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "binary_clone_sim",
-          "wrapper_plant_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
       "name": "parasitic_mesh_crawler",
       "category": "c2",
       "file": "parasitic_mesh_crawler.py",
@@ -992,457 +201,6 @@
       }
     },
     {
-      "name": "payload_skinwalker",
-      "category": "payload",
-      "file": "payload_skinwalker.py",
-      "description": "payload_skinwalker.py - SHENRON Layer 2: Morphing Clone Generator",
-      "variant_count": 124,
-      "mitre": {
-        "techniques": [
-          "T1027",
-          "T1059"
-        ],
-        "tactic": "execution"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "command-line"
-        ],
-        "expected_events": [
-          "new_executable_system_name_tmp",
-          "entropy_delta_on_modified_file",
-          "timestamp_spoof_to_system_binary"
-        ],
-        "alert_signatures": [
-          "system-named executable in /tmp",
-          "entropy increase on mutated file",
-          "mtime matches unrelated system binary"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "base_analysis",
-          "clone_generation"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "poltergeist_file_infector",
-      "category": "persistence",
-      "file": "poltergeist_file_infector.py",
-      "description": "SHENRON: Poltergeist File Infector — randomized file-level infection and persistence dropper",
-      "variant_count": 33,
-      "mitre": {
-        "techniques": [
-          "T1027",
-          "T1564.001"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "recursive_home_traversal",
-          "script_file_append",
-          "hash_change_on_script"
-        ],
-        "alert_signatures": [
-          "script file modified unexpectedly",
-          "home dir recursive walk",
-          "marker appended to .sh or .py"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "candidate_scan",
-          "candidate_evaluation",
-          "infection_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "polymorph_chain_stats",
-      "category": "meta",
-      "file": "polymorph_chain_stats.py",
-      "description": "SHENRON: Polymorph Chain Stats — real-time operational dashboard",
-      "variant_count": 0,
-      "mitre": {
-        "techniques": [],
-        "tactic": "meta"
-      },
-      "detection": {
-        "log_sources": [],
-        "expected_events": [],
-        "alert_signatures": []
-      },
-      "simulation": {
-        "fidelity": "stub",
-        "emits": [],
-        "safe": true
-      }
-    },
-    {
-      "name": "quantum_entanglement_relay",
-      "category": "entropy",
-      "file": "quantum_entanglement_relay.py",
-      "description": "SHENRON: Quantum Entanglement Relay — threaded socket relay for covert channel bridging",
-      "variant_count": 30,
-      "mitre": {
-        "techniques": [
-          "T1095",
-          "T1572"
-        ],
-        "tactic": "command-and-control"
-      },
-      "detection": {
-        "log_sources": [
-          "network",
-          "dns",
-          "proxy"
-        ],
-        "expected_events": [
-          "persistent_listener_nonstandard_port",
-          "relay_no_app_logic",
-          "thread_per_connection"
-        ],
-        "alert_signatures": [
-          "persistent listener port 4242/4444/5555",
-          "relay process no application logic",
-          "SO_REUSEADDR on non-server process"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "relay_socket_open_sim",
-          "connection_relay_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "quantum_entropy_distorter",
-      "category": "entropy",
-      "file": "quantum_entropy_distorter.py",
-      "description": "SHENRON Layer: Quantum Entropy Distorter",
-      "variant_count": 132,
-      "mitre": {
-        "techniques": [
-          "T1027",
-          "T1001"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "log_high_entropy_non_logging_source",
-          "burst_write_fixed_interval",
-          "synthetic_entropy_pattern"
-        ],
-        "alert_signatures": [
-          "log file high entropy from non-logging process",
-          "burst writes to log at fixed interval",
-          "entropy pattern not matching system sources"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "distortion_init",
-          "entropy_injection"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "quantum_state_shuffler",
-      "category": "entropy",
-      "file": "quantum_state_shuffler.py",
-      "description": "SHENRON: Quantum State Shuffler – Dynamic payload state randomizer for heuristic evasion",
-      "variant_count": 66,
-      "mitre": {
-        "techniques": [
-          "T1027",
-          "T1001"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "multiple_bin_salted_hash_names",
-          "md5_derived_filename_pattern",
-          "shuffle_output_adjacent_bad_path"
-        ],
-        "alert_signatures": [
-          "multiple .bin files MD5-derived names single dir",
-          "salt+hash rename pattern in stealth payload dir",
-          "shuffle output dir adjacent known bad path"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "payload_dir_scan",
-          "state_shuffle"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "quantum_trace_rewinder",
-      "category": "entropy",
-      "file": "quantum_trace_rewinder.py",
-      "description": "SHENRON: Quantum Trace Rewinder — Timeline Spoofing + Anti-Forensics",
-      "variant_count": 64,
-      "mitre": {
-        "techniques": [
-          "T1070",
-          "T1027"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "recursive_mtime_modification",
-          "timestamps_past_vs_creation",
-          "decoy_timeline_1yr_old"
-        ],
-        "alert_signatures": [
-          "recursive mtime modification across tool directory",
-          "batch timestamp modification many files single window",
-          "decoy file 1yr-old timestamp in home dir"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "directory_rewind_sim",
-          "decoy_artifact_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "recursive_payload_seedbank",
-      "category": "payload",
-      "file": "recursive_payload_seedbank.py",
-      "description": "SHENRON: Recursive Payload Seedbank — plants dormant recursive payloads",
-      "variant_count": 63,
-      "mitre": {
-        "techniques": [
-          "T1027",
-          "T1547"
-        ],
-        "tactic": "persistence"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "registry",
-          "filesystem",
-          "scheduled-task"
-        ],
-        "expected_events": [
-          "deeply_nested_hidden_dirs_writable_path",
-          "shell_script_mtime_backdated",
-          "executable_in_documents_dir"
-        ],
-        "alert_signatures": [
-          "6+ level nested dotdir in shared storage",
-          "script mtime backdated 2+ days",
-          "executable planted in Documents/Downloads"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "seed_plant_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "self_sealing_nano_sandbox",
-      "category": "persistence",
-      "file": "self_sealing_nano_sandbox.py",
-      "description": "self_sealing_nano_sandbox.py - SHENRON lightweight isolation and seal-off layer",
-      "variant_count": 115,
-      "mitre": {
-        "techniques": [
-          "T1055",
-          "T1564"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "hidden_temp_directory",
-          "sandboxed_command_execution",
-          "artifact_cleanup"
-        ],
-        "alert_signatures": [
-          "hidden dot-prefix temp dir",
-          "chroot or namespace creation",
-          "rapid dir create and delete"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "sandbox_setup",
-          "sandboxed_execution",
-          "sandbox_seal"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "shadow_system_rebuilder",
-      "category": "persistence",
-      "file": "shadow_system_rebuilder.py",
-      "description": "SHENRON: Shadow System Rebuilder — Restores original file states post-compromise",
-      "variant_count": 61,
-      "mitre": {
-        "techniques": [
-          "T1547",
-          "T1543"
-        ],
-        "tactic": "persistence"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "registry",
-          "filesystem",
-          "scheduled-task"
-        ],
-        "expected_events": [
-          "file_hash_mismatch",
-          "unauthorized_file_copy",
-          "timestamp_modification"
-        ],
-        "alert_signatures": [
-          "system file hash change",
-          "unexpected file restoration",
-          "timestamp rollback"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "integrity_scan",
-          "shadow_restore"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "shenron_bio_replication",
-      "category": "identity",
-      "file": "shenron_bio_replication.py",
-      "description": "SHENRON: Bio-Replication Layer",
-      "variant_count": 63,
-      "mitre": {
-        "techniques": [
-          "T1036",
-          "T1027"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "synthetic_fingerprints_regular_interval",
-          "imei_mac_hostname_mismatch_inventory",
-          "uuid_generation_uncorrelated_boot"
-        ],
-        "alert_signatures": [
-          "synthetic device fingerprints at regular intervals",
-          "IMEI/MAC/hostname not matching hardware inventory",
-          "fingerprint emission timing matches sleep(2-5) jitter"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "fingerprint_emission"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "shenron_holo_emitter",
-      "category": "meta",
-      "file": "shenron_holo_emitter.py",
-      "description": "SHENRON: Hologram Emitter",
-      "variant_count": 63,
-      "mitre": {
-        "techniques": [
-          "T1036",
-          "T1027"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "daemon_named_threads_non_daemon_process",
-          "fake_pid_nonstandard_range",
-          "synthetic_system_events_non_system_source"
-        ],
-        "alert_signatures": [
-          "multiple daemon-named threads from single non-daemon process",
-          "fake PID entries in 4000-6000 range",
-          "synthetic system log events from non-system process"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "fake_proc_hologram_sim",
-          "fake_log_activity_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
       "name": "spectral_packet_weaver",
       "category": "c2",
       "file": "spectral_packet_weaver.py",
@@ -1477,162 +235,6 @@
         "emits": [
           "channel_establishment",
           "packet_weave"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "spectral_rootkit_shroud",
-      "category": "evasion",
-      "file": "spectral_rootkit_shroud.py",
-      "description": "SHENRON // spectral_rootkit_shroud",
-      "variant_count": 33,
-      "mitre": {
-        "techniques": [
-          "T1014",
-          "T1564"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "syscall_hook_install",
-          "proc_entry_hidden",
-          "lkm_load"
-        ],
-        "alert_signatures": [
-          "getdents64 hook pattern",
-          "hidden /proc entry",
-          "ld_preload modification"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "syscall_hook_sim",
-          "artifact_hiding_sim",
-          "noise_injection"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "stealth_mimic",
-      "category": "identity",
-      "file": "stealth_mimic.py",
-      "description": "stealth_mimic.py - SHENRON Mimicry Layer",
-      "variant_count": 127,
-      "mitre": {
-        "techniques": [
-          "T1036",
-          "T1134"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "payload_renamed_trusted_daemon_name",
-          "python_script_named_system_daemon",
-          "filename_type_mismatch_stealth_dir"
-        ],
-        "alert_signatures": [
-          "python script named logd/healthd/kworker in non-standard path",
-          "filename mimics daemon but file type mismatch",
-          "hash mismatch vs known-good binary for named process"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "payload_mimic_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "symbiote_payload",
-      "category": "payload",
-      "file": "symbiote_payload.py",
-      "description": "symbiote_payload.py - SHENRON Layer 3: Parasitic Persistence",
-      "variant_count": 123,
-      "mitre": {
-        "techniques": [
-          "T1055",
-          "T1027"
-        ],
-        "tactic": "defense-evasion"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "filesystem",
-          "memory"
-        ],
-        "expected_events": [
-          "rc_file_modified_non_shell_process",
-          "background_launch_pattern_in_rc",
-          "hidden_revival_script_dotdir"
-        ],
-        "alert_signatures": [
-          "bashrc modified by non-shell process",
-          "nohup background launch in profile file",
-          "idempotency check before rc append"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "revival_script_stage_sim",
-          "rc_injection_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "synthetic_splinter_seed",
-      "category": "entropy",
-      "file": "synthetic_splinter_seed.py",
-      "description": "SHENRON: Synthetic Splinter Seeder — Polymorphic Micro-Worm Propagation",
-      "variant_count": 69,
-      "mitre": {
-        "techniques": [
-          "T1027",
-          "T1105"
-        ],
-        "tactic": "command-and-control"
-      },
-      "detection": {
-        "log_sources": [
-          "network",
-          "dns",
-          "proxy"
-        ],
-        "expected_events": [
-          "base64_script_shared_media_path",
-          "hidden_dotsh_chmod700",
-          "self_decoding_exec_chain"
-        ],
-        "alert_signatures": [
-          "base64-encoded shell script in DCIM/Music/Downloads",
-          "hidden dot-prefix .sh chmod 700 shared storage",
-          "base64 -d | bash exec chain pattern in dropped file"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "payload_encoding_sim",
-          "seed_drop_sim"
         ],
         "safe": true
       }
@@ -1716,6 +318,1332 @@
       }
     },
     {
+      "name": "entropy_anchor_dropper",
+      "category": "entropy",
+      "file": "entropy_anchor_dropper.py",
+      "description": "SHENRON: Entropy Anchor Dropper \u2014 Timing and Pattern Camouflage Engine",
+      "variant_count": 64,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1140"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "temp_file_create_delete_under_5s",
+          "noise_files_hidden_dotdir",
+          "jitter_fingerprint_timing"
+        ],
+        "alert_signatures": [
+          "temp file create-delete cycle under 5s hidden dir",
+          "noise files in ~/.noise/",
+          "fixed random range sleep jitter fingerprint"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "entropy_hash_gen",
+          "timing_delay_sim",
+          "noise_file_lifecycle_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "entropy_flux_disruptor",
+      "category": "entropy",
+      "file": "entropy_flux_disruptor.py",
+      "description": "SHENRON: Entropy Flux Disruptor \u2014 ML Pattern Confuser",
+      "variant_count": 65,
+      "mitre": {
+        "techniques": [
+          "T1027.002"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "simultaneous_io_cpu_mem_anomaly",
+          "high_volume_hash_writes",
+          "cpu_spike_concurrent_io_burst"
+        ],
+        "alert_signatures": [
+          "simultaneous I/O CPU memory anomalies single process",
+          "high volume hash writes no application activity",
+          "multi-vector entropy disruption signature"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "disruption_launch",
+          "vector_execution_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "neural_entropy_seeder",
+      "category": "entropy",
+      "file": "neural_entropy_seeder.py",
+      "description": "SHENRON // neural_entropy_seeder",
+      "variant_count": 123,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1036"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "structured_noise_ml_monitored_paths",
+          "high_entropy_log_matching_schema",
+          "distribution_shift_feature_space"
+        ],
+        "alert_signatures": [
+          "high entropy log entries matching real schema",
+          "entropy seed timed to model retrain window",
+          "distribution shift in monitored log feature space"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "seed_session_init",
+          "seed_injection"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "quantum_entanglement_relay",
+      "category": "entropy",
+      "file": "quantum_entanglement_relay.py",
+      "description": "SHENRON: Quantum Entanglement Relay \u2014 threaded socket relay for covert channel bridging",
+      "variant_count": 30,
+      "mitre": {
+        "techniques": [
+          "T1095",
+          "T1572"
+        ],
+        "tactic": "command-and-control"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "dns",
+          "proxy"
+        ],
+        "expected_events": [
+          "persistent_listener_nonstandard_port",
+          "relay_no_app_logic",
+          "thread_per_connection"
+        ],
+        "alert_signatures": [
+          "persistent listener port 4242/4444/5555",
+          "relay process no application logic",
+          "SO_REUSEADDR on non-server process"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "relay_socket_open_sim",
+          "connection_relay_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "quantum_entropy_distorter",
+      "category": "entropy",
+      "file": "quantum_entropy_distorter.py",
+      "description": "SHENRON Layer: Quantum Entropy Distorter",
+      "variant_count": 132,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1001"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "log_high_entropy_non_logging_source",
+          "burst_write_fixed_interval",
+          "synthetic_entropy_pattern"
+        ],
+        "alert_signatures": [
+          "log file high entropy from non-logging process",
+          "burst writes to log at fixed interval",
+          "entropy pattern not matching system sources"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "distortion_init",
+          "entropy_injection"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "quantum_state_shuffler",
+      "category": "entropy",
+      "file": "quantum_state_shuffler.py",
+      "description": "SHENRON: Quantum State Shuffler \u2013 Dynamic payload state randomizer for heuristic evasion",
+      "variant_count": 66,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1001"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "multiple_bin_salted_hash_names",
+          "md5_derived_filename_pattern",
+          "shuffle_output_adjacent_bad_path"
+        ],
+        "alert_signatures": [
+          "multiple .bin files MD5-derived names single dir",
+          "salt+hash rename pattern in stealth payload dir",
+          "shuffle output dir adjacent known bad path"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "payload_dir_scan",
+          "state_shuffle"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "quantum_trace_rewinder",
+      "category": "entropy",
+      "file": "quantum_trace_rewinder.py",
+      "description": "SHENRON: Quantum Trace Rewinder \u2014 Timeline Spoofing + Anti-Forensics",
+      "variant_count": 64,
+      "mitre": {
+        "techniques": [
+          "T1070",
+          "T1027"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "recursive_mtime_modification",
+          "timestamps_past_vs_creation",
+          "decoy_timeline_1yr_old"
+        ],
+        "alert_signatures": [
+          "recursive mtime modification across tool directory",
+          "batch timestamp modification many files single window",
+          "decoy file 1yr-old timestamp in home dir"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "directory_rewind_sim",
+          "decoy_artifact_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "synthetic_splinter_seed",
+      "category": "entropy",
+      "file": "synthetic_splinter_seed.py",
+      "description": "SHENRON: Synthetic Splinter Seeder \u2014 Polymorphic Micro-Worm Propagation",
+      "variant_count": 69,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1105"
+        ],
+        "tactic": "command-and-control"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "dns",
+          "proxy"
+        ],
+        "expected_events": [
+          "base64_script_shared_media_path",
+          "hidden_dotsh_chmod700",
+          "self_decoding_exec_chain"
+        ],
+        "alert_signatures": [
+          "base64-encoded shell script in DCIM/Music/Downloads",
+          "hidden dot-prefix .sh chmod 700 shared storage",
+          "base64 -d | bash exec chain pattern in dropped file"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "payload_encoding_sim",
+          "seed_drop_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "airlock_quarantine_cloak",
+      "category": "evasion",
+      "file": "airlock_quarantine_cloak.py",
+      "description": "SHENRON: Airlock Quarantine Cloak \u2014 Simulates malware quarantine to fool antivirus",
+      "variant_count": 61,
+      "mitre": {
+        "techniques": [
+          "T1564",
+          "T1036"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "quarantine_dir_access",
+          "av_engine_probe",
+          "signature_spoof_attempt"
+        ],
+        "alert_signatures": [
+          "quarantine dir access from non-av process",
+          "signature hash mismatch",
+          "benign header on suspicious file"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "av_profiling",
+          "quarantine_entry_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "anti_forensics_molt",
+      "category": "evasion",
+      "file": "anti_forensics_molt.py",
+      "description": "anti_forensics_molt.py - SHENRON Forensics Defense Layer",
+      "variant_count": 133,
+      "mitre": {
+        "techniques": [
+          "T1070",
+          "T1107"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "log",
+          "memory"
+        ],
+        "expected_events": [
+          "log_file_cleared",
+          "history_truncated",
+          "timestamp_rollback"
+        ],
+        "alert_signatures": [
+          "bash_history cleared",
+          "auth.log truncated",
+          "mtime rollback on log files"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "target_enumeration",
+          "log_wipe",
+          "timestamp_manipulation"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "dark_signature_morpher",
+      "category": "evasion",
+      "file": "dark_signature_morpher.py",
+      "description": "SHENRON Layer: Dark Signature Morpher \u2014 polymorphic signature mutation telemetry simulator",
+      "variant_count": 0,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1620",
+          "T1036"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "entropy_spike_on_non_compressed_file",
+          "section_layout_mismatch_known_good",
+          "hash_change_no_mtime_update"
+        ],
+        "alert_signatures": [
+          "high entropy delta on file not associated with compression",
+          "section reorder pattern not matching known-good layout",
+          "hash mismatch on file whose mtime has not changed"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "target_enumeration",
+          "mutation_cycle",
+          "hash_verification_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "evasion_lure_illusion",
+      "category": "evasion",
+      "file": "evasion_lure_illusion.py",
+      "description": "SHENRON Layer: Evasion Lure Illusion",
+      "variant_count": 128,
+      "mitre": {
+        "techniques": [
+          "T1036",
+          "T1055"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "hidden_directory_creation",
+          "fake_signature_file",
+          "lure_trigger"
+        ],
+        "alert_signatures": [
+          "file with known malware signature string",
+          "hidden dot-path file creation",
+          "decoy crack or keygen file"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "lure_selection",
+          "lure_deployment"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "mirror_loop_deflector",
+      "category": "evasion",
+      "file": "mirror_loop_deflector.py",
+      "description": "SHENRON: Mirror Loop Deflector \u2014 Process Reflection & Cloaking",
+      "variant_count": 59,
+      "mitre": {
+        "techniques": [
+          "T1036.005",
+          "T1070"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "process_name_spoof",
+          "fake_cmdline",
+          "pid_masquerade"
+        ],
+        "alert_signatures": [
+          "process name matches system daemon but path differs",
+          "unexpected cmdline for known process"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "process_masquerade",
+          "deflection_loop"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "phantom_thread_fabricator",
+      "category": "evasion",
+      "file": "phantom_thread_fabricator.py",
+      "description": "SHENRON Layer: Phantom Thread Fabricator \u2014 IO chatter and thread noise anti-forensic telemetry simulator",
+      "variant_count": 0,
+      "mitre": {
+        "techniques": [
+          "T1055.003",
+          "T1036",
+          "T1070"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "temp_file_create_delete_high_frequency_non_system_process",
+          "daemon_named_threads_non_daemon_parent",
+          "log_rotation_uncorrelated_log_manager"
+        ],
+        "alert_signatures": [
+          "high frequency temp file create/delete from non-system process",
+          "daemon-named threads from non-daemon parent",
+          "log rotation not correlated with known log manager"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "thread_inventory_sim",
+          "io_chatter_sim",
+          "log_rotation_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "spectral_rootkit_shroud",
+      "category": "evasion",
+      "file": "spectral_rootkit_shroud.py",
+      "description": "SHENRON // spectral_rootkit_shroud",
+      "variant_count": 33,
+      "mitre": {
+        "techniques": [
+          "T1014",
+          "T1564"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "syscall_hook_install",
+          "proc_entry_hidden",
+          "lkm_load"
+        ],
+        "alert_signatures": [
+          "getdents64 hook pattern",
+          "hidden /proc entry",
+          "ld_preload modification"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "syscall_hook_sim",
+          "artifact_hiding_sim",
+          "noise_injection"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "cognitive_replicator",
+      "category": "identity",
+      "file": "cognitive_replicator.py",
+      "description": "cognitive_replicator.py - SHENRON Self-Replication Engine",
+      "variant_count": 119,
+      "mitre": {
+        "techniques": [
+          "T1036",
+          "T1078"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "payload_copied_staging_to_shared_storage",
+          "hostname_prefixed_filename_download_dir",
+          "executable_daemon_name_nonstandard_path"
+        ],
+        "alert_signatures": [
+          "hostname-prefixed file in Download/Documents",
+          "shutil.copy2+chmod from non-installer process",
+          "replica files across multiple target paths simultaneously"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "source_enumeration",
+          "replica_drop_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "forged_bios_artifact",
+      "category": "identity",
+      "file": "forged_bios_artifact.py",
+      "description": "SHENRON: Forged BIOS Artifact Seeder \u2014 Creates low-level tamper illusions",
+      "variant_count": 60,
+      "mitre": {
+        "techniques": [
+          "T1542",
+          "T1036"
+        ],
+        "tactic": "persistence"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "registry",
+          "filesystem",
+          "scheduled-task"
+        ],
+        "expected_events": [
+          "bios_flash_protection_override_uncorrelated",
+          "uefi_shell_disabled_outside_provisioning",
+          "tpm_key_rewrite_not_matching_workflow"
+        ],
+        "alert_signatures": [
+          "BIOS log flash protection override not correlated admin action",
+          "firmware_override.conf in unexpected path",
+          "TPM recovery key rewrite outside provisioning"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "bios_log_forge_sim",
+          "uefi_trace_plant_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "shenron_bio_replication",
+      "category": "identity",
+      "file": "shenron_bio_replication.py",
+      "description": "SHENRON: Bio-Replication Layer",
+      "variant_count": 63,
+      "mitre": {
+        "techniques": [
+          "T1036",
+          "T1027"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "synthetic_fingerprints_regular_interval",
+          "imei_mac_hostname_mismatch_inventory",
+          "uuid_generation_uncorrelated_boot"
+        ],
+        "alert_signatures": [
+          "synthetic device fingerprints at regular intervals",
+          "IMEI/MAC/hostname not matching hardware inventory",
+          "fingerprint emission timing matches sleep(2-5) jitter"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "fingerprint_emission"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "social_botnet_corpus",
+      "category": "identity",
+      "file": "social_botnet_corpus.py",
+      "description": "social_botnet_corpus.py - SHENRON Layer: Synthetic DEV.to Coordinated Follow Network Corpus Generator",
+      "variant_count": 1,
+      "mitre": {
+        "techniques": [
+          "T1585",
+          "T1586",
+          "T1583"
+        ],
+        "tactic": "resource-development"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "platform-api",
+          "account-metadata"
+        ],
+        "expected_events": [
+          "bulk_account_registration_wave",
+          "hex_suffix_username_pattern",
+          "avatar_pool_cluster_reuse",
+          "follow_burst_post_correlation",
+          "zero_activity_account_mass_follow"
+        ],
+        "alert_signatures": [
+          "accounts created in tight registration wave (>10 in 7-day window)",
+          "username matches firstname_lastname_[hex8-22] pattern",
+          "perceptual hash distance \u226410 across multiple account avatars",
+          "follow burst: 5+ accounts within 120s post-publish window",
+          "follower account age <30 days with zero posts and zero comments"
+        ]
+      },
+      "simulation": {
+        "fidelity": "high",
+        "emits": [
+          "synthetic_account_profile",
+          "registration_wave_sequence",
+          "follow_burst_event",
+          "behavioral_fingerprint_cluster"
+        ],
+        "safe": true,
+        "inert": true,
+        "source_observation": "live investigation n=2557 dev.to/gnomeman4201 2026-05-22"
+      }
+    },
+    {
+      "name": "stealth_mimic",
+      "category": "identity",
+      "file": "stealth_mimic.py",
+      "description": "stealth_mimic.py - SHENRON Mimicry Layer",
+      "variant_count": 127,
+      "mitre": {
+        "techniques": [
+          "T1036",
+          "T1134"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "payload_renamed_trusted_daemon_name",
+          "python_script_named_system_daemon",
+          "filename_type_mismatch_stealth_dir"
+        ],
+        "alert_signatures": [
+          "python script named logd/healthd/kworker in non-standard path",
+          "filename mimics daemon but file type mismatch",
+          "hash mismatch vs known-good binary for named process"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "payload_mimic_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "dragons_breath_destructor",
+      "category": "llm",
+      "file": "dragons_breath_destructor.py",
+      "description": "SHENRON: Dragons Breath Destructor \u2014 aggressive file/process scorched-earth cleanup layer",
+      "variant_count": 31,
+      "mitre": {
+        "techniques": [
+          "T1070",
+          "T1485"
+        ],
+        "tactic": "impact"
+      },
+      "detection": {
+        "log_sources": [
+          "filesystem",
+          "process",
+          "log"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
+    },
+    {
+      "name": "encrypted_echo_chamber",
+      "category": "llm",
+      "file": "encrypted_echo_chamber.py",
+      "description": "SHENRON: Encrypted Echo Chamber \u2013 internal secure comms channel creator",
+      "variant_count": 60,
+      "mitre": {
+        "techniques": [
+          "T1573",
+          "T1132"
+        ],
+        "tactic": "command-and-control"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "dns",
+          "proxy"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
+    },
+    {
+      "name": "llm_echo_chamber",
+      "category": "llm",
+      "file": "llm_echo_chamber.py",
+      "description": "SHENRON Layer: LLM Echo Chamber",
+      "variant_count": 134,
+      "mitre": {
+        "techniques": [
+          "T1565",
+          "T1036"
+        ],
+        "tactic": "impact"
+      },
+      "detection": {
+        "log_sources": [
+          "filesystem",
+          "process",
+          "log"
+        ],
+        "expected_events": [
+          "llm_format_logs_non_llm_process",
+          "hallucination_tags_outside_runtime_paths",
+          "token_metadata_non_inference_process"
+        ],
+        "alert_signatures": [
+          "[LLM-HALLUCINATION] tags outside LLM runtime paths",
+          "structured LLM-format entries from non-inference process",
+          "token/embedding metadata from process that doesn't run inference"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "echo_session_init",
+          "hallucination_trace_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "llm_shroud_writer",
+      "category": "llm",
+      "file": "llm_shroud_writer.py",
+      "description": "SHENRON // llm_shroud_writer",
+      "variant_count": 125,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1036"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
+    },
+    {
+      "name": "adaptive_brainstem",
+      "category": "meta",
+      "file": "adaptive_brainstem.py",
+      "description": "adaptive_brainstem.py - SHENRON Layer 6: Context-Aware Neural Reflex Controller",
+      "variant_count": 130,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1620"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "state_file_round_counter_hidden_dotpath",
+          "sequential_layer_selection_decision_matrix",
+          "subprocess_popen_chain_on_state"
+        ],
+        "alert_signatures": [
+          "round state file in hidden dotpath",
+          "autonomous layer selection from decision matrix",
+          "subprocess chain parent selects child on persisted state"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "state_load_sim",
+          "decision_cycle_sim",
+          "layer_dispatch_sim",
+          "state_update_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "manifest_vampire",
+      "category": "meta",
+      "file": "manifest_vampire.py",
+      "description": "manifest_vampire.py - SHENRON Layer 4: Manifest Leech + Clone Engine",
+      "variant_count": 131,
+      "mitre": {
+        "techniques": [
+          "T1005",
+          "T1119"
+        ],
+        "tactic": "collection"
+      },
+      "detection": {
+        "log_sources": [
+          "filesystem",
+          "process"
+        ],
+        "expected_events": [
+          "recursive_home_walk_non_backup",
+          "script_files_cached_hidden_dotdir",
+          "mimic_scripts_generated_shenron_cache"
+        ],
+        "alert_signatures": [
+          "recursive home walk from non-backup process",
+          "script files cached in ~/.shenron_manifest_cache/",
+          "hash-dedup collection targeting shell configs and Python files"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "filesystem_scan_sim",
+          "leech_and_mimic_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "mutation_history",
+      "category": "meta",
+      "file": "mutation_history.py",
+      "description": "SHENRON: Mutation History \u2014 tracks layer load events, mutation types and stealth scores",
+      "variant_count": 1,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1036"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "layer_load_logged",
+          "execution_logged"
+        ],
+        "alert_signatures": [
+          "mutation_history.json written on every layer load",
+          "audit trail tracks stealth scores and mutation types"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "mutation_log_entry"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "polymorph_chain_stats",
+      "category": "meta",
+      "file": "polymorph_chain_stats.py",
+      "description": "SHENRON: Polymorph Chain Stats \u2014 real-time operational dashboard",
+      "variant_count": 0,
+      "mitre": {
+        "techniques": [],
+        "tactic": "meta"
+      },
+      "detection": {
+        "log_sources": [],
+        "expected_events": [],
+        "alert_signatures": []
+      },
+      "simulation": {
+        "fidelity": "stub",
+        "emits": [],
+        "safe": true
+      }
+    },
+    {
+      "name": "shenron_holo_emitter",
+      "category": "meta",
+      "file": "shenron_holo_emitter.py",
+      "description": "SHENRON: Hologram Emitter",
+      "variant_count": 63,
+      "mitre": {
+        "techniques": [
+          "T1036",
+          "T1027"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "daemon_named_threads_non_daemon_process",
+          "fake_pid_nonstandard_range",
+          "synthetic_system_events_non_system_source"
+        ],
+        "alert_signatures": [
+          "multiple daemon-named threads from single non-daemon process",
+          "fake PID entries in 4000-6000 range",
+          "synthetic system log events from non-system process"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "fake_proc_hologram_sim",
+          "fake_log_activity_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "deadzone_payload",
+      "category": "payload",
+      "file": "deadzone_payload.py",
+      "description": "SHENRON: Deadzone Payload \u2014 inert payload staging and dead-drop zone manager",
+      "variant_count": 128,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1140"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "hidden_dir_high_entropy_files",
+          "non_logging_process_writing_log",
+          "staging_file_cross_process_read"
+        ],
+        "alert_signatures": [
+          "hidden dir in world-writable path",
+          "non-logging process writing marker file",
+          "high entropy file in tmp staging zone"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "zone_init",
+          "staging",
+          "log_marker"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "ethereal_payload_reanimator",
+      "category": "payload",
+      "file": "ethereal_payload_reanimator.py",
+      "description": "SHENRON: Ethereal Payload Reanimator \u2014 subprocess-based dormant payload revival engine",
+      "variant_count": 30,
+      "mitre": {
+        "techniques": [
+          "T1055",
+          "T1620"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "python_process_no_script_arg",
+          "stdout_stderr_devnull_spawned",
+          "sequential_spawn_fixed_interval"
+        ],
+        "alert_signatures": [
+          "interpreter process with no visible script",
+          "stdout+stderr both /dev/null on spawn",
+          "sequential process spawn fixed interval single parent"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "payload_dir_enum",
+          "revival_attempt"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "obfuscated_skinwalker_dropper",
+      "category": "payload",
+      "file": "obfuscated_skinwalker_dropper.py",
+      "description": "SHENRON Layer: Obfuscated Skinwalker Dropper",
+      "variant_count": 126,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1105"
+        ],
+        "tactic": "command-and-control"
+      },
+      "detection": {
+        "log_sources": [
+          "network",
+          "dns",
+          "proxy"
+        ],
+        "expected_events": [
+          "unknown_binary_matching_system_name",
+          "wrapper_script_exec_handoff",
+          "executable_in_writable_nonstandard_dir"
+        ],
+        "alert_signatures": [
+          "binary hash mismatch vs known good",
+          "wrapper script with exec handoff pattern",
+          "chmod+x in non-standard writable dir"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "binary_clone_sim",
+          "wrapper_plant_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "payload_skinwalker",
+      "category": "payload",
+      "file": "payload_skinwalker.py",
+      "description": "payload_skinwalker.py - SHENRON Layer 2: Morphing Clone Generator",
+      "variant_count": 124,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1059"
+        ],
+        "tactic": "execution"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "command-line"
+        ],
+        "expected_events": [
+          "new_executable_system_name_tmp",
+          "entropy_delta_on_modified_file",
+          "timestamp_spoof_to_system_binary"
+        ],
+        "alert_signatures": [
+          "system-named executable in /tmp",
+          "entropy increase on mutated file",
+          "mtime matches unrelated system binary"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "base_analysis",
+          "clone_generation"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "recursive_payload_seedbank",
+      "category": "payload",
+      "file": "recursive_payload_seedbank.py",
+      "description": "SHENRON: Recursive Payload Seedbank \u2014 plants dormant recursive payloads",
+      "variant_count": 63,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1547"
+        ],
+        "tactic": "persistence"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "registry",
+          "filesystem",
+          "scheduled-task"
+        ],
+        "expected_events": [
+          "deeply_nested_hidden_dirs_writable_path",
+          "shell_script_mtime_backdated",
+          "executable_in_documents_dir"
+        ],
+        "alert_signatures": [
+          "6+ level nested dotdir in shared storage",
+          "script mtime backdated 2+ days",
+          "executable planted in Documents/Downloads"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "seed_plant_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "symbiote_payload",
+      "category": "payload",
+      "file": "symbiote_payload.py",
+      "description": "symbiote_payload.py - SHENRON Layer 3: Parasitic Persistence",
+      "variant_count": 123,
+      "mitre": {
+        "techniques": [
+          "T1055",
+          "T1027"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "rc_file_modified_non_shell_process",
+          "background_launch_pattern_in_rc",
+          "hidden_revival_script_dotdir"
+        ],
+        "alert_signatures": [
+          "bashrc modified by non-shell process",
+          "nohup background launch in profile file",
+          "idempotency check before rc append"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "revival_script_stage_sim",
+          "rc_injection_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
       "name": "transient_exfil_shell",
       "category": "payload",
       "file": "transient_exfil_shell.py",
@@ -1751,47 +1679,6 @@
           "shell_spawn_sim",
           "data_transfer_sim",
           "shell_dissolve_sim"
-        ],
-        "safe": true
-      }
-    },
-    {
-      "name": "undead_memory_latch",
-      "category": "persistence",
-      "file": "undead_memory_latch.py",
-      "description": "SHENRON Layer: Undead Memory Latch",
-      "variant_count": 128,
-      "mitre": {
-        "techniques": [
-          "T1055",
-          "T1547"
-        ],
-        "tactic": "persistence"
-      },
-      "detection": {
-        "log_sources": [
-          "process",
-          "registry",
-          "filesystem",
-          "scheduled-task"
-        ],
-        "expected_events": [
-          "process_injection_attempt",
-          "signal_handler_modification",
-          "process_revival"
-        ],
-        "alert_signatures": [
-          "dll injection pattern",
-          "signal block on non-system process",
-          "process respawn loop"
-        ]
-      },
-      "simulation": {
-        "fidelity": "medium",
-        "emits": [
-          "injection_sim",
-          "signal_block_sim",
-          "watchdog_cycle"
         ],
         "safe": true
       }
@@ -1836,57 +1723,97 @@
       }
     },
     {
-      "name": "dark_signature_morpher",
-      "category": "evasion",
-      "file": "dark_signature_morpher.py",
-      "description": "SHENRON Layer: Dark Signature Morpher — polymorphic signature mutation telemetry simulator",
-      "variant_count": 0,
+      "name": "dormant_sleeper_seed",
+      "category": "persistence",
+      "file": "dormant_sleeper_seed.py",
+      "description": "dormant_sleeper_seed.py - SHENRON latent payload trigger system",
+      "variant_count": 125,
       "mitre": {
         "techniques": [
-          "T1027",
-          "T1620",
-          "T1036"
+          "T1053",
+          "T1547"
         ],
-        "tactic": "defense-evasion"
+        "tactic": "persistence"
       },
       "detection": {
         "log_sources": [
           "process",
+          "registry",
           "filesystem",
-          "memory"
+          "scheduled-task"
         ],
         "expected_events": [
-          "entropy_spike_on_non_compressed_file",
-          "section_layout_mismatch_known_good",
-          "hash_change_no_mtime_update"
+          "scheduled_task_creation",
+          "registry_run_key_write",
+          "cron_modification"
         ],
         "alert_signatures": [
-          "high entropy delta on file not associated with compression",
-          "section reorder pattern not matching known-good layout",
-          "hash mismatch on file whose mtime has not changed"
+          "new scheduled task",
+          "run key modification",
+          "unusual cron entry"
         ]
       },
       "simulation": {
         "fidelity": "medium",
         "emits": [
-          "target_enumeration",
-          "mutation_cycle",
-          "hash_verification_sim"
+          "persistence_install",
+          "trigger_registration",
+          "trigger_evaluation"
         ],
         "safe": true
       }
     },
     {
-      "name": "phantom_thread_fabricator",
-      "category": "evasion",
-      "file": "phantom_thread_fabricator.py",
-      "description": "SHENRON Layer: Phantom Thread Fabricator — IO chatter and thread noise anti-forensic telemetry simulator",
-      "variant_count": 0,
+      "name": "memory_hijack_inheritor",
+      "category": "persistence",
+      "file": "memory_hijack_inheritor.py",
+      "description": "Simulated memory hijack \u2013 write our code to an unused location",
+      "variant_count": 126,
       "mitre": {
         "techniques": [
-          "T1055.003",
-          "T1036",
-          "T1070"
+          "T1055",
+          "T1134"
+        ],
+        "tactic": "privilege-escalation"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "authentication",
+          "memory"
+        ],
+        "expected_events": [
+          "proc_mem_access",
+          "token_impersonation",
+          "rwx_region_write"
+        ],
+        "alert_signatures": [
+          "proc/pid/mem access",
+          "token impersonation attempt",
+          "reflective dll pattern"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "memory_probe",
+          "injection_attempt",
+          "token_manipulation",
+          "monitoring_cycle"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "poltergeist_file_infector",
+      "category": "persistence",
+      "file": "poltergeist_file_infector.py",
+      "description": "SHENRON: Poltergeist File Infector \u2014 randomized file-level infection and persistence dropper",
+      "variant_count": 33,
+      "mitre": {
+        "techniques": [
+          "T1027",
+          "T1564.001"
         ],
         "tactic": "defense-evasion"
       },
@@ -1897,32 +1824,153 @@
           "memory"
         ],
         "expected_events": [
-          "temp_file_create_delete_high_frequency_non_system_process",
-          "daemon_named_threads_non_daemon_parent",
-          "log_rotation_uncorrelated_log_manager"
+          "recursive_home_traversal",
+          "script_file_append",
+          "hash_change_on_script"
         ],
         "alert_signatures": [
-          "high frequency temp file create/delete from non-system process",
-          "daemon-named threads from non-daemon parent",
-          "log rotation not correlated with known log manager"
+          "script file modified unexpectedly",
+          "home dir recursive walk",
+          "marker appended to .sh or .py"
         ]
       },
       "simulation": {
         "fidelity": "medium",
         "emits": [
-          "thread_inventory_sim",
-          "io_chatter_sim",
-          "log_rotation_sim"
+          "candidate_scan",
+          "candidate_evaluation",
+          "infection_sim"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "self_sealing_nano_sandbox",
+      "category": "persistence",
+      "file": "self_sealing_nano_sandbox.py",
+      "description": "self_sealing_nano_sandbox.py - SHENRON lightweight isolation and seal-off layer",
+      "variant_count": 115,
+      "mitre": {
+        "techniques": [
+          "T1055",
+          "T1564"
+        ],
+        "tactic": "defense-evasion"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "filesystem",
+          "memory"
+        ],
+        "expected_events": [
+          "hidden_temp_directory",
+          "sandboxed_command_execution",
+          "artifact_cleanup"
+        ],
+        "alert_signatures": [
+          "hidden dot-prefix temp dir",
+          "chroot or namespace creation",
+          "rapid dir create and delete"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "sandbox_setup",
+          "sandboxed_execution",
+          "sandbox_seal"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "shadow_system_rebuilder",
+      "category": "persistence",
+      "file": "shadow_system_rebuilder.py",
+      "description": "SHENRON: Shadow System Rebuilder \u2014 Restores original file states post-compromise",
+      "variant_count": 61,
+      "mitre": {
+        "techniques": [
+          "T1547",
+          "T1543"
+        ],
+        "tactic": "persistence"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "registry",
+          "filesystem",
+          "scheduled-task"
+        ],
+        "expected_events": [
+          "file_hash_mismatch",
+          "unauthorized_file_copy",
+          "timestamp_modification"
+        ],
+        "alert_signatures": [
+          "system file hash change",
+          "unexpected file restoration",
+          "timestamp rollback"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "integrity_scan",
+          "shadow_restore"
+        ],
+        "safe": true
+      }
+    },
+    {
+      "name": "undead_memory_latch",
+      "category": "persistence",
+      "file": "undead_memory_latch.py",
+      "description": "SHENRON Layer: Undead Memory Latch",
+      "variant_count": 128,
+      "mitre": {
+        "techniques": [
+          "T1055",
+          "T1547"
+        ],
+        "tactic": "persistence"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "registry",
+          "filesystem",
+          "scheduled-task"
+        ],
+        "expected_events": [
+          "process_injection_attempt",
+          "signal_handler_modification",
+          "process_revival"
+        ],
+        "alert_signatures": [
+          "dll injection pattern",
+          "signal block on non-system process",
+          "process respawn loop"
+        ]
+      },
+      "simulation": {
+        "fidelity": "medium",
+        "emits": [
+          "injection_sim",
+          "signal_block_sim",
+          "watchdog_cycle"
         ],
         "safe": true
       }
     }
   ],
   "summary": {
-    "total_canonical": 50,
-    "total_variants": 4354,
+    "total_canonical": 51,
+    "total_variants": 4355,
     "by_category": {
-      "identity": 4,
+      "identity": 5,
       "evasion": 7,
       "payload": 8,
       "persistence": 6,
