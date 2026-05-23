@@ -1,5 +1,5 @@
 # tests/test_all_layers_safety_static.py
-# Static safety audit across all 50 canonical layers.
+# Static safety audit across all 51 canonical layers.
 # Asserts no forbidden patterns exist in any canonical layer source file.
 # This is a CI gate — if it fails, a layer violates the safety contract.
 
@@ -106,7 +106,7 @@ def test_all_canonical_layers_pass_static_safety():
 
 def test_canonical_layer_count():
     canonical = discover_canonical()
-    assert len(canonical) >= 50, f"Expected >= 50 canonical layers, got {len(canonical)}"
+    assert len(canonical) >= 51, f"Expected >= 50 canonical layers, got {len(canonical)}"
 
 
 def test_all_canonical_layers_readable():

@@ -60,7 +60,7 @@ def test_phase_summary_has_all_phases():
     for phase in Phase:
         assert phase.value in summary
 
-def test_phase_summary_layer_counts_sum_to_50():
+def test_phase_summary_layer_counts_sum_to_51():
     manifest = json.loads(Path("shenron_manifest.json").read_text())["layers"]
     summary = build_phase_summary(manifest)
     total = sum(v["layer_count"] for v in summary.values())
