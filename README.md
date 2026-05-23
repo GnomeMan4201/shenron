@@ -163,7 +163,7 @@ python3 shenron.py sigma validate-dir sigma/rules/ \
 | Safety failures | 0 |
 | Sigma rules | 7 |
 | Assumption YAMLs | 14 |
-| Simulation layers | 50 |
+| Simulation layers | 51 |
 
 ---
 
