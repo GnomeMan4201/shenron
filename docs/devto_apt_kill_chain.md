@@ -1,7 +1,8 @@
 ---
 title: "Running a Full Multi-Stage Intrusion Simulation. Every Detection Fired."
-published: false
+published: true
 tags: security, blueteam, python, opensource
+canonical_url: https://dev.to/gnomeman4201/running-a-full-multi-stage-intrusion-simulation-every-detection-fired-3lk9
 cover_image:
 ---
 
