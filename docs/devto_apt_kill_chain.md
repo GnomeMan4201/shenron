@@ -1,5 +1,8 @@
-# Running a Full Multi-Stage Intrusion Simulation. Every Detection Fired.
-
+---
+title: "Running a Full Multi-Stage Intrusion Simulation. Every Detection Fired."
+published: false
+tags: security, blueteam, python, opensource
+cover_image:
 ---
 
 I've been building SHENRON for a while — a polymorphic adversarial simulation framework that generates inert adversarial-shaped telemetry for detector and governance testing.
