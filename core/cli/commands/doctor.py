@@ -48,6 +48,10 @@ def register(subparsers):
         "--layer", type=str, default=None, metavar="NAME",
         help="inspect a single layer only",
     )
+    p.add_argument(
+        "--json", action="store_true",
+        help="output results as JSON (for CI integration)",
+    )
     p.set_defaults(func=_handle_doctor)
 
 
@@ -145,3 +149,19 @@ def _handle_doctor(args):
         print(f"  Fix: add 'behavior_class' and 'detection_opportunities' to each")
         print(f"  layer's event records. See beacon_emitter_cloak.py for reference.")
     print()
+
+    # JSON output for CI
+    if getattr(args, "json", False):
+        import json as _json
+        result = {
+            "total": total,
+            "ok": n_ok,
+            "gaps": n_gap,
+            "coverage_pct": round(n_ok / total * 100, 1) if total else 0,
+            "pass": n_gap == 0,
+            "gap_layers": [
+                {"layer": layer, "events": count, "missing": missing}
+                for layer, missing, count in gap_layers
+            ],
+        }
+        print(_json.dumps(result, indent=2))
