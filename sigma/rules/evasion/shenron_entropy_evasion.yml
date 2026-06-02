@@ -16,5 +16,8 @@ detection:
             - entropy_delta_exceeds_threshold
             - burst_writes_to_log_from_non_logging_process
             - base64_encoded_payload_string_in_dropped_file
+            - hash_writes_to_anchor_log_non_hashing_process
+            - artificial_timing_delay_fixed_random_range_fingerprint
+            - temp_file_create_delete_under_5s_hidden_dir
     condition: entropy
 level: medium

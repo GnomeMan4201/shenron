@@ -142,10 +142,11 @@ def _evaluate_detection_block(detection_name: str, detection_def,
             unsupported.append(sigma_field)
             continue
         if isinstance(expected_value, list):
-            for ev in expected_value:
-                field_requirements.append((sigma_field, str(ev), shenron_fields))
+            values = [str(ev) for ev in expected_value if ev]
+            if values:
+                field_requirements.append((sigma_field, values, shenron_fields))
         elif isinstance(expected_value, str) and expected_value:
-            field_requirements.append((sigma_field, expected_value, shenron_fields))
+            field_requirements.append((sigma_field, [expected_value], shenron_fields))
 
     if not field_requirements:
         result.status = MatchStatus.UNSUPPORTED
@@ -153,16 +154,32 @@ def _evaluate_detection_block(detection_name: str, detection_def,
         return result
 
     matched_artifacts = []
-    field_match_map = {(sf, ev): FieldMatch(field=sf, expected=ev)
-                       for sf, ev, _ in field_requirements}
+    # field_requirements: (sigma_field, [values], shenron_fields)
+    # list of values = OR semantics (any one matching is sufficient)
+    field_match_map = {
+        (sf, vals[0] if len(vals) == 1 else f"any({','.join(vals[:2])}...)"):
+            FieldMatch(field=sf,
+                       expected=vals[0] if len(vals) == 1 else f"any of {vals[:3]}")
+        for sf, vals, _ in field_requirements
+    }
 
     for art in artifacts:
         art_field_results = []
-        for sigma_field, expected, shenron_fields in field_requirements:
+        for sigma_field, expected_values, shenron_fields in field_requirements:
             actual = _get_artifact_values(art, shenron_fields)
-            matched, match_reason = _value_matches(expected, actual, match_mode)
+            matched = False
+            match_reason = f"no match for any of {expected_values[:2]} in {actual[:2]}"
+            for ev in expected_values:
+                m, reason = _value_matches(ev, actual, match_mode)
+                if m:
+                    matched = True
+                    match_reason = reason
+                    break
             art_field_results.append(matched)
-            fm = field_match_map[(sigma_field, expected)]
+            key = (sigma_field,
+                   expected_values[0] if len(expected_values) == 1
+                   else f"any({','.join(expected_values[:2])}...)")
+            fm = field_match_map[key]
             fm.artifact_count += 1
             fm.match_reason = match_reason
             if matched:

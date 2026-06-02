@@ -25,6 +25,8 @@ Safety contract:
 Observable adversarial behavior, not portable adversarial procedure.
 """
 
+from core.engine.payload_registry import register_payload
+
 import uuid
 import time
 import random
@@ -403,6 +405,15 @@ def phase_recon(artifact_id):
 
 
 # ── Layer runner ───────────────────────────────────────────────────────────────
+
+def _get_artifact_log():
+    from core.config import artifact_log_path as _artifact_log_path
+    p = _artifact_log_path()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    return p
+
+
+@register_payload(name="dependency_confusion_phantom")
 def run(dry_run=False):
     artifact_id = str(uuid.uuid4())
     events = []
@@ -421,6 +432,21 @@ def run(dry_run=False):
         events.extend(phase_events)
         if not dry_run:
             time.sleep(round(random.uniform(0.01, 0.04), 3))
+
+    if not dry_run:
+        log_path = _get_artifact_log()
+        with open(log_path, "a") as f:
+            for ev in events:
+                f.write(__import__("json").dumps(ev) + "\n")
+
+        print(f"  [SIMULATION]  dependency_confusion_phantom")
+        print(f"  [SESSION]     {artifact_id}")
+        print(f"  [EVENTS]      {len(events)}")
+        print(f"  [MITRE]       {', '.join(LAYER_META['mitre_techniques'])}")
+        print(f"  [NETWORK]     NO CALLS MADE — synthetic only")
+        print(f"  [EXECUTION]   NO SHELL COMMANDS — synthetic only")
+        print(f"  [LOGGED]      {log_path}")
+        print(f"  [SAFE]        simulation_only=True, executable=False")
 
     return {
         "layer": LAYER_META["layer"],
