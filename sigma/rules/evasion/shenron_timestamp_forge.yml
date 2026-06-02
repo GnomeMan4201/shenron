@@ -13,6 +13,9 @@ logsource:
 detection:
     timestamp:
         mitre_technique: T1070
-        phase: timestamp_forge_sim
+        detection_opp:
+            - recursive_mtime_modification_across_tool_directory
+            - batch_timestamp_modification_many_files_single_window
+            - utime_called_across_dirs_by_non_filesystem_process
     condition: timestamp
 level: medium

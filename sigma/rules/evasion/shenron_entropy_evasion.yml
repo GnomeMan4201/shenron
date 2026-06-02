@@ -12,6 +12,9 @@ logsource:
 detection:
     entropy:
         mitre_technique: T1027
-        detection_opp: log_file_high_entropy_content_non_logging_source
+        detection_opp:
+            - entropy_delta_exceeds_threshold
+            - burst_writes_to_log_from_non_logging_process
+            - base64_encoded_payload_string_in_dropped_file
     condition: entropy
 level: medium
