@@ -18,17 +18,13 @@ logsource:
   category: shenron_simulation
   product: mirror_loop_deflector
 detection:
-  selection_name_spoof:
-    behavior_class: process_name_spoof
-    detection_opportunities|contains: process_name_spoof
+  selection_masquerade:
+    layer: mirror_loop_deflector
+    phase: process_masquerade
 
-  selection_fake_cmdline:
-    behavior_class: fake_cmdline
-    detection_opportunities|contains: fake_cmdline
-
-  selection_pid_masquerade:
-    behavior_class: pid_masquerade
-    detection_opportunities|contains: pid_masquerade
+  selection_deflection:
+    layer: mirror_loop_deflector
+    phase: deflection_loop
 
   condition: 1 of selection_*
 

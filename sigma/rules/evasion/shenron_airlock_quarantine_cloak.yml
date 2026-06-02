@@ -18,17 +18,13 @@ logsource:
   category: shenron_simulation
   product: airlock_quarantine_cloak
 detection:
-  selection_quarantine:
-    behavior_class: quarantine_dir_access
-    detection_opportunities|contains: quarantine_dir_access
+  selection_av_profiling:
+    layer: airlock_quarantine_cloak
+    phase: av_profiling
 
-  selection_av_probe:
-    behavior_class: av_engine_probe
-    detection_opportunities|contains: av_engine_probe
-
-  selection_sig_spoof:
-    behavior_class: signature_spoof_attempt
-    detection_opportunities|contains: signature_spoof_attempt
+  selection_quarantine_entry:
+    layer: airlock_quarantine_cloak
+    phase: quarantine_entry_sim
 
   condition: 1 of selection_*
 

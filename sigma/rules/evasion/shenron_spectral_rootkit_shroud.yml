@@ -19,16 +19,16 @@ logsource:
   product: spectral_rootkit_shroud
 detection:
   selection_syscall_hook:
-    behavior_class: syscall_hook_install
-    detection_opportunities|contains: syscall_hook_install
+    layer: spectral_rootkit_shroud
+    phase: syscall_hook_sim
 
-  selection_proc_hidden:
-    behavior_class: proc_entry_hidden
-    detection_opportunities|contains: proc_entry_hidden
+  selection_artifact_hiding:
+    layer: spectral_rootkit_shroud
+    phase: artifact_hiding_sim
 
-  selection_lkm:
-    behavior_class: lkm_load
-    detection_opportunities|contains: lkm_load
+  selection_noise:
+    layer: spectral_rootkit_shroud
+    phase: noise_injection
 
   condition: 1 of selection_*
 

@@ -18,17 +18,17 @@ logsource:
   category: shenron_simulation
   product: deadzone_payload
 detection:
-  selection_hidden_dir:
-    behavior_class: hidden_dir_high_entropy_files
-    detection_opportunities|contains: hidden_dir_high_entropy_files
+  selection_zone_init:
+    layer: deadzone_payload
+    phase: zone_init
 
-  selection_marker_write:
-    behavior_class: non_logging_process_writing_log
-    detection_opportunities|contains: non_logging_process_writing_log
+  selection_staging:
+    layer: deadzone_payload
+    phase: staging
 
-  selection_cross_proc:
-    behavior_class: staging_file_cross_process_read
-    detection_opportunities|contains: staging_file_cross_process_read
+  selection_log_marker:
+    layer: deadzone_payload
+    phase: log_marker
 
   condition: 1 of selection_*
 

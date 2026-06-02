@@ -20,21 +20,17 @@ logsource:
   category: shenron_simulation
   product: lateral_webcrawler
 detection:
-  selection_sweep:
-    behavior_class: subnet_sweep
-    detection_opportunities|contains: subnet_sweep
+  selection_host_discovery:
+    layer: lateral_webcrawler
+    phase: host_discovery
 
-  selection_smb:
-    behavior_class: smb_port_probe
-    detection_opportunities|contains: smb_port_probe
+  selection_port_scan:
+    layer: lateral_webcrawler
+    phase: port_scan
 
-  selection_shares:
-    behavior_class: share_enumeration
-    detection_opportunities|contains: share_enumeration
-
-  selection_sequential:
-    behavior_class: sequential_host_requests
-    detection_opportunities|contains: sequential_host_requests
+  selection_share_discovery:
+    layer: lateral_webcrawler
+    phase: share_discovery
 
   condition: 1 of selection_*
 

@@ -19,17 +19,17 @@ logsource:
   category: shenron_simulation
   product: transient_exfil_shell
 detection:
-  selection_ephemeral_listener:
-    behavior_class: ephemeral_high_port_listener
-    detection_opportunities|contains: ephemeral_high_port_listener
-
-  selection_one_shot:
-    behavior_class: one_shot_bind_accept_dissolve
-    detection_opportunities|contains: one_shot_bind_accept_dissolve
+  selection_spawn:
+    layer: transient_exfil_shell
+    phase: shell_spawn_sim
 
   selection_transfer:
-    behavior_class: data_transfer_immediate_socket_close
-    detection_opportunities|contains: data_transfer_immediate_socket_close
+    layer: transient_exfil_shell
+    phase: data_transfer_sim
+
+  selection_dissolve:
+    layer: transient_exfil_shell
+    phase: shell_dissolve_sim
 
   condition: 1 of selection_*
 
