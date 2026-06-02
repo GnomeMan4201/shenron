@@ -57,16 +57,20 @@ No setup. No external dependencies. No prior knowledge required.
 ```bash
 git clone https://github.com/GnomeMan4201/shenron
 cd shenron
-python3 -m pytest tests/ -q                         # 350 tests
+python3 -m pytest tests/ -q                         # 366 tests
 
 # Run a campaign
 python3 shenron.py run persistence
 python3 shenron.py run c2
 python3 shenron.py run all --dry-run                # 51 ok | 0 failed
 
-# Validate Sigma rules against synthetic telemetry
+# Generate layer artifacts (required for sigma validation)
+python3 shenron.py run all
+# Validate Sigma rules against layer telemetry
+# Note: use layer artifacts (default: ~/SHENRON/logs/), not demo artifacts
+# Or use: python3 -c "from core.config import artifact_log_path; print(artifact_log_path())"
 python3 shenron.py sigma validate-dir sigma/rules/ \
-  --events artifacts/demo/shenron_demo_run.jsonl
+  --events ~/SHENRON/logs/simulation_artifacts.jsonl
 
 # Validate assumption claims against artifact
 python3 shenron.py assumption validate \
@@ -134,7 +138,7 @@ assumptions/examples/   — 14 assumption YAML files
 sigma/rules/            — Sigma rules (persistence, c2, evasion, entropy)
 artifacts/demo/         — committed demo artifact for immediate use
 scenarios/examples/     — bananaTREE scenario JSON files
-tests/                  — 350 tests
+tests/                  — 366 tests
 
 ---
 
@@ -148,7 +152,7 @@ python3 shenron.py assumption compare \
   --events artifacts/demo/shenron_demo_run.jsonl
 
 python3 shenron.py sigma validate-dir sigma/rules/ \
-  --events artifacts/demo/shenron_demo_run.jsonl
+  --events ~/SHENRON/logs/simulation_artifacts.jsonl
 ```
 
 ---
