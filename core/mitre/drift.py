@@ -103,9 +103,10 @@ def _parse_techniques(bundle: dict) -> tuple[dict, str]:
     for obj in bundle.get("objects", []):
         obj_type = obj.get("type", "")
 
-        # Extract ATT&CK version from identity object
-        if obj_type == "x-mitre-collection":
-            attack_version = obj.get("x_mitre_version", "unknown")
+        # Extract ATT&CK version from matrix object (collection removed in recent releases)
+        if obj_type == "x-mitre-matrix":
+            attack_version = obj.get("x_mitre_attack_spec_version",
+                             obj.get("x_mitre_version", "unknown"))
 
         if obj_type != "attack-pattern":
             continue

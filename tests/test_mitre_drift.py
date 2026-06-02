@@ -31,8 +31,9 @@ SYNTHETIC_STIX_BUNDLE = {
     "type": "bundle",
     "objects": [
         {
-            "type": "x-mitre-collection",
-            "x_mitre_version": "15.1",
+            "type": "x-mitre-matrix",
+            "name": "Enterprise ATT&CK",
+            "x_mitre_attack_spec_version": "15.1",
         },
         # Active technique
         {
