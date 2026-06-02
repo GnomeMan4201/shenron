@@ -8,6 +8,30 @@ All notable changes to SHENRON are documented here.
 
 *(nothing yet)*
 
+## [v0.4.3] — 2026-06-02
+
+### Fixed
+- `mutation_history`, `polymorph_chain_stats`, `llm_shroud_writer`, `scripts/generate_report.py`: `datetime.UTC` import replaced with `timezone.utc` — fixes `ImportError` on Python 3.9/3.10
+- `encrypted_echo_chamber`: rewritten as proper simulation layer — removed real `cryptography.fernet` key generation and file writes; now emits synthetic inert telemetry only
+- `polymorph_chain_stats`: added missing `@register_payload(name="polymorph_chain_stats")` decorator — layer was silently unrunnable
+
+### Added
+- 6 new Sigma rules covering previously uncovered layer families:
+  - `sigma/rules/lateral/shenron_lateral_webcrawler.yml` (T1021, T1046, T1135)
+  - `sigma/rules/evasion/shenron_airlock_quarantine_cloak.yml` (T1564, T1036)
+  - `sigma/rules/evasion/shenron_mirror_loop_deflector.yml` (T1036.005, T1070)
+  - `sigma/rules/evasion/shenron_spectral_rootkit_shroud.yml` (T1014, T1564)
+  - `sigma/rules/evasion/shenron_deadzone_payload.yml` (T1027, T1140)
+  - `sigma/rules/exfiltration/shenron_transient_exfil_shell.yml` (T1041, T1048)
+- `schema_version` field added to all 16 assumption YAMLs; loader now emits `UserWarning` on missing or mismatched version
+- Demo artifact (`artifacts/demo/shenron_demo_run.jsonl`) expanded to include `airlock_quarantine_cloak`, `mirror_loop_deflector`, `spectral_rootkit_shroud`, `deadzone_payload`, `transient_exfil_shell`, `anti_forensics_molt`, `encrypted_echo_chamber`, `dragons_breath_destructor`
+- CI bumped to `actions/setup-python@v6`
+
+### Changed
+- Sigma rule count: 8 → 14
+- Demo artifact event count: 102 → expanded
+- All tracked generated output under `reports/` untracked from git; `.gitignore` now correctly excludes them
+
 ---
 
 ## [v0.4.2] — 2026-05-18
