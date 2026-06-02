@@ -148,7 +148,7 @@ def test_partial_match_produces_partially_supported():
 
 def test_persistence_assumption_file_loads(tmp_path):
     yaml = tmp_path / "test.yaml"
-    yaml.write_text("""
+    yaml.write_text("""schema_version: "1.0"
 id: test_assumption
 description: Test
 
@@ -167,7 +167,7 @@ claims:
 
 def test_validate_assumption_persistence_supported(tmp_path):
     yaml = tmp_path / "persist.yaml"
-    yaml.write_text("""
+    yaml.write_text("""schema_version: "1.0"
 id: persistence_test
 description: Test
 
@@ -191,7 +191,7 @@ claims:
 
 def test_validate_assumption_c2_unsupported_by_persistence(tmp_path):
     yaml = tmp_path / "c2.yaml"
-    yaml.write_text("""
+    yaml.write_text("""schema_version: "1.0"
 id: c2_test
 description: Test
 
@@ -213,7 +213,7 @@ claims:
 
 def test_validate_assumption_oos_violation_detected(tmp_path):
     yaml = tmp_path / "oos.yaml"
-    yaml.write_text("""
+    yaml.write_text("""schema_version: "1.0"
 id: oos_test
 description: Test
 
@@ -235,7 +235,7 @@ claims:
 
 def test_validate_assumption_safe_conclusion_present(tmp_path):
     yaml = tmp_path / "test.yaml"
-    yaml.write_text("""
+    yaml.write_text("""schema_version: "1.0"
 id: test
 description: Test
 
@@ -255,7 +255,7 @@ claims:
 
 def test_assumption_report_includes_safe_conclusion(tmp_path):
     yaml = tmp_path / "test.yaml"
-    yaml.write_text("""
+    yaml.write_text("""schema_version: "1.0"
 id: test
 description: Test
 
