@@ -1723,6 +1723,77 @@
       }
     },
     {
+      "name": "dependency_confusion_phantom",
+      "category": "payload",
+      "subcategory": "supply_chain",
+      "file": "dependency_confusion_layer.py",
+      "description": "SHENRON // dependency_confusion_phantom \u2014 npm supply chain / dependency confusion behavioral simulation",
+      "variant_count": 54,
+      "mitre": {
+        "techniques": [
+          "T1195.001",
+          "T1059.007",
+          "T1071.001",
+          "T1036.005",
+          "T1082",
+          "T1552.001"
+        ],
+        "tactic": "initial-access"
+      },
+      "detection": {
+        "log_sources": [
+          "process",
+          "network",
+          "filesystem",
+          "npm-audit"
+        ],
+        "expected_events": [
+          "npm_postinstall_script_execution",
+          "inflated_version_number",
+          "spoofed_package_metadata",
+          "ci_environment_detection_attempt",
+          "cache_dedup_directory_creation",
+          "project_root_traversal",
+          "outbound_connection_during_npm_install",
+          "hardcoded_auth_header_in_outbound_request",
+          "payload_dropped_to_tmpdir",
+          "detached_child_process_from_npm",
+          "environment_variable_enumeration"
+        ],
+        "alert_signatures": [
+          "postinstall hook in package.json from unrecognized scoped package",
+          "npm package version >= 99.0.0 from public registry matching internal scope",
+          "outbound HTTPS connection from node process during npm install",
+          "JS file dropped to os.tmpdir() by npm lifecycle script",
+          "detached child process spawned with .unref() from npm install",
+          "X-Secret header in outbound HTTP request from Node.js process",
+          "~/.cache/._<scope>_init/ directory created during package install",
+          "environment variable enumeration from postinstall context"
+        ]
+      },
+      "simulation": {
+        "fidelity": "high",
+        "emits": [
+          "package_lure",
+          "ci_evasion",
+          "cache_dedup",
+          "project_traversal",
+          "c2_and_drop",
+          "recon"
+        ],
+        "safe": true
+      },
+      "safety_contract": {
+        "simulation_only": true,
+        "executable": false,
+        "no_payload_present": true,
+        "network_calls_made": false,
+        "processes_spawned": false,
+        "npm_registry_calls_made": false,
+        "files_written_outside_log_dir": false
+      }
+    },
+    {
       "name": "dormant_sleeper_seed",
       "category": "persistence",
       "file": "dormant_sleeper_seed.py",

@@ -1,0 +1,131 @@
+# SHENRON Assumption Validation
+# Layer: dependency_confusion_phantom
+# Claim: this artifact supports detection coverage for npm dependency confusion
+# supply chain attack behavioral patterns
+
+assumption_id: dependency_confusion_coverage_v1
+layer: dependency_confusion_phantom
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-02
+
+claim: >
+  The dependency_confusion_phantom layer produces synthetic telemetry sufficient
+  to validate whether a detection stack would observe npm-based supply chain
+  attack behavior across the full attack lifecycle: package publication lure,
+  CI/CD evasion, cache deduplication, project root traversal, C2 callback,
+  tmpdir payload drop, detached process spawn, and environment reconnaissance.
+
+behavioral_model_sources:
+  - "Microsoft Threat Intelligence, May 2026: 33 malicious npm packages campaign"
+  - "badBANANA Research Collective INV-004/INV-005 active investigation patterns"
+
+scope:
+  in_scope:
+    - Inflated version number detection (>= 99.x.x from public registry)
+    - Spoofed package.json metadata (enterprise GitHub/Jira/docs URL patterns)
+    - postinstall hook execution during npm install
+    - CI environment variable enumeration and abort behavior
+    - Cache deduplication directory creation (~/.cache/._<scope>_init/)
+    - Project root traversal from npm lifecycle context
+    - Outbound HTTPS connection from Node.js process during install
+    - Hardcoded X-Secret authentication header in C2 request
+    - JS payload drop to os.tmpdir() with ._<scope>_init.js pattern
+    - Detached child process spawned with .unref() from npm context
+    - Environment variable enumeration (AWS/GitHub/npm credentials)
+    - Two-phase RECON_ONLY architecture signal
+
+  out_of_scope:
+    - Actual npm registry interaction or package publication
+    - Real network connections to C2 infrastructure
+    - Actual credential exfiltration
+    - Package manager lockfile tampering
+    - Transitive dependency compromise (indirect install path)
+    - PyPI, RubyGems, or other registry variants (npm-specific layer)
+    - Detection of packages already installed before monitoring starts
+
+expected_events:
+  - phase: package_lure
+    behavior_class: namespace_squatting
+    detection_signal: inflated_version_number
+    required: true
+
+  - phase: package_lure
+    behavior_class: namespace_squatting
+    detection_signal: spoofed_package_metadata
+    required: true
+
+  - phase: package_lure
+    behavior_class: postinstall_hook_declared
+    detection_signal: npm_postinstall_script_execution
+    required: true
+
+  - phase: ci_evasion
+    behavior_class: ci_environment_detection
+    detection_signal: ci_environment_detection_attempt
+    required: true
+
+  - phase: cache_dedup
+    behavior_class: cache_directory_creation
+    detection_signal: cache_dedup_directory_creation
+    required: true
+
+  - phase: project_traversal
+    behavior_class: project_root_traversal
+    detection_signal: project_root_traversal
+    required: true
+
+  - phase: c2_and_drop
+    behavior_class: outbound_connection_during_npm_install
+    detection_signal: outbound_connection_during_npm_install
+    required: true
+
+  - phase: c2_and_drop
+    behavior_class: outbound_connection_during_npm_install
+    detection_signal: hardcoded_auth_header_in_outbound_request
+    required: true
+
+  - phase: c2_and_drop
+    behavior_class: payload_dropped_to_tmpdir
+    detection_signal: payload_dropped_to_tmpdir
+    required: true
+
+  - phase: c2_and_drop
+    behavior_class: payload_dropped_to_tmpdir
+    detection_signal: detached_child_process_from_npm
+    required: true
+
+  - phase: recon
+    behavior_class: environment_variable_enumeration
+    detection_signal: environment_variable_enumeration
+    required: true
+
+honest_limits:
+  - >
+    Inflated version detection requires npm registry monitoring or lockfile
+    auditing — a SIEM rule alone cannot catch packages before install.
+    Detection window is at install time or in post-install audit.
+  - >
+    CI abort behavior means the payload never executes in monitored CI/CD
+    environments — detection of the install-time evasion requires monitoring
+    the env var enumeration itself, not the downstream C2 callback.
+  - >
+    The X-Secret header is only detectable with TLS inspection or proxy
+    logging that captures request headers. Without TLS decryption,
+    the C2 connection appears as generic HTTPS to a low-reputation domain.
+  - >
+    Transitive dependency compromise (attacker targets a dependency-of-a-
+    dependency) is out of scope — requires dependency tree analysis, not
+    direct package monitoring.
+  - >
+    This layer models npm-specific patterns. PyPI (setup.py install hooks),
+    RubyGems (gemspec post-install), and cargo (build.rs) have analogous
+    but distinct behavioral signatures requiring separate layers.
+
+safety_contract:
+  simulation_only: true
+  executable: false
+  no_payload_present: true
+  network_calls_made: false
+  processes_spawned: false
+  npm_registry_calls_made: false
+  files_written_outside_log_dir: false

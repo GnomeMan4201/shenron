@@ -64,7 +64,7 @@ def test_phase_summary_layer_counts_sum_to_51():
     manifest = json.loads(Path("shenron_manifest.json").read_text())["layers"]
     summary = build_phase_summary(manifest)
     total = sum(v["layer_count"] for v in summary.values())
-    assert total == 51
+    assert total == 52
 
 def test_execute_phase_has_persistence_layers():
     manifest = json.loads(Path("shenron_manifest.json").read_text())["layers"]
