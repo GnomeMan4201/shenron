@@ -1,0 +1,38 @@
+title: bpf-watch Live — kprobe Attachment on Sensitive Syscall
+id: bpfwatch-kprobe-sentinel-001
+status: experimental
+description: >
+  Detects live bpf-watch telemetry indicating a BPF kprobe program
+  attached to a sensitive syscall (getdents64, kill, open, bpf, execve).
+  Source: bpf-watch live telemetry (source: live, layer: bpf_watch_live).
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-02
+references:
+  - https://github.com/GnomeMan4201/bpf-watch
+  - https://github.com/GnomeMan4201/shenron
+tags:
+  - attack.t1014
+  - attack.t1055
+  - attack.defense_evasion
+logsource:
+  category: bpfwatch_live
+  product: bpf_watch_live
+detection:
+  selection_kprobe:
+    layer: bpf_watch_live
+    phase: kprobe_attachment
+    behavior_class: kprobe_sensitive_syscall
+  condition: selection_kprobe
+falsepositives:
+  - Legitimate observability tools (sysdig, falco, bpftrace) — add to KNOWN_GOOD_KPROBE_PREFIXES in bpf-watch config
+  - System monitors with execve kprobes — validate against approved tool inventory
+level: high
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_signal
+  - detail.prog_name
+  - detail.attach_target
+  - severity
