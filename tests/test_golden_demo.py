@@ -31,9 +31,9 @@ def test_golden_demo_sigma_has_triggered():
 
 def test_golden_demo_pinned_assumptions_supported():
     pinned = {
-        "defense_evasion_coverage",
         "full_kill_chain_coverage",
-        "identity_spoofing_coverage",
+        "c2_coverage",
+        "persistence_coverage",
     }
     with tempfile.TemporaryDirectory() as tmp:
         results = run_quickstart(out_dir=tmp, verbose=False)
