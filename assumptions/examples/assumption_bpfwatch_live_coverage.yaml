@@ -1,0 +1,109 @@
+id: bpfwatch_live_detection_coverage_v1
+schema_version: "1.0"
+description: >
+  Validates that the bpf-watch + Shenron live pipeline detects eBPF rootkit
+  behavioral signals on a running Linux system. Claims are evaluated against
+  live bpf-watch JSONL telemetry, not synthetic simulation artifacts.
+  Source: bpf-watch v0.1.0 / badBANANA Research Collective / GnomeMan4201
+
+claims:
+
+  # ── Detection signal coverage ──────────────────────────────────────────────
+
+  - id: kprobe_sensitive_syscall_detected
+    type: positive_evidence
+    severity: high
+    description: >
+      bpf-watch detects kprobe programs attached to sensitive syscalls
+      (getdents64, kill, open, bpf, execve) via kprobe_sentinel module.
+    requires_techniques:
+      - T1014
+      - T1055
+    requires_signals:
+      - kprobe_sensitive_syscall
+      - kprobe_attachment
+
+  - id: cap_bpf_acquisition_detected
+    type: positive_evidence
+    severity: high
+    description: >
+      bpf-watch detects CAP_BPF acquisition by processes not in the
+      known-good list, via audit log tail or /proc fallback.
+    requires_techniques:
+      - T1014
+      - T1562.001
+    requires_signals:
+      - cap_escalation
+      - privilege_acquisition
+
+  - id: xdp_unexpected_interface_detected
+    type: positive_evidence
+    severity: high
+    description: >
+      bpf-watch detects XDP programs attached to unexpected interfaces,
+      including always-alert loopback detection and baseline delta.
+    requires_techniques:
+      - T1014
+      - T1562.001
+    requires_signals:
+      - xdp_unexpected_interface
+      - xdp_attachment
+
+  - id: map_enumeration_discrepancy_detected
+    type: positive_evidence
+    severity: high
+    description: >
+      bpf-watch detects BPF program/map IDs visible via direct syscall
+      but absent from bpftool — consistent with bpf_probe_write_user
+      or bpf_override_return tampering.
+    requires_techniques:
+      - T1014
+      - T1562.001
+    requires_signals:
+      - enumeration_discrepancy
+      - map_hiding
+
+  - id: dangerous_helper_usage_detected
+    type: positive_evidence
+    severity: high
+    description: >
+      bpf-watch detects loaded BPF programs declaring bpf_probe_write_user
+      or bpf_override_return helpers.
+    requires_techniques:
+      - T1014
+      - T1055
+    requires_signals:
+      - bpf_probe_write_user_usage
+      - memory_tamper
+
+  # ── Schema compliance ──────────────────────────────────────────────────────
+
+  - id: shenron_schema_compliance
+    type: positive_evidence
+    severity: medium
+    description: >
+      bpf-watch emits events with Shenron-compatible fields:
+      session_id, detection_opportunities, behavior_class, mitre_techniques.
+      Validated by presence of detection_opportunities and behavior_class fields.
+    requires_signals:
+      - kprobe_on_sensitive_syscall
+      - kprobe_sensitive_syscall
+
+  # ── Out-of-scope claims ────────────────────────────────────────────────────
+
+  - id: no_simulation_artifacts
+    type: out_of_scope_claim
+    severity: high
+    description: >
+      Live bpf-watch telemetry must not contain simulation_only: true events.
+      This artifact is live telemetry, not synthetic simulation.
+    requires_signals:
+      - simulation_only_true
+
+  - id: no_payload_execution
+    type: out_of_scope_claim
+    severity: high
+    description: >
+      bpf-watch must not spawn processes or execute payloads.
+    requires_signals:
+      - executable_true

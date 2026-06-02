@@ -240,7 +240,7 @@ def _legacy_dispatch():
         print_comparison(id_, entries)
     elif getattr(args, 'report_html', False):
         from pathlib import Path as _Path
-        from core.assumptions.validator import validate_assumption as _validate_assumption
+        _validate_assumption = validate_assumption  # use already-imported top-level
         from core.config import artifact_log_path, timeline_log_path
         import json as _json
         from datetime import datetime as _dt, timezone as _tz
@@ -581,12 +581,6 @@ def _legacy_dispatch():
     elif args.assumption:
         # --assumption now uses core/assumptions/ (canonical engine).
         # Redirected from core/assumption/ (singular, legacy) in consolidation patch.
-        from core.assumptions.validator import (
-            validate_assumption, print_result as print_assumption_result,
-        )
-        from core.assumptions.scope import generate_scope_report, update_assumption_index
-        from core.assumptions.loader import load_artifacts as load_artifact_jsonl
-        from core.validation.history import record_validation
         from pathlib import Path as _Path
 
         events_path = getattr(args, "events", None)
