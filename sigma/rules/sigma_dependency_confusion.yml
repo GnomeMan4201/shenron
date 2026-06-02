@@ -26,49 +26,21 @@ logsource:
   category: shenron_simulation
   product: dependency_confusion_phantom
 detection:
-  selection_postinstall:
-    behavior_class: postinstall_hook_declared
-    detail.detection_signal: npm_postinstall_script_execution
+  selection_install:
+    layer: dependency_confusion_phantom
+    behavior_class:
+      - postinstall_hook_declared
+      - namespace_squatting
 
-  selection_version:
-    behavior_class: namespace_squatting
-    detail.detection_signal: inflated_version_number
-
-  selection_metadata:
-    behavior_class: namespace_squatting
-    detail.detection_signal_2: spoofed_package_metadata
-
-  selection_ci_evasion:
-    behavior_class: ci_environment_detection
-    detail.detection_signal: ci_environment_detection_attempt
-
-  selection_cache:
-    behavior_class: cache_directory_creation
-    detail.detection_signal: cache_dedup_directory_creation
-
-  selection_traversal:
-    behavior_class: project_root_traversal
-    detail.detection_signal: project_root_traversal
-
-  selection_c2:
-    behavior_class: outbound_connection_during_npm_install
-    detail.detection_signal: outbound_connection_during_npm_install
-
-  selection_secret_header:
-    behavior_class: outbound_connection_during_npm_install
-    detail.detection_signal_2: hardcoded_auth_header_in_outbound_request
-
-  selection_drop:
-    behavior_class: payload_dropped_to_tmpdir
-    detail.detection_signal: payload_dropped_to_tmpdir
-
-  selection_detached:
-    behavior_class: payload_dropped_to_tmpdir
-    detail.detection_signal_2: detached_child_process_from_npm
+  selection_exfil:
+    layer: dependency_confusion_phantom
+    behavior_class:
+      - outbound_connection_during_npm_install
+      - payload_dropped_to_tmpdir
 
   selection_recon:
+    layer: dependency_confusion_phantom
     behavior_class: environment_variable_enumeration
-    detail.detection_signal: environment_variable_enumeration
 
   condition: 1 of selection_*
 
@@ -83,9 +55,4 @@ fields:
   - layer
   - phase
   - behavior_class
-  - detail.detection_signal
-  - detail.package_sim
-  - detail.version_sim
-  - detail.c2_url_sim
-  - detail.drop_path_sim
-  - detail.cache_dir_sim
+  - detection_opportunities

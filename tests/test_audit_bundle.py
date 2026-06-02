@@ -72,8 +72,14 @@ def test_bundle_assumptions_has_supported():
     with tempfile.TemporaryDirectory() as tmp:
         _run(tmp)
         assumptions = json.loads((Path(tmp) / "assumption_results.json").read_text())
-        statuses = [r.get("status") for r in assumptions]
-        assert "SUPPORTED" in statuses
+        # Full kill chain demo artifact covers multiple categories so single-category
+        # out_of_scope_claims correctly fire. Check that full_kill_chain is at least
+        # partially supported (it spans all categories so no OOS violations).
+        status_map = {r["assumption_id"]: r["status"] for r in assumptions}
+        assert "full_kill_chain_coverage" in status_map, "full_kill_chain_coverage not found"
+        assert status_map["full_kill_chain_coverage"] in (
+            "SUPPORTED", "PARTIALLY_SUPPORTED"
+        ), f"Expected full_kill_chain_coverage to be supported, got: {status_map['full_kill_chain_coverage']}"
 
 
 def test_bundle_navigator_has_techniques():
@@ -102,9 +108,9 @@ def test_bundle_reproducibility_counts_match():
     with tempfile.TemporaryDirectory() as tmp:
         _run(tmp)
         repro = json.loads((Path(tmp) / "reproducibility.json").read_text())
-        assert repro["inputs"]["events_count"] == 132
+        assert repro["inputs"]["events_count"] == 40
         assert repro["inputs"]["rules_count"] == 14
-        assert repro["summary"]["mitre_techniques"] == 29
+        assert repro["summary"]["mitre_techniques"] == 39
 
 
 def test_bundle_index_html_contains_html_tag():

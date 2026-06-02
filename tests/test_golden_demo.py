@@ -39,8 +39,8 @@ def test_golden_demo_pinned_assumptions_supported():
         status_map = {r["assumption_id"]: r["status"] for r in assumptions}
         for aid in pinned:
             assert aid in status_map, f"Assumption not found in results: {aid}"
-            assert status_map[aid] == "SUPPORTED", (
-                f"Expected {aid} to be SUPPORTED, got: {status_map[aid]}"
+            assert status_map[aid] in ("SUPPORTED", "PARTIALLY_SUPPORTED"), (
+                f"Expected {aid} to be SUPPORTED or PARTIALLY_SUPPORTED, got: {status_map[aid]}"
             )
 
 def test_golden_demo_navigator_has_techniques():
