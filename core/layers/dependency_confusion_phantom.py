@@ -138,6 +138,7 @@ def _base_event(phase, behavior_class, artifact_id):
         "phase": phase,
         "behavior_class": behavior_class,
         "mitre_techniques": LAYER_META["mitre_techniques"],
+        "detection_opportunities": LAYER_META["detection_opportunities"],
         "simulation_only": True,
         "executable": False,
         "timestamp_sim": datetime.now(timezone.utc).isoformat(),

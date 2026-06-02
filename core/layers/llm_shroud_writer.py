@@ -98,6 +98,15 @@ def generate_shroud_artifact(label: str = "test", depth: int = 3) -> dict:
 
     artifact = {
         "artifact_id": artifact_id,
+        "layer": "llm_shroud_writer",
+        "phase": "obfuscation_layering",
+        "behavior_class": "llm_style_obfuscation_mimicry",
+        "mitre_techniques": ["T1027", "T1140"],
+        "detection_opportunities": [
+            "llm_style_obfuscation_mimicry",
+            "multi_layer_encoding_non_crypto_process",
+            "entropy_layering_pattern",
+        ],
         "timestamp": timestamp,
         "label": label,
         "depth": depth,

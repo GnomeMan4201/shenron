@@ -31,4 +31,3 @@ claims:
     severity: medium
     requires_techniques:
       - T1021
-      - T1570

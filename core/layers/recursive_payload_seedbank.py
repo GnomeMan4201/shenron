@@ -84,6 +84,7 @@ def simulate_seedbank():
             "phase": "seed_plant_sim",
             "mitre_techniques": ["T1027", "T1547"],
             "seed_index": seed_idx + 1,
+            "behavior_class": burial_behavior,
             "burial_behavior_class": burial_behavior,
             "seed_behavior_class": seed_behavior,
             "root_path_sim": root_sim,
