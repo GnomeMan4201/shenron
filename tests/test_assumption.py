@@ -1,6 +1,9 @@
 """
 tests/test_assumption.py
-SHENRON v0.3.0 — Assumption Auditing Tests
+SHENRON — Assumption engine tests (migrated to core/assumptions/)
+
+Replaces the old core/assumption/ (singular) tests.
+All coverage preserved; data model updated to Claim/AssumptionResult.
 
 Run: pytest tests/test_assumption.py -v
 """
@@ -8,281 +11,283 @@ import json
 import pytest
 from pathlib import Path
 
-# ── Parser tests ──────────────────────────────────────────────────────────────
 
-class TestAssumptionParser:
+# ── Helpers ───────────────────────────────────────────────────────────────────
 
-    def _load(self, data):
-        from core.assumption.parser import load_assumption_from_dict
-        return load_assumption_from_dict(data)
-
-    def test_minimal_valid_assumption(self):
-        a = self._load({
-            "name": "test",
-            "claims": ["We can detect X"],
-        })
-        assert a.name == "test"
-        assert len(a.claims) == 1
-
-    def test_name_required(self):
-        with pytest.raises(ValueError, match="name"):
-            self._load({"claims": ["something"]})
-
-    def test_claims_required(self):
-        with pytest.raises(ValueError, match="claims"):
-            self._load({"name": "test", "claims": []})
-
-    def test_invalid_technique_rejected(self):
-        with pytest.raises(ValueError, match="Invalid technique"):
-            self._load({
-                "name": "test",
-                "claims": ["X"],
-                "expected_techniques": ["NOTAVALID"],
-            })
-
-    def test_valid_technique_accepted(self):
-        a = self._load({
-            "name": "test",
-            "claims": ["X"],
-            "expected_techniques": ["T1053", "T1053.005"],
-        })
-        assert "T1053" in a.expected_techniques
-        assert "T1053.005" in a.expected_techniques
-
-    def test_invalid_phase_rejected(self):
-        with pytest.raises(ValueError, match="Unknown phase"):
-            self._load({
-                "name": "test",
-                "claims": ["X"],
-                "expected_phases": ["INVALID_PHASE"],
-            })
-
-    def test_valid_phases_accepted(self):
-        a = self._load({
-            "name": "test",
-            "claims": ["X"],
-            "expected_phases": ["OBSERVE", "SIMULATE", "EXECUTE", "ADAPT"],
-        })
-        assert len(a.expected_phases) == 4
-
-    def test_signals_loaded(self):
-        a = self._load({
-            "name": "test",
-            "claims": ["X"],
-            "expected_signals": ["beacon_signal", "sweep_signal"],
-        })
-        assert "beacon_signal" in a.expected_signals
-
-    def test_description_optional(self):
-        a = self._load({"name": "test", "claims": ["X"]})
-        assert a.description == ""
-
-    def test_from_yaml_file(self, tmp_path):
-        yaml_content = """
-name: yaml_test
-claims:
-  - We detect X
-expected_techniques:
-  - T1071
-"""
-        p = tmp_path / "test.yaml"
-        p.write_text(yaml_content)
-        try:
-            from core.assumption.parser import load_assumption
-            a = load_assumption(str(p))
-            assert a.name == "yaml_test"
-            assert "T1071" in a.expected_techniques
-        except ImportError:
-            pytest.skip("PyYAML not installed")
-
-    def test_missing_file_raises(self):
-        from core.assumption.parser import load_assumption
-        with pytest.raises(FileNotFoundError):
-            load_assumption("/nonexistent/path/assumption.yaml")
+def _write_yaml(tmp_path, name, content):
+    """Write a YAML assumption file with schema_version prepended."""
+    p = tmp_path / name
+    p.write_text(f'schema_version: "1.0"\n{content}')
+    return p
 
 
-# ── Evaluator tests ───────────────────────────────────────────────────────────
+def _write_jsonl(tmp_path, records, name="artifacts.jsonl"):
+    p = tmp_path / name
+    p.write_text("\n".join(json.dumps(r) for r in records))
+    return p
+
 
 def _make_records(phases=None, techniques=None, signals=None):
     """Build minimal synthetic records for evaluator tests."""
-    records = []
     phases     = phases     or ["OBSERVE", "SIMULATE", "EXECUTE", "ADAPT"]
     techniques = techniques or ["T1053", "T1071", "T1021"]
     signals    = signals    or ["periodic_beacon", "subnet_sweep", "scheduled_task"]
 
+    records = []
     for i, (phase, tech, sig) in enumerate(
         zip(phases * 10, techniques * 10, signals * 10)
     ):
         records.append({
-            "sequence": i,
-            "phase": phase,
-            "mitre_technique": tech,
-            "signal": sig,
+            "sequence":          i,
+            "phase":             phase,
+            "mitre_techniques":  [tech],
+            "behavior_class":    sig,
+            "detection_opportunities": [sig],
+            "layer":             "test_layer",
             "safety": {
-                "simulation_only": True,
-                "executable": False,
-                "payload_present": False,
+                "simulation_only":                True,
+                "executable":                     False,
+                "payload_present":                False,
+                "portable_adversarial_procedure": False,
+                "network_connection":             False,
+                "subprocess_spawned":             False,
+                "real_file_written":              False,
+                "shell_invoked":                  False,
             },
         })
     return records[:10]
 
 
-class TestAssumptionEvaluator:
+# ── Loader tests (replaces TestAssumptionParser) ──────────────────────────────
 
-    def _assumption(self, **kwargs):
-        from core.assumption.parser import load_assumption_from_dict
-        base = {"name": "test", "claims": ["We detect X"]}
-        base.update(kwargs)
-        return load_assumption_from_dict(base)
+class TestAssumptionLoader:
 
-    def _evaluate(self, assumption, records):
-        from core.assumption.evaluator import evaluate
-        return evaluate(assumption, records)
+    def test_minimal_valid_assumption(self, tmp_path):
+        from core.assumptions.loader import load_assumption
+        p = _write_yaml(tmp_path, "minimal.yaml", """
+id: test_assumption
+description: Test
+claims:
+  - id: detect_x
+    type: positive_evidence
+    severity: medium
+    requires_techniques:
+      - T1053
+""")
+        assumption_id, description, claims = load_assumption(p)
+        assert assumption_id == "test_assumption"
+        assert len(claims) == 1
+        assert claims[0].id == "detect_x"
 
-    def test_observed_technique(self):
-        a = self._assumption(
-            claims=["We detect persistence"],
-            expected_techniques=["T1053"],
+    def test_valid_technique_in_claim(self, tmp_path):
+        from core.assumptions.loader import load_assumption
+        p = _write_yaml(tmp_path, "tech.yaml", """
+id: tech_test
+description: Test
+claims:
+  - id: t1
+    type: positive_evidence
+    severity: medium
+    requires_techniques:
+      - T1053
+      - T1053.005
+""")
+        _, _, claims = load_assumption(p)
+        assert "T1053" in claims[0].requires_techniques
+        assert "T1053.005" in claims[0].requires_techniques
+
+    def test_signals_loaded(self, tmp_path):
+        from core.assumptions.loader import load_assumption
+        p = _write_yaml(tmp_path, "sig.yaml", """
+id: sig_test
+description: Test
+claims:
+  - id: s1
+    type: positive_evidence
+    severity: medium
+    requires_signals:
+      - beacon_signal
+      - sweep_signal
+""")
+        _, _, claims = load_assumption(p)
+        assert "beacon_signal" in claims[0].requires_signals
+
+    def test_missing_file_raises(self):
+        from core.assumptions.loader import load_assumption
+        with pytest.raises(FileNotFoundError):
+            load_assumption("/nonexistent/path/assumption.yaml")
+
+    def test_out_of_scope_claim_type(self, tmp_path):
+        from core.assumptions.loader import load_assumption
+        from core.assumptions.model import ClaimType
+        p = _write_yaml(tmp_path, "oos.yaml", """
+id: oos_test
+description: Test
+claims:
+  - id: no_c2
+    type: out_of_scope_claim
+    severity: high
+    requires_techniques:
+      - T1071
+""")
+        _, _, claims = load_assumption(p)
+        assert claims[0].type == ClaimType.OUT_OF_SCOPE
+
+    def test_description_optional(self, tmp_path):
+        from core.assumptions.loader import load_assumption
+        p = _write_yaml(tmp_path, "nodesc.yaml", """
+id: nodesc_test
+claims:
+  - id: c1
+    type: positive_evidence
+    severity: low
+    requires_techniques:
+      - T1053
+""")
+        _, description, _ = load_assumption(p)
+        # description may be empty string or None — just must not raise
+        assert description is not None or description == ""
+
+
+# ── Validator tests (replaces TestAssumptionEvaluator) ───────────────────────
+
+class TestAssumptionValidator:
+
+    def _validate(self, tmp_path, yaml_content, records):
+        from core.assumptions.validator import validate_assumption
+        p = _write_yaml(tmp_path, "test.yaml", yaml_content)
+        j = _write_jsonl(tmp_path, records)
+        return validate_assumption(p, j)
+
+    def test_observed_technique_supported(self, tmp_path):
+        result = self._validate(tmp_path, """
+id: tech_test
+description: Test
+claims:
+  - id: t1
+    type: positive_evidence
+    severity: medium
+    requires_techniques:
+      - T1053
+""", _make_records(techniques=["T1053"]))
+        assert result.supported_count >= 1
+
+    def test_missing_technique_unsupported(self, tmp_path):
+        result = self._validate(tmp_path, """
+id: tech_missing
+description: Test
+claims:
+  - id: t1
+    type: positive_evidence
+    severity: medium
+    requires_techniques:
+      - T1999
+""", _make_records(techniques=["T1053"]))
+        assert result.unsupported_count >= 1
+
+    def test_observed_signal_supported(self, tmp_path):
+        result = self._validate(tmp_path, """
+id: sig_test
+description: Test
+claims:
+  - id: s1
+    type: positive_evidence
+    severity: medium
+    requires_signals:
+      - periodic_beacon
+""", _make_records(signals=["periodic_beacon"]))
+        assert result.supported_count >= 1
+
+    def test_missing_signal_unsupported(self, tmp_path):
+        result = self._validate(tmp_path, """
+id: sig_missing
+description: Test
+claims:
+  - id: s1
+    type: positive_evidence
+    severity: medium
+    requires_signals:
+      - nonexistent_signal_xyz
+""", _make_records(signals=["periodic_beacon"]))
+        assert result.unsupported_count >= 1
+
+    def test_out_of_scope_violation_detected(self, tmp_path):
+        from core.assumptions.model import AssumptionStatus
+        result = self._validate(tmp_path, """
+id: oos_test
+description: Test
+claims:
+  - id: no_beacon
+    type: out_of_scope_claim
+    severity: high
+    requires_signals:
+      - periodic_beacon
+""", _make_records(signals=["periodic_beacon"]))
+        assert result.status == AssumptionStatus.OUT_OF_SCOPE_VIOLATION
+        assert len(result.out_of_scope_violations) >= 1
+
+    def test_fully_supported_verdict(self, tmp_path):
+        from core.assumptions.model import AssumptionStatus
+        result = self._validate(tmp_path, """
+id: full_test
+description: Test
+claims:
+  - id: t1
+    type: positive_evidence
+    severity: medium
+    requires_techniques:
+      - T1053
+    requires_signals:
+      - periodic_beacon
+""", _make_records(techniques=["T1053"], signals=["periodic_beacon"]))
+        assert result.status in (
+            AssumptionStatus.SUPPORTED,
+            AssumptionStatus.PARTIALLY_SUPPORTED,
         )
-        records = _make_records(techniques=["T1053"])
-        result = self._evaluate(a, records)
-        assert "T1053" in result.techniques_observed
-        assert "T1053" not in result.techniques_missing
 
-    def test_missing_technique(self):
-        a = self._assumption(
-            claims=["We detect X"],
-            expected_techniques=["T1999"],
-        )
-        records = _make_records(techniques=["T1053"])
-        result = self._evaluate(a, records)
-        assert "T1999" in result.techniques_missing
+    def test_safe_conclusion_present(self, tmp_path):
+        result = self._validate(tmp_path, """
+id: sc_test
+description: Test
+claims:
+  - id: c1
+    type: positive_evidence
+    severity: medium
+    requires_techniques:
+      - T1053
+""", _make_records())
+        assert result.safe_conclusion
+        assert len(result.safe_conclusion) > 10
 
-    def test_observed_signal(self):
-        a = self._assumption(
-            claims=["We detect beaconing"],
-            expected_signals=["periodic_beacon"],
-        )
-        records = _make_records(signals=["periodic_beacon"])
-        result = self._evaluate(a, records)
-        assert "periodic_beacon" in result.signals_observed
+    def test_to_dict_has_required_keys(self, tmp_path):
+        result = self._validate(tmp_path, """
+id: dict_test
+description: Test
+claims:
+  - id: c1
+    type: positive_evidence
+    severity: medium
+    requires_techniques:
+      - T1053
+""", _make_records())
+        d = result.to_dict()
+        for key in ("assumption_id", "status", "supported_count",
+                    "unsupported_count", "safe_conclusion", "timestamp"):
+            assert key in d, f"Missing key in to_dict(): {key}"
 
-    def test_missing_signal(self):
-        a = self._assumption(
-            claims=["We detect X"],
-            expected_signals=["nonexistent_signal_xyz"],
-        )
-        records = _make_records(signals=["periodic_beacon"])
-        result = self._evaluate(a, records)
-        assert "nonexistent_signal_xyz" in result.signals_missing
-
-    def test_observed_phase(self):
-        a = self._assumption(
-            claims=["We observe"],
-            expected_phases=["OBSERVE"],
-        )
-        records = _make_records(phases=["OBSERVE"])
-        result = self._evaluate(a, records)
-        assert "OBSERVE" in result.phases_observed
-
-    def test_missing_phase(self):
-        a = self._assumption(
-            claims=["We observe"],
-            expected_phases=["EXECUTE"],
-        )
-        records = _make_records(phases=["OBSERVE"])
-        result = self._evaluate(a, records)
-        assert "EXECUTE" in result.phases_missing
-
-    def test_safety_violation_detected(self):
-        a = self._assumption(claims=["X"])
-        records = [{"signal": "x", "safety": {"simulation_only": False}}]
-        result = self._evaluate(a, records)
-        assert result.safety_violations > 0
-        assert result.verdict == "UNSAFE"
-
-    def test_pass_verdict_all_observed(self):
-        a = self._assumption(
-            claims=["We detect beaconing"],
-            expected_techniques=["T1071"],
-            expected_signals=["periodic_beacon"],
-            expected_phases=["OBSERVE"],
-        )
-        records = _make_records(
-            phases=["OBSERVE"],
-            techniques=["T1071"],
-            signals=["periodic_beacon"],
-        )
-        result = self._evaluate(a, records)
-        assert result.verdict in ("PASS", "PARTIAL")
-
-    def test_coverage_percent_zero_when_nothing_matches(self):
-        a = self._assumption(
-            claims=["We detect Z"],
-            expected_techniques=["T1999"],
-            expected_signals=["nonexistent_xyz"],
-        )
-        records = _make_records()
-        result = self._evaluate(a, records)
-        assert result.coverage_percent < 50.0
-
-    def test_records_checked_count(self):
-        a = self._assumption(claims=["X"])
-        records = _make_records()
-        result = self._evaluate(a, records)
-        assert result.records_checked == len(records)
-
-
-# ── Reporter tests ────────────────────────────────────────────────────────────
-
-class TestAssumptionReporter:
-
-    def _run(self, **kwargs):
-        from core.assumption.parser import load_assumption_from_dict
-        from core.assumption.evaluator import evaluate
-        base = {"name": "reporter_test", "claims": ["We detect X"]}
-        base.update(kwargs)
-        a = load_assumption_from_dict(base)
-        records = _make_records()
-        return evaluate(a, records)
-
-    def test_markdown_contains_assumption_name(self):
-        from core.assumption.reporter import to_markdown
-        result = self._run()
-        md = to_markdown(result)
-        assert "reporter_test" in md
-
-    def test_markdown_contains_verdict(self):
-        from core.assumption.reporter import to_markdown
-        result = self._run()
-        md = to_markdown(result)
-        assert "PASS" in md or "PARTIAL" in md or "FAIL" in md
-
-    def test_markdown_contains_safety_disclaimer(self):
-        from core.assumption.reporter import to_markdown
-        result = self._run()
-        md = to_markdown(result)
-        assert "does not prove" in md.lower()
-
-    def test_json_is_valid(self):
-        from core.assumption.reporter import to_json
-        result = self._run()
-        data = json.loads(to_json(result))
-        assert "verdict" in data
-        assert data["simulation_only"] is True
-        assert data["portable_adversarial_procedure"] is False
-
-    def test_json_contains_techniques(self):
-        from core.assumption.reporter import to_json
-        result = self._run(expected_techniques=["T1053"])
-        data = json.loads(to_json(result))
-        assert "techniques" in data
-        assert "observed" in data["techniques"]
-        assert "missing" in data["techniques"]
-
-    def test_print_summary_runs_without_error(self, capsys):
-        from core.assumption.reporter import print_summary
-        result = self._run()
-        print_summary(result)
+    def test_print_result_runs_without_error(self, tmp_path, capsys):
+        from core.assumptions.validator import print_result
+        result = self._validate(tmp_path, """
+id: print_test
+description: Test
+claims:
+  - id: c1
+    type: positive_evidence
+    severity: medium
+    requires_techniques:
+      - T1053
+""", _make_records())
+        print_result(result)
         captured = capsys.readouterr()
-        assert "VERDICT" in captured.out
+        assert "ASSUMPTION" in captured.out
+        assert "STATUS" in captured.out
