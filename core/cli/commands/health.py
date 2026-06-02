@@ -18,7 +18,6 @@ Usage:
 
 import sys
 import os
-import subprocess
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -30,6 +29,7 @@ DIVIDER = " " + "=" * WIDTH
 
 def _run_pytest(verbose: bool = False) -> tuple[bool, str]:
     """Run pytest and return (passed, summary)."""
+    import subprocess
     try:
         result = subprocess.run(
             [sys.executable, "-m", "pytest", "tests/", "-q", "--tb=no"],
@@ -51,6 +51,7 @@ def _run_pytest(verbose: bool = False) -> tuple[bool, str]:
 
 def _run_doctor(events_path: str = None) -> tuple[bool, str]:
     """Run doctor check and return (passed, summary)."""
+    import subprocess
     try:
         cmd = [sys.executable, "shenron.py", "doctor"]
         if events_path:

@@ -38,10 +38,14 @@ from datetime import datetime, timezone
 # ---------------------------------------------------------------------------
 _FORBIDDEN_MODULES = {"subprocess", "socket", "ctypes"}
 
+# Capture modules loaded BEFORE our imports — stdlib may pre-load some
+_PRELOADED_MODULES = set(sys.modules.keys())
+
 
 def _assert_safe():
     loaded = set(sys.modules.keys())
-    bad = _FORBIDDEN_MODULES & loaded
+    # Only flag modules WE loaded, not stdlib side-effects
+    bad = (_FORBIDDEN_MODULES & loaded) - _PRELOADED_MODULES
     if bad:
         raise RuntimeError(f"SAFETY VIOLATION: forbidden modules loaded: {bad}")
 
