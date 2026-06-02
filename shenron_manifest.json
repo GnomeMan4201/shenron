@@ -677,7 +677,7 @@
       "mitre": {
         "techniques": [
           "T1070",
-          "T1107"
+          "T1070.004"
         ],
         "tactic": "defense-evasion"
       },
