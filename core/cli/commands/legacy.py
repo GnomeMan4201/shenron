@@ -579,23 +579,18 @@ def _legacy_dispatch():
         print_format_summary(records, out_paths)
 
     elif args.assumption:
-        import json as _json
+        # --assumption now uses core/assumptions/ (canonical engine).
+        # Redirected from core/assumption/ (singular, legacy) in consolidation patch.
+        from core.assumptions.validator import (
+            validate_assumption, print_result as print_assumption_result,
+        )
+        from core.assumptions.scope import generate_scope_report, update_assumption_index
+        from core.assumptions.loader import load_artifacts as load_artifact_jsonl
+        from core.validation.history import record_validation
         from pathlib import Path as _Path
-        from core.assumption.parser import load_assumption
-        from core.assumption.evaluator import evaluate
-        from core.assumption.reporter import to_markdown, to_json, print_summary
 
-        # Load assumption
-        try:
-            assumption = load_assumption(args.assumption)
-        except (FileNotFoundError, ValueError) as e:
-            print(f"  [!] {e}")
-            sys.exit(1)
-
-        # Load events
-        events_path = args.events
+        events_path = getattr(args, "events", None)
         if not events_path:
-            # Default to latest demo run
             candidates = [
                 "artifacts/demo/shenron_demo_run.jsonl",
                 "artifacts/shenron_demo_run.jsonl",
@@ -608,34 +603,15 @@ def _legacy_dispatch():
             print(f"  [!] No events file found. Run --demo first or pass --events PATH")
             sys.exit(1)
 
-        records = []
-        with open(events_path, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line:
-                    try:
-                        records.append(_json.loads(line))
-                    except _json.JSONDecodeError:
-                        pass
-
-        result = evaluate(assumption, records)
-        print_summary(result)
-
-        # Write reports
-        import os as _os
-        out_dir = getattr(args, "out_dir", None) or "reports/assumptions"
-        _os.makedirs(out_dir, exist_ok=True)
-
-        safe_name = assumption.name.replace(" ", "_").replace("/", "_")
-        md_path   = _Path(out_dir) / f"assumption_{safe_name}.md"
-        json_path = _Path(out_dir) / f"assumption_{safe_name}.json"
-
-        md_path.write_text(to_markdown(result), encoding="utf-8")
-        json_path.write_text(to_json(result), encoding="utf-8")
-
-        print(f"  [MD]          {md_path}")
-        print(f"  [JSON]        {json_path}")
-        print()
+        result = validate_assumption(args.assumption, events_path)
+        print_assumption_result(result)
+        record_validation(result, "assumption")
+        idx = update_assumption_index(result)
+        print(f"  [+] Index updated: {idx}")
+        if getattr(args, "scope_report", False):
+            arts = load_artifact_jsonl(events_path)
+            scope_path = generate_scope_report(result, arts)
+            print(f"  [+] Scope report: {scope_path}")
 
     elif args.release_demo:
         from scripts.release_demo import run_release_demo
