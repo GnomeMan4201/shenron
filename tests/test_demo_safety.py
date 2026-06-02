@@ -105,7 +105,6 @@ def _run_generator():
 # ---------------------------------------------------------------------------
 # Static source analysis
 # ---------------------------------------------------------------------------
-@pytest.mark.skip(reason='generate_demo_artifacts.py not yet implemented')
 class TestSourceSafety:
 
     def _get_source(self):
@@ -151,7 +150,6 @@ class TestSourceSafety:
 # ---------------------------------------------------------------------------
 # Runtime output tests
 # ---------------------------------------------------------------------------
-@pytest.mark.skip(reason='generate_demo_artifacts.py not yet implemented')
 class TestGeneratedArtifacts:
 
     @pytest.fixture(scope="class")

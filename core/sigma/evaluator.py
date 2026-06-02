@@ -74,12 +74,12 @@ def _get_artifact_values(art: dict, shenron_fields: list) -> list:
 
 
 def _value_matches(expected: str, actual_values: list,
-                   match_mode: str = "tolerant") -> tuple:
+                   match_mode: str = "strict") -> tuple:
     """
     Returns (matched: bool, reason: str).
     match_mode:
-      tolerant — exact, substring, token-overlap, wildcard (default, backward-compatible)
-      strict   — exact normalized match or wildcard only
+      strict   — exact normalized match or wildcard only (default)
+      tolerant — exact, substring, token-overlap, wildcard
       explain  — tolerant matching with detailed per-field reason string
     """
     exp_norm = _normalize(expected)
@@ -124,7 +124,7 @@ def _value_matches(expected: str, actual_values: list,
 
 def _evaluate_detection_block(detection_name: str, detection_def,
                                artifacts: list,
-                               match_mode: str = "tolerant") -> DetectionMatch:
+                               match_mode: str = "strict") -> DetectionMatch:
     result = DetectionMatch(detection_name=detection_name,
                             status=MatchStatus.NOT_TRIGGERED)
 
@@ -199,8 +199,155 @@ def _evaluate_detection_block(detection_name: str, detection_def,
     return result
 
 
+# ── Condition parser ──────────────────────────────────────────────────────────
+
+def _tokenize_condition(condition: str) -> list:
+    """Tokenize a Sigma condition string into a list of tokens."""
+    # Insert spaces around parens so they split cleanly
+    condition = condition.replace("(", " ( ").replace(")", " ) ")
+    return condition.split()
+
+
+def _parse_condition(tokens: list, pos: int = 0):
+    """
+    Recursive-descent parser for Sigma condition expressions.
+    Grammar:
+        expr     := or_expr
+        or_expr  := and_expr ('or' and_expr)*
+        and_expr := not_expr ('and' not_expr)*
+        not_expr := 'not' not_expr | atom
+        atom     := '(' expr ')' | QUANTIFIER 'of' TARGET | NAME
+    Returns (ast_node, new_pos).
+    AST node is one of:
+        {"op": "or",  "operands": [...]}
+        {"op": "and", "operands": [...]}
+        {"op": "not", "operand": ...}
+        {"op": "ref", "name": str}           # bare selection name
+        {"op": "1of",  "target": str}         # 1 of them / 1 of selection_*
+        {"op": "allof", "target": str}        # all of them / all of selection_*
+        {"op": "Nof",  "n": int, "target": str}
+    """
+    node, pos = _parse_or(tokens, pos)
+    return node, pos
+
+
+def _parse_or(tokens, pos):
+    left, pos = _parse_and(tokens, pos)
+    while pos < len(tokens) and tokens[pos].lower() == "or":
+        pos += 1
+        right, pos = _parse_and(tokens, pos)
+        if left.get("op") == "or":
+            left["operands"].append(right)
+        else:
+            left = {"op": "or", "operands": [left, right]}
+    return left, pos
+
+
+def _parse_and(tokens, pos):
+    left, pos = _parse_not(tokens, pos)
+    while pos < len(tokens) and tokens[pos].lower() == "and":
+        pos += 1
+        right, pos = _parse_not(tokens, pos)
+        if left.get("op") == "and":
+            left["operands"].append(right)
+        else:
+            left = {"op": "and", "operands": [left, right]}
+    return left, pos
+
+
+def _parse_not(tokens, pos):
+    if pos < len(tokens) and tokens[pos].lower() == "not":
+        pos += 1
+        operand, pos = _parse_not(tokens, pos)
+        return {"op": "not", "operand": operand}, pos
+    return _parse_atom(tokens, pos)
+
+
+def _parse_atom(tokens, pos):
+    if pos >= len(tokens):
+        return {"op": "ref", "name": ""}, pos
+
+    tok = tokens[pos]
+
+    # Grouped expression
+    if tok == "(":
+        pos += 1
+        node, pos = _parse_or(tokens, pos)
+        if pos < len(tokens) and tokens[pos] == ")":
+            pos += 1
+        return node, pos
+
+    # Quantifier: "1 of ...", "all of ...", "N of ..."
+    if tok.lower() == "all" and pos + 2 < len(tokens) and tokens[pos + 1].lower() == "of":
+        target = tokens[pos + 2]
+        return {"op": "allof", "target": target}, pos + 3
+
+    if tok == "1" and pos + 2 < len(tokens) and tokens[pos + 1].lower() == "of":
+        target = tokens[pos + 2]
+        return {"op": "1of", "target": target}, pos + 3
+
+    # Numeric quantifier e.g. "3 of selection_*"
+    if tok.isdigit() and pos + 2 < len(tokens) and tokens[pos + 1].lower() == "of":
+        target = tokens[pos + 2]
+        return {"op": "Nof", "n": int(tok), "target": target}, pos + 3
+
+    # Bare name
+    return {"op": "ref", "name": tok}, pos + 1
+
+
+def _resolve_target(target: str, block_names: list) -> list:
+    """
+    Expand a condition target ('them', 'selection_*', 'filter') to a list of
+    matching block names.
+    """
+    if target == "them":
+        return list(block_names)
+    if "*" in target:
+        pattern = re.compile("^" + re.escape(target).replace(r"\*", ".*") + "$")
+        return [n for n in block_names if pattern.match(n)]
+    if target in block_names:
+        return [target]
+    return []
+
+
+def _eval_ast(node: dict, block_results: dict, block_names: list) -> bool:
+    """
+    Evaluate the AST against a dict of {block_name: bool} match results.
+    """
+    op = node["op"]
+
+    if op == "ref":
+        name = node["name"]
+        return block_results.get(name, False)
+
+    if op == "not":
+        return not _eval_ast(node["operand"], block_results, block_names)
+
+    if op == "and":
+        return all(_eval_ast(o, block_results, block_names) for o in node["operands"])
+
+    if op == "or":
+        return any(_eval_ast(o, block_results, block_names) for o in node["operands"])
+
+    if op == "1of":
+        targets = _resolve_target(node["target"], block_names)
+        return any(block_results.get(t, False) for t in targets)
+
+    if op == "allof":
+        targets = _resolve_target(node["target"], block_names)
+        return bool(targets) and all(block_results.get(t, False) for t in targets)
+
+    if op == "Nof":
+        targets = _resolve_target(node["target"], block_names)
+        return sum(1 for t in targets if block_results.get(t, False)) >= node["n"]
+
+    return False
+
+
+# ── Main evaluator ────────────────────────────────────────────────────────────
+
 def evaluate_sigma_rule(rule_path, artifact_path,
-                        match_mode: str = "tolerant") -> SigmaResult:
+                        match_mode: str = "strict") -> SigmaResult:
     rule      = load_sigma_rule(rule_path)
     artifacts = load_artifacts(artifact_path)
 
@@ -208,30 +355,67 @@ def evaluate_sigma_rule(rule_path, artifact_path,
     rule_title = rule.get("title", rule_id)
     detection  = rule.get("detection", {})
 
-    detections    = []
-    missed_fields = []
+    condition_str = None
+    detection_blocks = {}
 
     for det_name, det_def in detection.items():
         if det_name == "condition":
-            continue
-        dm = _evaluate_detection_block(det_name, det_def, artifacts, match_mode)
+            condition_str = str(det_def).strip()
+        else:
+            detection_blocks[det_name] = det_def
+
+    detections    = []
+    missed_fields = []
+
+    # Evaluate each named block independently
+    block_names = list(detection_blocks.keys())
+    for block_name, block_def in detection_blocks.items():
+        dm = _evaluate_detection_block(block_name, block_def, artifacts, match_mode)
         detections.append(dm)
         for fm in dm.field_matches:
             if not fm.matched and fm.field not in missed_fields:
                 missed_fields.append(fm.field)
 
+    # Apply condition expression to get the final verdict
+    # Each block is "triggered" if any artifact fully satisfied it
+    block_triggered = {
+        dm.detection_name: dm.status == MatchStatus.TRIGGERED
+        for dm in detections
+    }
+
+    condition_met = None  # None means no condition string present
+    condition_parse_error = None
+
+    if condition_str:
+        try:
+            tokens = _tokenize_condition(condition_str)
+            ast_node, _ = _parse_condition(tokens)
+            condition_met = _eval_ast(ast_node, block_triggered, block_names)
+        except Exception as exc:
+            condition_parse_error = str(exc)
+            # Fallback: OR all blocks (preserves old behaviour on parse failure)
+            condition_met = any(block_triggered.values())
+
+    # Derive verdict from condition result
     triggered = [d for d in detections if d.status == MatchStatus.TRIGGERED]
     partial   = [d for d in detections if d.status == MatchStatus.PARTIAL]
     unsup     = [d for d in detections if d.status == MatchStatus.UNSUPPORTED]
 
-    if triggered:
+    if condition_met is True:
         verdict = RuleVerdict.TRIGGERED
-    elif partial:
-        verdict = RuleVerdict.PARTIAL
-    elif unsup and len(unsup) == len(detections):
-        verdict = RuleVerdict.UNSUPPORTED
-    else:
+    elif condition_met is False:
+        # Condition evaluated but was not satisfied
         verdict = RuleVerdict.NOT_TRIGGERED
+    else:
+        # No condition string — fall back to block-level aggregation
+        if triggered:
+            verdict = RuleVerdict.TRIGGERED
+        elif partial:
+            verdict = RuleVerdict.PARTIAL
+        elif unsup and len(unsup) == len(detections):
+            verdict = RuleVerdict.UNSUPPORTED
+        else:
+            verdict = RuleVerdict.NOT_TRIGGERED
 
     triggered_count = sum(len(d.matched_artifacts) for d in triggered + partial)
 
@@ -252,6 +436,9 @@ def evaluate_sigma_rule(rule_path, artifact_path,
                 "Either the artifact does not contain matching telemetry, "
                 "or the rule targets fields not present in this layer category.")
 
+    if condition_parse_error:
+        note += f" (condition parse warning: {condition_parse_error} — fallback OR applied)"
+
     return SigmaResult(
         rule_id         = rule_id,
         rule_title      = rule_title,
@@ -266,7 +453,7 @@ def evaluate_sigma_rule(rule_path, artifact_path,
     )
 
 
-def print_result(result: SigmaResult, match_mode: str = "tolerant"):
+def print_result(result: SigmaResult, match_mode: str = "strict"):
     badge = {
         RuleVerdict.TRIGGERED:     "TRIGGERED",
         RuleVerdict.NOT_TRIGGERED: "NOT TRIGGERED",

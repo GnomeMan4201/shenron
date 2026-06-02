@@ -77,7 +77,7 @@ def test_exact_match():
     assert matched
 
 def test_substring_match():
-    matched, _ = _value_matches("beacon", ["http_beacon_sim", "dns_sim"])
+    matched, _ = _value_matches("beacon", ["http_beacon_sim", "dns_sim"], match_mode="tolerant")
     assert matched
 
 def test_wildcard_match():
@@ -89,7 +89,7 @@ def test_no_match():
     assert not matched
 
 def test_token_overlap_match():
-    matched, _ = _value_matches("scheduled_task_creation", ["scheduled_task_creation_sim"])
+    matched, _ = _value_matches("scheduled_task_creation", ["scheduled_task_creation_sim"], match_mode="tolerant")
     assert matched
 
 def test_case_insensitive():
