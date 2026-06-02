@@ -15,7 +15,7 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
@@ -32,7 +32,7 @@ jobs:
     name: Safety audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -60,7 +60,7 @@ jobs:
     name: Package build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -82,7 +82,7 @@ jobs:
     name: MITRE ATT&CK drift check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -98,7 +98,7 @@ jobs:
     name: Assumption coverage
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
