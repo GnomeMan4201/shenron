@@ -165,7 +165,7 @@ python3 shenron.py sigma validate-dir sigma/rules/ \
 | Layer dry-run | 51 ok, 0 failed |
 | Hardcoded paths | 0 |
 | Safety failures | 0 |
-| Sigma rules | 7 |
+| Sigma rules | 14 |
 | Assumption YAMLs | 14 |
 | Simulation layers | 51 |
 
