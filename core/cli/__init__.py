@@ -11,7 +11,7 @@ def print_banner():
 
 def build_parser():
     import argparse
-    from core.cli.commands import quickstart, run, sigma, assumption, report, history, artifact, schema, export, audit, doctor
+    from core.cli.commands import quickstart, run, sigma, assumption, report, history, artifact, schema, export, audit, doctor, health
 
     p = argparse.ArgumentParser(
         prog="shenron",
@@ -30,5 +30,6 @@ def build_parser():
     export.register(sub)
     audit.register(sub)
     doctor.register(sub)
+    health.register(sub)
 
     return p
