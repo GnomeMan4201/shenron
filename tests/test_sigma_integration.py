@@ -39,6 +39,13 @@ EXPECTED_TRIGGERED = {
 # Rules that should NOT trigger (correct by design)
 EXPECTED_NOT_TRIGGERED = {
     # Windows EventID rule — will never fire against SHENRON telemetry
+
+    # bpf-watch live rules — fire against live telemetry only, not simulation artifacts
+    "bpfwatch-kprobe-sentinel-001",
+    "bpfwatch-cap-watcher-001",
+    "bpfwatch-xdp-monitor-001",
+    "bpfwatch-enumerator-discrepancy-001",
+    "bpfwatch-dangerous-helper-001",
 }
 
 # Rules that should remain UNSUPPORTED (Windows-only fields)
@@ -82,9 +89,9 @@ def sigma_results(artifact_log):
 
 
 def test_sigma_rule_count(sigma_results):
-    """Exactly 14 rules must be present."""
-    assert len(sigma_results) == 14, (
-        f"Expected 14 sigma rules, found {len(sigma_results)}. "
+    """Exactly 19 rules must be present."""
+    assert len(sigma_results) == 19, (
+        f"Expected 19 sigma rules, found {len(sigma_results)}. "
         "Update this test if you intentionally add/remove rules."
     )
 
