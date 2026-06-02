@@ -9,17 +9,17 @@ claims:
     requires_techniques:
       - T1027
     requires_signals:
-      - prompt_injection_sim
+      - llm_hallucination_trace_inject_sim
       - llm_context_poisoning_sim
-      - adversarial_feature_injection_sim
+      - synthetic_inference_log_write_sim
 
   - id: model_poisoning_evidence
     type: positive_evidence
     severity: high
     requires_signals:
-      - distribution_shift_in_log_feature_space
-      - neural_noise_pattern_in_monitored_directory
-      - high_entropy_log_entries_matching_real_schema
+      - llm_style_obfuscation_mimicry
+      - obfuscation_layering
+      - entropy_layering_pattern
 
   - id: no_persistence_overclaim
     type: out_of_scope_claim

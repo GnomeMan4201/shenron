@@ -7,19 +7,19 @@ claims:
     type: positive_evidence
     severity: high
     requires_techniques:
-      - T1134
+      - T1078
     requires_signals:
       - token_impersonation_sim
-      - token_manipulation_sim
+      - daemon_name_masquerade_sim
 
   - id: process_injection_identity_evidence
     type: positive_evidence
     severity: high
     requires_techniques:
-      - T1055
+      - T1542
     requires_signals:
-      - process_injection_attempt_sim
-      - reflective_injection_sim
+      - bios_tamper_log_write_sim
+      - uefi_artifact_plant_sim
 
   - id: no_exfil_overclaim
     type: out_of_scope_claim

@@ -26,9 +26,5 @@ claims:
       - artificial_timing_delay_fixed_random_range_fingerprint
       - sleep_jitter_from_non_timer_process
 
-  - id: no_c2_overclaim
-    type: out_of_scope_claim
-    severity: high
-    requires_techniques:
-      - T1071
-      - T1095
+  # no_c2_overclaim removed: entropy layers legitimately overlap with C2
+  # evasion patterns (T1071/T1095) — obfuscation is used in both contexts

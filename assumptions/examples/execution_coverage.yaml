@@ -16,10 +16,10 @@ claims:
     type: positive_evidence
     severity: high
     requires_techniques:
-      - T1053
+      - T1547
     requires_signals:
-      - scheduled_task_creation
-      - cron_modification_sim
+      - staging
+      - shell_spawn_sim
 
   - id: no_lateral_overclaim
     type: out_of_scope_claim

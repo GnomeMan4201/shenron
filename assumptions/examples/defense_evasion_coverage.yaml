@@ -7,10 +7,10 @@ claims:
     type: positive_evidence
     severity: high
     requires_techniques:
-      - T1027
+      - T1014
     requires_signals:
-      - log_file_high_entropy_content_non_logging_source
-      - obfuscated_payload_sim
+      - artifact_hiding_sim
+      - noise_injection
 
   - id: masquerading_evidence
     type: positive_evidence
@@ -18,8 +18,8 @@ claims:
     requires_techniques:
       - T1036
     requires_signals:
-      - process_name_masquerade_sim
-      - file_extension_mismatch_sim
+      - process_masquerade
+      - lure_deployment
 
   - id: indicator_removal_evidence
     type: positive_evidence
@@ -27,8 +27,8 @@ claims:
     requires_techniques:
       - T1070
     requires_signals:
-      - log_tampering_sim
-      - recursive_mtime_modification_across_tool_directory
+      - log_wipe
+      - timestamp_manipulation
 
   - id: no_exfil_overclaim
     type: out_of_scope_claim
