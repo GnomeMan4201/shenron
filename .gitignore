@@ -35,3 +35,4 @@ devto_post.sh
 github_botnet_discovery_revised.md
 !core/layers/social_botnet_corpus.py
 !core/layers/undead_memory_latch.py
+.cache/
