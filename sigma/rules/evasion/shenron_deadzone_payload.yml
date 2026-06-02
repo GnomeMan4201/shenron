@@ -1,0 +1,44 @@
+title: Payload Staging in Hidden World-Writable Directory Behavioral Cluster
+id: shenron-deadzone-payload-001
+status: experimental
+description: >
+  Detects synthetic telemetry patterns consistent with payload staging:
+  hidden directory creation in world-writable paths containing high-entropy files,
+  non-logging processes writing marker files, and cross-process reads of staged files.
+  Designed for validation against SHENRON deadzone_payload layer output.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-02
+references:
+  - https://github.com/GnomeMan4201/shenron
+tags:
+  - attack.t1027
+  - attack.t1140
+  - attack.defense_evasion
+logsource:
+  category: shenron_simulation
+  product: deadzone_payload
+detection:
+  selection_hidden_dir:
+    behavior_class: hidden_dir_high_entropy_files
+    detection_opportunities|contains: hidden_dir_high_entropy_files
+
+  selection_marker_write:
+    behavior_class: non_logging_process_writing_log
+    detection_opportunities|contains: non_logging_process_writing_log
+
+  selection_cross_proc:
+    behavior_class: staging_file_cross_process_read
+    detection_opportunities|contains: staging_file_cross_process_read
+
+  condition: 1 of selection_*
+
+falsepositives:
+  - Package managers staging in /tmp — validate against known-good package manager process list
+  - Build systems with high-entropy artifacts — correlate with CI/CD pipeline process tree
+level: medium
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_opportunities

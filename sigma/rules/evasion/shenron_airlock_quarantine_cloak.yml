@@ -1,0 +1,44 @@
+title: Quarantine Directory Access and AV Signature Spoofing Behavioral Cluster
+id: shenron-airlock-quarantine-001
+status: experimental
+description: >
+  Detects synthetic telemetry patterns consistent with quarantine cloaking:
+  access to AV quarantine directories from non-AV processes, AV engine probing,
+  and signature hash spoofing with benign headers on suspicious files.
+  Designed for validation against SHENRON airlock_quarantine_cloak layer output.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-02
+references:
+  - https://github.com/GnomeMan4201/shenron
+tags:
+  - attack.t1564
+  - attack.t1036
+  - attack.defense_evasion
+logsource:
+  category: shenron_simulation
+  product: airlock_quarantine_cloak
+detection:
+  selection_quarantine:
+    behavior_class: quarantine_dir_access
+    detection_opportunities|contains: quarantine_dir_access
+
+  selection_av_probe:
+    behavior_class: av_engine_probe
+    detection_opportunities|contains: av_engine_probe
+
+  selection_sig_spoof:
+    behavior_class: signature_spoof_attempt
+    detection_opportunities|contains: signature_spoof_attempt
+
+  condition: 1 of selection_*
+
+falsepositives:
+  - AV remediation workflows accessing quarantine dir — validate process parent chain
+  - Security tooling doing signature verification — correlate with known-good tool inventory
+level: high
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_opportunities

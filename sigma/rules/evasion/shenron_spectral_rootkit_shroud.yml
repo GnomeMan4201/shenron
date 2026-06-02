@@ -1,0 +1,44 @@
+title: Rootkit Artifact and Syscall Hook Installation Behavioral Cluster
+id: shenron-spectral-rootkit-shroud-001
+status: experimental
+description: >
+  Detects synthetic telemetry patterns consistent with rootkit-level evasion:
+  syscall hook installation (getdents64 pattern), hidden /proc entries,
+  LKM loading, and LD_PRELOAD modification.
+  Designed for validation against SHENRON spectral_rootkit_shroud layer output.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-02
+references:
+  - https://github.com/GnomeMan4201/shenron
+tags:
+  - attack.t1014
+  - attack.t1564
+  - attack.defense_evasion
+logsource:
+  category: shenron_simulation
+  product: spectral_rootkit_shroud
+detection:
+  selection_syscall_hook:
+    behavior_class: syscall_hook_install
+    detection_opportunities|contains: syscall_hook_install
+
+  selection_proc_hidden:
+    behavior_class: proc_entry_hidden
+    detection_opportunities|contains: proc_entry_hidden
+
+  selection_lkm:
+    behavior_class: lkm_load
+    detection_opportunities|contains: lkm_load
+
+  condition: 1 of selection_*
+
+falsepositives:
+  - Legitimate kernel modules from known-good sources — validate against module signing policy
+  - Security tooling with syscall interception (eBPF, auditd hooks) — correlate with approved tool list
+level: high
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_opportunities

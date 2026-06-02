@@ -1,4 +1,5 @@
 id: persistence_coverage
+schema_version: "1.0"
 description: Validates artifact contains persistence mechanism telemetry
 
 claims:

@@ -1,4 +1,5 @@
 id: c2_coverage
+schema_version: "1.0"
 description: Validates artifact contains C2 channel-shaped telemetry
 
 claims:

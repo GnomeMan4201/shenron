@@ -1,0 +1,51 @@
+title: Lateral Movement Network Reconnaissance Behavioral Cluster
+id: shenron-lateral-webcrawler-001
+status: experimental
+description: >
+  Detects synthetic telemetry patterns consistent with lateral movement via internal
+  network reconnaissance: sequential subnet sweep, SMB port probing, share enumeration,
+  and rapid sequential host requests from a single internal source.
+  Designed for validation against SHENRON lateral_webcrawler layer output.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-02
+references:
+  - https://github.com/GnomeMan4201/shenron
+tags:
+  - attack.t1021
+  - attack.t1046
+  - attack.t1135
+  - attack.lateral_movement
+  - attack.discovery
+logsource:
+  category: shenron_simulation
+  product: lateral_webcrawler
+detection:
+  selection_sweep:
+    behavior_class: subnet_sweep
+    detection_opportunities|contains: subnet_sweep
+
+  selection_smb:
+    behavior_class: smb_port_probe
+    detection_opportunities|contains: smb_port_probe
+
+  selection_shares:
+    behavior_class: share_enumeration
+    detection_opportunities|contains: share_enumeration
+
+  selection_sequential:
+    behavior_class: sequential_host_requests
+    detection_opportunities|contains: sequential_host_requests
+
+  condition: 1 of selection_*
+
+falsepositives:
+  - Authorized network scanners (Nessus, Qualys) — correlate with scan schedule
+  - Asset inventory tools — validate against known-good scanner process list
+  - IT ops SMB mounts — confirm against approved mount policy
+level: medium
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_opportunities

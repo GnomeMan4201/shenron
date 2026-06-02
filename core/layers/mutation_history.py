@@ -9,14 +9,14 @@
 from core.engine.payload_registry import register_payload
 import os
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 LOG_FILE = os.path.expanduser("~/SHENRON/logs/mutation_history.json")
 os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
 
 def log_mutation(payload_name, mutation_type, stealth_score, notes=""):
     entry = {
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "payload": payload_name,
         "mutation": mutation_type,
         "stealth_score": stealth_score,

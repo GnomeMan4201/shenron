@@ -1,4 +1,5 @@
 # SHENRON Assumption Validation
+schema_version: "1.0"
 # Layer: dependency_confusion_phantom
 # Claim: this artifact supports detection coverage for npm dependency confusion
 # supply chain attack behavioral patterns

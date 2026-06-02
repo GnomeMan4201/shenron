@@ -1,4 +1,5 @@
 id: exfiltration_coverage
+schema_version: "1.0"
 description: Validates artifact contains exfiltration telemetry
 
 claims:

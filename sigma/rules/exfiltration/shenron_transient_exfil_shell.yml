@@ -1,0 +1,45 @@
+title: Ephemeral Exfiltration Shell Behavioral Cluster
+id: shenron-transient-exfil-shell-001
+status: experimental
+description: >
+  Detects synthetic telemetry patterns consistent with transient exfiltration:
+  ephemeral high-port TCP listeners with single lifecycle, outbound connections
+  on non-standard ports from non-network processes, and data transfer followed
+  immediately by socket close.
+  Designed for validation against SHENRON transient_exfil_shell layer output.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-02
+references:
+  - https://github.com/GnomeMan4201/shenron
+tags:
+  - attack.t1041
+  - attack.t1048
+  - attack.exfiltration
+logsource:
+  category: shenron_simulation
+  product: transient_exfil_shell
+detection:
+  selection_ephemeral_listener:
+    behavior_class: ephemeral_high_port_listener
+    detection_opportunities|contains: ephemeral_high_port_listener
+
+  selection_one_shot:
+    behavior_class: one_shot_bind_accept_dissolve
+    detection_opportunities|contains: one_shot_bind_accept_dissolve
+
+  selection_transfer:
+    behavior_class: data_transfer_immediate_socket_close
+    detection_opportunities|contains: data_transfer_immediate_socket_close
+
+  condition: 1 of selection_*
+
+falsepositives:
+  - Ephemeral service ports in microservice architectures — validate against service mesh policy
+  - Legitimate data transfer utilities (rsync, scp) — correlate with authorized transfer schedule
+level: high
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_opportunities

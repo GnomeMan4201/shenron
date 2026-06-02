@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # SHENRON: Polymorph Chain Stats — real-time operational dashboard
 import os, json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
+from core.engine.payload_registry import register_payload
 
 MANIFEST_PATH = Path(os.path.abspath(__file__)).parent.parent.parent / "shenron_manifest.json"
 LOG_PATH = Path(os.path.expanduser("~/SHENRON/logs/mutation_history.json")).resolve()
@@ -65,7 +66,7 @@ def build_stats():
 
     print()
     print("  SHENRON // polymorph chain stats")
-    print(f"  generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"  generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}")
     print("  " + "=" * 75)
     print(f"  canonical layers : {total_canonical}")
     print(f"  total variants   : {total_variants}")
@@ -96,6 +97,7 @@ def build_stats():
             print(f"    {s['name']}")
         print()
 
+@register_payload(name="polymorph_chain_stats")
 def main():
     build_stats()
 

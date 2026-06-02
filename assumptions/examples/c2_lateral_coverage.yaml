@@ -1,4 +1,5 @@
 name: c2_lateral_coverage_assumption
+schema_version: "1.0"
 description: >
   Claims that our detection stack can observe C2 beaconing and lateral movement
   shaped telemetry. Does not claim coverage of persistence or evasion shapes.

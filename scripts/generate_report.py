@@ -5,7 +5,7 @@
 
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from collections import defaultdict
 

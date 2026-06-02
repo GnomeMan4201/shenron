@@ -1,4 +1,5 @@
 id: github_follow_botnet
+schema_version: "1.0"
 description: Validates that Jaccard overlap evidence supports coordination claim and that cross-follow detection alone does not
 
 claims:

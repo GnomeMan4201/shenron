@@ -1,4 +1,5 @@
 id: identity_spoofing_coverage
+schema_version: "1.0"
 description: Validates artifact contains identity and token spoofing telemetry
 
 claims:

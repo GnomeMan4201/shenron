@@ -1,0 +1,44 @@
+title: Process Name Masquerading and Fake Cmdline Behavioral Cluster
+id: shenron-mirror-loop-deflector-001
+status: experimental
+description: >
+  Detects synthetic telemetry patterns consistent with process masquerading:
+  process names matching known system daemons but running from non-standard paths,
+  fabricated command-line arguments, and PID spoofing.
+  Designed for validation against SHENRON mirror_loop_deflector layer output.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-02
+references:
+  - https://github.com/GnomeMan4201/shenron
+tags:
+  - attack.t1036.005
+  - attack.t1070
+  - attack.defense_evasion
+logsource:
+  category: shenron_simulation
+  product: mirror_loop_deflector
+detection:
+  selection_name_spoof:
+    behavior_class: process_name_spoof
+    detection_opportunities|contains: process_name_spoof
+
+  selection_fake_cmdline:
+    behavior_class: fake_cmdline
+    detection_opportunities|contains: fake_cmdline
+
+  selection_pid_masquerade:
+    behavior_class: pid_masquerade
+    detection_opportunities|contains: pid_masquerade
+
+  condition: 1 of selection_*
+
+falsepositives:
+  - Container runtimes with process namespace remapping — validate against container inventory
+  - Debug builds of system daemons in non-standard paths — correlate with dev environment flag
+level: high
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_opportunities

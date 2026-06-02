@@ -1,4 +1,5 @@
 id: full_kill_chain_coverage
+schema_version: "1.0"
 description: Validates artifact covers multiple kill chain phases
 
 claims:

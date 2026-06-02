@@ -1,4 +1,5 @@
 id: entropy_evasion_coverage
+schema_version: "1.0"
 description: Validates artifact contains entropy manipulation and obfuscation telemetry
 
 claims:

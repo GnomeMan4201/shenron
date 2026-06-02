@@ -1,4 +1,5 @@
 id: lateral_movement_coverage
+schema_version: "1.0"
 description: Validates artifact contains lateral movement telemetry
 
 claims:

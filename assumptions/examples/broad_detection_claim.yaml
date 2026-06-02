@@ -1,4 +1,5 @@
 id: broad_detection_claim
+schema_version: "1.0"
 description: Overclaims broad detection coverage not supported by this artifact
 
 claims:

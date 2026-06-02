@@ -10,7 +10,7 @@ import uuid
 import json
 import random
 import string
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from core.config import artifact_log_path as _artifact_log_path
 

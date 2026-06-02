@@ -1,4 +1,5 @@
 id: defense_evasion_coverage
+schema_version: "1.0"
 description: Validates artifact contains defense evasion telemetry
 
 claims:
