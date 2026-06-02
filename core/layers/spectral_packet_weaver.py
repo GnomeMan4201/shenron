@@ -4,7 +4,7 @@ from core.engine.payload_registry import register_payload
 # SHENRON: Spectral Packet Weaver — synthetic covert channel data encoding simulator
 # PURPOSE: Emit realistic-shaped covert packet encoding telemetry for detection testing
 # PRINCIPLE: Represent adversarial shape without adversarial capability
-# MITRE: T1095 (Non-Application Layer Protocol), T1001 (Data Obfuscation)
+# MITRE: T1095 (Non-Application Layer Protocol), T1001 (Data Obfuscation), T1572 (Protocol Tunneling)
 # NO NETWORK CALLS — all packet sequences are synthetic
 
 import os
@@ -57,7 +57,9 @@ def simulate_packet_weaver():
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "layer": "spectral_packet_weaver",
         "phase": "channel_establishment",
-        "mitre_techniques": ["T1095"],
+        "mitre_techniques": ["T1095", "T1572"],
+        "behavior_class": "channel_establishment",
+        "detection_opportunities": ["channel_establishment"],
         "channel_type_sim": channel["type"],
         "channel_desc": channel["desc"],
         "encoding_sim": encoding,
@@ -79,7 +81,9 @@ def simulate_packet_weaver():
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "layer": "spectral_packet_weaver",
             "phase": "packet_weave",
-            "mitre_techniques": ["T1001"],
+            "mitre_techniques": ["T1001", "T1572"],
+            "behavior_class": "packet_weave",
+            "detection_opportunities": ["packet_weave"],
             "sequence_num_sim": i + 1,
             "channel_type_sim": channel["type"],
             "payload_chunk_sim": _fake_payload_chunk(),
@@ -104,7 +108,7 @@ def print_simulation(session_id, channel, encoding, events):
     print(f"  [CHANNEL_SIM] {channel['type']}")
     print(f"  [ENCODING]    {encoding}")
     print(f"  [EVENTS]      {len(events)}")
-    print(f"  [MITRE]       T1095, T1001")
+    print(f"  [MITRE]       T1095, T1001, T1572")
     print(f"  [NETWORK]     NO CALLS MADE — synthetic only")
     print()
     for e in events:

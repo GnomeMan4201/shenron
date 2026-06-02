@@ -214,7 +214,8 @@
       "mitre": {
         "techniques": [
           "T1095",
-          "T1001"
+          "T1001",
+          "T1572"
         ],
         "tactic": "command-and-control"
       },
