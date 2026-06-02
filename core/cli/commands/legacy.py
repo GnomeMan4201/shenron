@@ -148,6 +148,8 @@ def _legacy_dispatch():
                    help="run a layer, category, or 'all'")
     p.add_argument("--layer",      type=str,             help="run a single layer (legacy)")
     p.add_argument("--dry-run",    action="store_true",  help="validate without executing")
+    p.add_argument("--scope-out",  type=str, default=None, metavar="PATH",
+                        help="write scoped run output to this JSONL path instead of main log")
     p.add_argument("--compare", nargs=2, metavar=("RUN_A", "RUN_B"),
                 help="diff two validation runs by run ID prefix")
     p.add_argument("--navigator", type=str, nargs="?", const="latest", metavar="RUN_ID",
@@ -220,7 +222,14 @@ def _legacy_dispatch():
 
     if args.list:           cmd_list(args)
     elif args.cats:         cmd_categories(args)
-    elif args.run:          cmd_run(args)
+    elif args.run:
+        scope_out = getattr(args, 'scope_out', None)
+        if scope_out:
+            import os as _os
+            _os.environ["SHENRON_SCOPED_LOG"] = scope_out
+        cmd_run(args)
+        if scope_out:
+            print(f"  [SCOPED OUTPUT] {scope_out}")
     elif args.categories:   cmd_run(type('A', (), {
                                 'run': args.categories,
                                 'dry_run': args.dry_run

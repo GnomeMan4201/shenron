@@ -32,7 +32,15 @@ def get_report_dir() -> Path:
 
 
 def artifact_log_path() -> Path:
+    # Respect SHENRON_SCOPED_LOG env var for category-scoped runs
+    scoped = os.environ.get("SHENRON_SCOPED_LOG")
+    if scoped:
+        return Path(scoped)
     return get_log_dir() / "simulation_artifacts.jsonl"
+
+def scoped_artifact_log_path(scope: str) -> Path:
+    """Return a scoped artifact log path for a specific category or layer."""
+    return get_log_dir() / f"simulation_artifacts_{scope}.jsonl"
 
 
 def timeline_log_path() -> Path:
