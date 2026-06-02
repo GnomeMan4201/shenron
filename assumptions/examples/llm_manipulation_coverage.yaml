@@ -9,17 +9,16 @@ claims:
     requires_techniques:
       - T1027
     requires_signals:
-      - llm_hallucination_trace_inject_sim
-      - llm_context_poisoning_sim
-      - synthetic_inference_log_write_sim
+      - llm_format_log_entries_from_non_llm_process
+      - hallucination_tagged_events_fixed_interval_non_inference
 
   - id: model_poisoning_evidence
     type: positive_evidence
     severity: high
     requires_signals:
-      - llm_style_obfuscation_mimicry
       - obfuscation_layering
       - entropy_layering_pattern
+      - multi_layer_encoding_non_crypto_process
 
   - id: no_persistence_overclaim
     type: out_of_scope_claim

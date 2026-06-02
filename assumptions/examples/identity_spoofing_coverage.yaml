@@ -7,10 +7,10 @@ claims:
     type: positive_evidence
     severity: high
     requires_techniques:
-      - T1078
+      - T1542
     requires_signals:
-      - token_impersonation_sim
-      - daemon_name_masquerade_sim
+      - bios_log_forge_sim
+      - synthetic_device_fingerprint_emit_sim
 
   - id: process_injection_identity_evidence
     type: positive_evidence
@@ -19,7 +19,7 @@ claims:
       - T1542
     requires_signals:
       - bios_tamper_log_write_sim
-      - uefi_artifact_plant_sim
+      - trusted_name_rename_sim
 
   - id: no_exfil_overclaim
     type: out_of_scope_claim

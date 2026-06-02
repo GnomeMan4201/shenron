@@ -216,6 +216,12 @@ def _legacy_dispatch():
                    help="generate standalone HTML report from latest run")
     p.add_argument("--validate-sigma", type=str, metavar="RULE_YML",
                    help="validate a Sigma rule against artifact JSONL")
+    p.add_argument("--validate-all-assumptions", action="store_true",
+                        help="run all categories scoped and validate their assumptions")
+    p.add_argument("--no-rerun", action="store_true",
+                        help="skip re-running layers (use existing scoped artifacts)")
+    p.add_argument("--scope-dir", type=str, default=None, metavar="DIR",
+                        help="directory for scoped artifacts (default: temp dir)")
     p.add_argument("--validate-sigma-dir", type=str, metavar="DIR",
                    help="validate all Sigma rules in a directory against artifact JSONL")
     args = p.parse_args()
@@ -841,6 +847,9 @@ def _legacy_dispatch():
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
         mod.generate_report()
+    elif getattr(args, "validate_all_assumptions", False):
+        from core.cli.commands.validate_all import cmd_validate_all
+        sys.exit(cmd_validate_all(args))
     else:                   p.print_help()
 
 if __name__ == "__main__":
