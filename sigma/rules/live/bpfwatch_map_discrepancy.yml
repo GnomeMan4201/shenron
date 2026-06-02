@@ -1,0 +1,38 @@
+title: bpf-watch Live — BPF Map/Program Enumeration Discrepancy
+id: bpfwatch-enumerator-discrepancy-001
+status: experimental
+description: >
+  Detects live bpf-watch telemetry indicating BPF program or map IDs
+  visible via direct syscall but absent from bpftool enumeration.
+  Consistent with bpf_probe_write_user or bpf_override_return tampering.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-02
+references:
+  - https://github.com/GnomeMan4201/bpf-watch
+tags:
+  - attack.t1014
+  - attack.t1562.001
+  - attack.defense_evasion
+logsource:
+  category: bpfwatch_live
+  product: bpf_watch_live
+detection:
+  selection_discrepancy:
+    layer: bpf_watch_live
+    phase: map_hiding
+    behavior_class: enumeration_discrepancy
+  condition: selection_discrepancy
+falsepositives:
+  - Race condition between baseline and check on busy systems — reduce scan interval
+level: high
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_signal
+  - detail.bpftool_count
+  - detail.syscall_count
+  - detail.delta
+  - detail.hidden_ids
+  - severity

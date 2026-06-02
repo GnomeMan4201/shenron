@@ -1,0 +1,36 @@
+title: bpf-watch Live — XDP Attachment on Unexpected Interface
+id: bpfwatch-xdp-monitor-001
+status: experimental
+description: >
+  Detects live bpf-watch telemetry indicating an XDP program attached
+  to an unexpected network interface. XDP on loopback is always suspicious.
+  XDP on unexpected interfaces enables packet interception before the network stack.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-02
+references:
+  - https://github.com/GnomeMan4201/bpf-watch
+tags:
+  - attack.t1014
+  - attack.t1562.001
+  - attack.defense_evasion
+logsource:
+  category: bpfwatch_live
+  product: bpf_watch_live
+detection:
+  selection_xdp:
+    layer: bpf_watch_live
+    phase: xdp_attachment
+    behavior_class: xdp_unexpected_interface
+  condition: selection_xdp
+falsepositives:
+  - Cilium, Katran, or other legitimate XDP networking tools — add to KNOWN_GOOD_XDP in bpf-watch config
+level: high
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_signal
+  - detail.interface
+  - detail.prog_name
+  - severity

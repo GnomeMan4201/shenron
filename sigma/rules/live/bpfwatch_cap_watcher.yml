@@ -1,0 +1,37 @@
+title: bpf-watch Live — CAP_BPF Privilege Acquisition
+id: bpfwatch-cap-watcher-001
+status: experimental
+description: >
+  Detects live bpf-watch telemetry indicating CAP_BPF acquisition
+  by a process not in the known-good list, or rapid CAP_BPF +
+  CAP_SYS_ADMIN dual acquisition (critical pre-load rootkit signal).
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-02
+references:
+  - https://github.com/GnomeMan4201/bpf-watch
+tags:
+  - attack.t1014
+  - attack.t1562.001
+  - attack.defense_evasion
+logsource:
+  category: bpfwatch_live
+  product: bpf_watch_live
+detection:
+  selection_cap:
+    layer: bpf_watch_live
+    phase: privilege_acquisition
+    behavior_class: cap_escalation
+  condition: selection_cap
+falsepositives:
+  - bpftool, cilium-agent, falco, bpftrace — add to KNOWN_GOOD_COMM in bpf-watch config
+level: critical
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_signal
+  - detail.comm
+  - detail.pid
+  - detail.caps_acquired
+  - severity

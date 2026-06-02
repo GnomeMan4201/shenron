@@ -1,0 +1,40 @@
+title: bpf-watch Live — Dangerous BPF Helper Usage
+id: bpfwatch-dangerous-helper-001
+status: experimental
+description: >
+  Detects live bpf-watch telemetry indicating a loaded BPF program
+  declares bpf_probe_write_user or bpf_override_return helpers.
+  Either is a high-confidence rootkit signal outside known observability tools.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-02
+references:
+  - https://github.com/GnomeMan4201/bpf-watch
+tags:
+  - attack.t1014
+  - attack.t1055
+  - attack.defense_evasion
+logsource:
+  category: bpfwatch_live
+  product: bpf_watch_live
+detection:
+  selection_write_user:
+    layer: bpf_watch_live
+    phase: memory_tamper
+    behavior_class: bpf_probe_write_user_usage
+  selection_override_return:
+    layer: bpf_watch_live
+    phase: memory_tamper
+    behavior_class: bpf_override_return_usage
+  condition: 1 of selection_*
+falsepositives:
+  - Known security research tools using these helpers under controlled conditions
+level: critical
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_signal
+  - detail.prog_name
+  - detail.dangerous_helpers
+  - severity
