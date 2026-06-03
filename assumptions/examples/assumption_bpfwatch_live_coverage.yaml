@@ -8,6 +8,21 @@ description: >
 
 claims:
 
+  - id: baseline_delta_detection
+    type: positive_evidence
+    severity: high
+    description: >
+      bpf-watch detects new BPF programs loaded after baseline was captured.
+      Validated against controlled adversarial condition: benign kprobe loaded
+      via bcc after baseline, caught by enumerator baseline delta check.
+    requires_techniques:
+      - T1014
+      - T1562.001
+    requires_signals:
+      - unexpected_bpf_prog_type
+      - new_program_since_baseline
+
+
   # ── Detection signal coverage ──────────────────────────────────────────────
 
   - id: kprobe_sensitive_syscall_detected
