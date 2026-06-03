@@ -34,6 +34,7 @@ EXPECTED_TRIGGERED = {
     "shenron-process-injection-001",    # Process Injection Persistence (approx ID)
     "shenron-scheduled-task-001",       # Scheduled Task Persistence (approx ID)
     "dep-confusion-phantom-001",        # Dependency Confusion
+    "shenron-lotl-execution-001",       # LOtL Execution
 }
 
 # Rules that should NOT trigger (correct by design)
@@ -89,9 +90,9 @@ def sigma_results(artifact_log):
 
 
 def test_sigma_rule_count(sigma_results):
-    """Exactly 19 rules must be present."""
-    assert len(sigma_results) == 19, (
-        f"Expected 19 sigma rules, found {len(sigma_results)}. "
+    """Exactly 20 rules must be present."""
+    assert len(sigma_results) == 20, (
+        f"Expected 20 sigma rules, found {len(sigma_results)}. "
         "Update this test if you intentionally add/remove rules."
     )
 

@@ -370,6 +370,18 @@
         "T1547"
       ],
       "tactic": "persistence"
+    },
+    "lotl_execution_phantom": {
+      "techniques": [
+        "T1059",
+        "T1059.004",
+        "T1059.006",
+        "T1140",
+        "T1027",
+        "T1105",
+        "T1036"
+      ],
+      "tactic": "execution"
     }
   }
 }

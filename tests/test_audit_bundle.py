@@ -109,7 +109,7 @@ def test_bundle_reproducibility_counts_match():
         _run(tmp)
         repro = json.loads((Path(tmp) / "reproducibility.json").read_text())
         assert repro["inputs"]["events_count"] == 40
-        assert repro["inputs"]["rules_count"] == 19
+        assert repro["inputs"]["rules_count"] == 20
         assert repro["summary"]["mitre_techniques"] == 39
 
 

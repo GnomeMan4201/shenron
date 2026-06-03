@@ -1841,6 +1841,38 @@
       "telemetry_layer": true
     },
     {
+      "name": "lotl_execution_phantom",
+      "category": "payload",
+      "file": "lotl_execution_phantom.py",
+      "description": "SHENRON // lotl_execution_phantom \u2014 Living off the Land execution proxy simulation",
+      "mitre": {
+        "techniques": [
+          "T1059",
+          "T1059.004",
+          "T1059.006",
+          "T1140",
+          "T1027",
+          "T1105",
+          "T1036"
+        ],
+        "tactic": "execution"
+      },
+      "detection": {
+        "expected_events": [
+          "interpreter_inline_exec_sim",
+          "fetch_exec_chain_sim",
+          "b64_decode_chain_sim",
+          "proxy_tool_abuse_sim",
+          "env_var_exec_sim",
+          "interpreter_masquerade_sim"
+        ]
+      },
+      "simulation": {
+        "fidelity": "high",
+        "safe": true
+      }
+    },
+    {
       "name": "dormant_sleeper_seed",
       "category": "persistence",
       "file": "dormant_sleeper_seed.py",

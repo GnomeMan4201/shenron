@@ -31,7 +31,7 @@ LAYERS_DIR = REPO_ROOT / "core" / "layers"
 CATEGORIES = {
     "identity":    ["shenron_bio_replication","forged_bios_artifact","cognitive_replicator","stealth_mimic"],
     "evasion":     ["anti_forensics_molt","airlock_quarantine_cloak","evasion_lure_illusion","mirror_loop_deflector","spectral_rootkit_shroud","dark_signature_morpher",],
-    "payload":     ["payload_skinwalker","obfuscated_skinwalker_dropper","deadzone_payload","symbiote_payload","ethereal_payload_reanimator","recursive_payload_seedbank","transient_exfil_shell","void_gateway_tunnel","dependency_confusion_phantom"],
+    "payload":     ["payload_skinwalker","obfuscated_skinwalker_dropper","deadzone_payload","symbiote_payload","ethereal_payload_reanimator","recursive_payload_seedbank","transient_exfil_shell","void_gateway_tunnel","dependency_confusion_phantom","lotl_execution_phantom"],
     "persistence": ["dormant_sleeper_seed","undead_memory_latch","memory_hijack_inheritor","shadow_system_rebuilder","self_sealing_nano_sandbox","poltergeist_file_infector"],
     "entropy":     ["quantum_entropy_distorter","entropy_flux_disruptor","entropy_anchor_dropper","neural_entropy_seeder","quantum_state_shuffler","quantum_trace_rewinder","quantum_entanglement_relay","synthetic_splinter_seed"],
     "c2":          ["beacon_emitter_cloak","autonomous_signal_cloner","lateral_webcrawler","parasitic_mesh_crawler","spectral_packet_weaver","temporal_payload_phaser","temporal_mirage_emulator","dreamdive_overlay"],

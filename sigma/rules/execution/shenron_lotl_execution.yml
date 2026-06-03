@@ -1,0 +1,52 @@
+title: SHENRON Living off the Land Execution Behavioral Cluster
+id: shenron-lotl-execution-001
+status: experimental
+description: >
+  Detects synthetic telemetry consistent with LOtL execution patterns:
+  interpreter inline exec, fetch-and-execute chains, base64 decode chains,
+  proxy tool abuse, environment variable execution, and interpreter masquerade.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-03
+tags:
+  - attack.t1059
+  - attack.t1059.004
+  - attack.t1059.006
+  - attack.t1140
+  - attack.t1027
+  - attack.t1105
+  - attack.t1036
+  - attack.execution
+logsource:
+  category: shenron_simulation
+  product: lotl_execution_phantom
+detection:
+  selection_inline:
+    layer: lotl_execution_phantom
+    phase: inline_execution
+  selection_fetch:
+    layer: lotl_execution_phantom
+    phase: fetch_execution
+  selection_b64:
+    layer: lotl_execution_phantom
+    phase: decode_execution
+  selection_proxy:
+    layer: lotl_execution_phantom
+    phase: proxy_execution
+  selection_env:
+    layer: lotl_execution_phantom
+    phase: env_execution
+  selection_masquerade:
+    layer: lotl_execution_phantom
+    phase: masquerade_execution
+  condition: 1 of selection_*
+falsepositives:
+  - Legitimate automation scripts using inline python/bash
+  - CI/CD pipelines using curl-pipe patterns
+  - Developer tooling with base64 encoded configs
+level: high
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_opportunities
