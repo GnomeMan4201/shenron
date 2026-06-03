@@ -161,9 +161,22 @@ def _load_manifest(manifest_path: str) -> list[dict]:
 
 def _extract_layer_techniques(layers: list[dict]) -> dict[str, list[str]]:
     """
-    Returns { layer_name: [technique_ids] } from manifest layers.
-    Also handles LAYER_META format from individual layer files.
+    Returns { layer_name: [technique_ids] }.
+    Reads from taxonomy/mitre_mappings.json if available (single source of truth),
+    falls back to manifest mitre.techniques field.
     """
+    # Try taxonomy first
+    try:
+        from core.taxonomy import get_all_mappings
+        mappings = get_all_mappings()
+        if mappings:
+            return {name: entry.get("techniques", [])
+                    for name, entry in mappings.items()
+                    if entry.get("techniques")}
+    except Exception:
+        pass
+
+    # Fallback: manifest
     result = {}
     for layer in layers:
         name = layer.get("name", "unknown")

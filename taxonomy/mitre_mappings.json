@@ -1,0 +1,375 @@
+{
+  "_meta": {
+    "description": "SHENRON MITRE ATT&CK taxonomy \u2014 single source of truth for layer technique mappings",
+    "source": "shenron_manifest.json (extracted and promoted to canonical)",
+    "schema_version": "1.0",
+    "note": "Edit this file to update technique mappings. Do not edit layer files or manifest directly."
+  },
+  "layers": {
+    "autonomous_signal_cloner": {
+      "techniques": [
+        "T1071",
+        "T1102"
+      ],
+      "tactic": "command-and-control"
+    },
+    "beacon_emitter_cloak": {
+      "techniques": [
+        "T1071",
+        "T1132"
+      ],
+      "tactic": "command-and-control"
+    },
+    "dreamdive_overlay": {
+      "techniques": [
+        "T1070.001",
+        "T1036"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "lateral_webcrawler": {
+      "techniques": [
+        "T1021",
+        "T1046",
+        "T1135"
+      ],
+      "tactic": "lateral-movement"
+    },
+    "parasitic_mesh_crawler": {
+      "techniques": [
+        "T1021",
+        "T1570"
+      ],
+      "tactic": "lateral-movement"
+    },
+    "spectral_packet_weaver": {
+      "techniques": [
+        "T1095",
+        "T1001",
+        "T1572"
+      ],
+      "tactic": "command-and-control"
+    },
+    "temporal_mirage_emulator": {
+      "techniques": [
+        "T1070",
+        "T1036"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "temporal_payload_phaser": {
+      "techniques": [
+        "T1027",
+        "T1140"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "entropy_anchor_dropper": {
+      "techniques": [
+        "T1027",
+        "T1140"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "entropy_flux_disruptor": {
+      "techniques": [
+        "T1027.002"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "neural_entropy_seeder": {
+      "techniques": [
+        "T1027",
+        "T1036"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "quantum_entanglement_relay": {
+      "techniques": [
+        "T1095",
+        "T1572"
+      ],
+      "tactic": "command-and-control"
+    },
+    "quantum_entropy_distorter": {
+      "techniques": [
+        "T1027",
+        "T1001"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "quantum_state_shuffler": {
+      "techniques": [
+        "T1027",
+        "T1001"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "quantum_trace_rewinder": {
+      "techniques": [
+        "T1070",
+        "T1027"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "synthetic_splinter_seed": {
+      "techniques": [
+        "T1027",
+        "T1105"
+      ],
+      "tactic": "command-and-control"
+    },
+    "airlock_quarantine_cloak": {
+      "techniques": [
+        "T1564",
+        "T1036"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "anti_forensics_molt": {
+      "techniques": [
+        "T1070",
+        "T1070.004"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "dark_signature_morpher": {
+      "techniques": [
+        "T1027",
+        "T1620",
+        "T1036"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "evasion_lure_illusion": {
+      "techniques": [
+        "T1036",
+        "T1055"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "mirror_loop_deflector": {
+      "techniques": [
+        "T1036.005",
+        "T1070"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "phantom_thread_fabricator": {
+      "techniques": [
+        "T1055.003",
+        "T1036",
+        "T1070"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "spectral_rootkit_shroud": {
+      "techniques": [
+        "T1014",
+        "T1564"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "cognitive_replicator": {
+      "techniques": [
+        "T1036",
+        "T1078"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "forged_bios_artifact": {
+      "techniques": [
+        "T1542",
+        "T1036"
+      ],
+      "tactic": "persistence"
+    },
+    "shenron_bio_replication": {
+      "techniques": [
+        "T1036",
+        "T1027"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "social_botnet_corpus": {
+      "techniques": [
+        "T1585",
+        "T1586",
+        "T1583"
+      ],
+      "tactic": "resource-development"
+    },
+    "stealth_mimic": {
+      "techniques": [
+        "T1036",
+        "T1134"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "dragons_breath_destructor": {
+      "techniques": [
+        "T1070",
+        "T1485"
+      ],
+      "tactic": "impact"
+    },
+    "encrypted_echo_chamber": {
+      "techniques": [
+        "T1573",
+        "T1132"
+      ],
+      "tactic": "command-and-control"
+    },
+    "llm_echo_chamber": {
+      "techniques": [
+        "T1565",
+        "T1036"
+      ],
+      "tactic": "impact"
+    },
+    "llm_shroud_writer": {
+      "techniques": [
+        "T1027",
+        "T1036"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "adaptive_brainstem": {
+      "techniques": [
+        "T1027",
+        "T1620"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "manifest_vampire": {
+      "techniques": [
+        "T1005",
+        "T1119"
+      ],
+      "tactic": "collection"
+    },
+    "mutation_history": {
+      "techniques": [
+        "T1027",
+        "T1036"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "shenron_holo_emitter": {
+      "techniques": [
+        "T1036",
+        "T1027"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "deadzone_payload": {
+      "techniques": [
+        "T1027",
+        "T1140"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "ethereal_payload_reanimator": {
+      "techniques": [
+        "T1055",
+        "T1620"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "obfuscated_skinwalker_dropper": {
+      "techniques": [
+        "T1027",
+        "T1105"
+      ],
+      "tactic": "command-and-control"
+    },
+    "payload_skinwalker": {
+      "techniques": [
+        "T1027",
+        "T1059"
+      ],
+      "tactic": "execution"
+    },
+    "recursive_payload_seedbank": {
+      "techniques": [
+        "T1027",
+        "T1547"
+      ],
+      "tactic": "persistence"
+    },
+    "symbiote_payload": {
+      "techniques": [
+        "T1055",
+        "T1027"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "transient_exfil_shell": {
+      "techniques": [
+        "T1041",
+        "T1048"
+      ],
+      "tactic": "exfiltration"
+    },
+    "void_gateway_tunnel": {
+      "techniques": [
+        "T1572",
+        "T1090"
+      ],
+      "tactic": "command-and-control"
+    },
+    "dependency_confusion_phantom": {
+      "techniques": [
+        "T1195.001",
+        "T1059.007",
+        "T1071.001",
+        "T1036.005",
+        "T1082",
+        "T1552.001"
+      ],
+      "tactic": "initial-access"
+    },
+    "dormant_sleeper_seed": {
+      "techniques": [
+        "T1053",
+        "T1547"
+      ],
+      "tactic": "persistence"
+    },
+    "memory_hijack_inheritor": {
+      "techniques": [
+        "T1055",
+        "T1134"
+      ],
+      "tactic": "privilege-escalation"
+    },
+    "poltergeist_file_infector": {
+      "techniques": [
+        "T1027",
+        "T1564.001"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "self_sealing_nano_sandbox": {
+      "techniques": [
+        "T1055",
+        "T1564"
+      ],
+      "tactic": "defense-evasion"
+    },
+    "shadow_system_rebuilder": {
+      "techniques": [
+        "T1547",
+        "T1543"
+      ],
+      "tactic": "persistence"
+    },
+    "undead_memory_latch": {
+      "techniques": [
+        "T1055",
+        "T1547"
+      ],
+      "tactic": "persistence"
+    }
+  }
+}

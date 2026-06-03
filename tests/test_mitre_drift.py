@@ -190,26 +190,46 @@ class TestLoadManifest:
 
 class TestExtractLayerTechniques:
     def test_extracts_all_layers(self):
-        layers = SYNTHETIC_MANIFEST["layers"]
-        result = _extract_layer_techniques(layers)
+        # Patch taxonomy to return synthetic data
+        synthetic_mappings = {
+            "ebpf_rootkit_phantom": {"techniques": ["T1014", "T1562.001", "T1055"], "tactic": "defense-evasion"},
+            "anti_forensics_molt": {"techniques": ["T1070", "T1107"], "tactic": "defense-evasion"},
+            "ghost_layer_stale": {"techniques": ["T9999"], "tactic": "defense-evasion"},
+        }
+        with patch("core.taxonomy.get_all_mappings", return_value=synthetic_mappings):
+            layers = SYNTHETIC_MANIFEST["layers"]
+            result = _extract_layer_techniques(layers)
         assert "ebpf_rootkit_phantom" in result
         assert "anti_forensics_molt" in result
         assert "ghost_layer_stale" in result
 
     def test_correct_technique_ids(self):
-        layers = SYNTHETIC_MANIFEST["layers"]
-        result = _extract_layer_techniques(layers)
+        synthetic_mappings = {
+            "ebpf_rootkit_phantom": {"techniques": ["T1014", "T1562.001", "T1055"], "tactic": "defense-evasion"},
+        }
+        with patch("core.taxonomy.get_all_mappings", return_value=synthetic_mappings):
+            layers = SYNTHETIC_MANIFEST["layers"]
+            result = _extract_layer_techniques(layers)
         assert set(result["ebpf_rootkit_phantom"]) == {"T1014", "T1562.001", "T1055"}
 
     def test_layer_without_mitre_block(self):
-        layers = [{"name": "bare_layer", "category": "c2"}]
-        result = _extract_layer_techniques(layers)
+        # When taxonomy returns empty, fallback to manifest — bare layer has no techniques
+        with patch("core.taxonomy.get_all_mappings", return_value={}):
+            layers = [{"name": "bare_layer", "category": "c2"}]
+            result = _extract_layer_techniques(layers)
         assert result == {}
 
 
 # ── Integration: check_drift (offline mode) ───────────────────────────────────
 
 class TestCheckDriftOffline:
+    # These tests rely on manifest passthrough — patch taxonomy to empty
+    # so the fallback path is exercised.
+    @pytest.fixture(autouse=True)
+    def _patch_taxonomy(self):
+        with patch("core.taxonomy.get_all_mappings", return_value={}):
+            yield
+
     def test_ok_techniques_detected(self, tmp_manifest, tmp_bundle):
         report = check_drift(
             manifest_path=tmp_manifest,
@@ -305,6 +325,11 @@ class TestCheckDriftNetworkFailure:
 
 
 class TestCheckDriftCleanManifest:
+    @pytest.fixture(autouse=True)
+    def _patch_taxonomy(self):
+        with patch("core.taxonomy.get_all_mappings", return_value={}):
+            yield
+
     def test_verdict_current_when_all_ok(self, tmp_path, tmp_bundle):
         """A manifest with only current technique IDs should return CURRENT."""
         clean_manifest = {
@@ -334,6 +359,11 @@ class TestCheckDriftCleanManifest:
 # ── Output: print and markdown ────────────────────────────────────────────────
 
 class TestReportOutput:
+    @pytest.fixture(autouse=True)
+    def _patch_taxonomy(self):
+        with patch("core.taxonomy.get_all_mappings", return_value={}):
+            yield
+
     def test_print_does_not_raise(self, tmp_manifest, tmp_bundle, capsys):
         report = check_drift(
             manifest_path=tmp_manifest,
