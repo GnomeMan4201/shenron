@@ -1,0 +1,46 @@
+id: journald_external_coverage
+schema_version: "1.0"
+description: >
+  Validates that normalized journald telemetry supports execution and
+  persistence detection coverage. Designed for external log validation
+  — does not apply OOS constraints since real logs mix all categories.
+  Source: journald_normalizer.py → SHENRON JSONL
+
+claims:
+  - id: execution_evidence
+    type: positive_evidence
+    severity: high
+    description: Journald contains interpreter spawn and script execution events
+    requires_techniques:
+      - T1059
+    requires_signals:
+      - interpreter_spawn_sim
+      - script_execution_sim
+
+  - id: persistence_evidence
+    type: positive_evidence
+    severity: medium
+    description: Journald contains systemd service events mapping to persistence
+    requires_techniques:
+      - T1543
+    requires_signals:
+      - service_start_sim
+
+  - id: network_evidence
+    type: positive_evidence
+    severity: medium
+    description: Journald contains network connection events
+    requires_techniques:
+      - T1071
+    requires_signals:
+      - network_connection_sim
+
+  - id: privilege_evidence
+    type: positive_evidence
+    severity: medium
+    description: Journald contains polkit/session privilege events
+    requires_techniques:
+      - T1078
+    requires_signals:
+      - session_event
+      - polkit_event
