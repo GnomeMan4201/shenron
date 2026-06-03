@@ -102,7 +102,7 @@ def _phase_inline_exec(session_id: str):
 
     event = _base_event(
         session_id,
-        mitre=["T1059", "T1059.006" if "python" in interp else "T1059.004"],
+        mitre=["T1059", "T1059.004", "T1059.006"],
         behavior="interpreter_inline_exec_sim",
         opps=[
             "interpreter_spawn_no_script_arg_sim",

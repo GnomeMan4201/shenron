@@ -186,8 +186,7 @@
     },
     "shenron_bio_replication": {
       "techniques": [
-        "T1036",
-        "T1027"
+        "T1036"
       ],
       "tactic": "defense-evasion"
     },
@@ -201,8 +200,7 @@
     },
     "stealth_mimic": {
       "techniques": [
-        "T1036",
-        "T1134"
+        "T1036"
       ],
       "tactic": "defense-evasion"
     },
@@ -230,7 +228,7 @@
     "llm_shroud_writer": {
       "techniques": [
         "T1027",
-        "T1036"
+        "T1140"
       ],
       "tactic": "defense-evasion"
     },
@@ -375,11 +373,11 @@
       "techniques": [
         "T1059",
         "T1059.004",
-        "T1059.006",
         "T1140",
         "T1027",
         "T1105",
-        "T1036"
+        "T1036",
+        "T1036.005"
       ],
       "tactic": "execution"
     }

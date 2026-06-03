@@ -89,7 +89,7 @@ def simulate_anti_forensics():
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "layer": "anti_forensics_molt",
             "phase": "log_wipe",
-            "mitre_techniques": ["T1070", "T1107"],
+            "mitre_techniques": ["T1070", "T1070.004"],
             "behavior_class": "log_wipe",
             "detection_opportunities": ["log_wipe"],
             "target_path_sim": target["path"],
