@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SHENRON // operator dashboard</title>
+<style>
+:root {
+  --bg0: #0a0a0d;
+  --bg1: #10101a;
+  --bg2: #161622;
+  --bg3: #1e1e2e;
+  --border: rgba(255,255,255,.07);
+  --border2: rgba(255,255,255,.12);
+  --text: #e2e2f0;
+  --muted: #6b6b8a;
+  --dim: #3a3a5a;
+  --green: #3ecf8e;
+  --green-dim: rgba(62,207,142,.12);
+  --amber: #f5a623;
+  --amber-dim: rgba(245,166,35,.12);
+  --red: #ff5c5c;
+  --red-dim: rgba(255,92,92,.12);
+  --blue: #5b9cf6;
+  --blue-dim: rgba(91,156,246,.12);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,.12);
+  --font-mono: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', monospace;
+  --font-ui: 'Inter', system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg0); color: var(--text); font-family: var(--font-ui); font-size: 13px; line-height: 1.5; min-height: 100vh; }
+
+.layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+.sidebar { background: var(--bg1); border-right: 1px solid var(--border); padding: 0; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar-brand { padding: 20px 18px 14px; border-bottom: 1px solid var(--border); }
+.sidebar-brand .logo { font-family: var(--font-mono); font-size: 13px; font-weight: 700; letter-spacing: .15em; color: var(--green); }
+.sidebar-brand .sub { font-size: 10px; color: var(--muted); letter-spacing: .08em; margin-top: 2px; }
+.sidebar-health { padding: 12px 18px; border-bottom: 1px solid var(--border); }
+.health-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 11px; }
+.health-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.health-dot.pass { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.health-dot.fail { background: var(--red); }
+.health-dot.pending { background: var(--amber); }
+.health-label { color: var(--muted); flex: 1; }
+.health-val { font-family: var(--font-mono); font-size: 10px; color: var(--text); }
+.nav-section { font-size: 9px; letter-spacing: .12em; color: var(--dim); padding: 14px 18px 4px; text-transform: uppercase; }
+.nav-item { display: flex; align-items: center; gap: 8px; padding: 7px 18px; font-size: 12px; color: var(--muted); cursor: pointer; border-left: 2px solid transparent; transition: all .12s; }
+.nav-item:hover { color: var(--text); background: rgba(255,255,255,.03); }
+.nav-item.active { color: var(--green); border-left-color: var(--green); background: var(--green-dim); }
+.nav-item .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .5; }
+.sidebar-footer { margin-top: auto; padding: 12px 18px; border-top: 1px solid var(--border); font-size: 10px; color: var(--dim); font-family: var(--font-mono); }
+
+.main { padding: 0; overflow-x: hidden; }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 28px; border-bottom: 1px solid var(--border); background: var(--bg1); position: sticky; top: 0; z-index: 10; }
+.topbar-title { font-family: var(--font-mono); font-size: 11px; color: var(--muted); letter-spacing: .1em; }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.verdict { display: flex; align-items: center; gap: 6px; font-size: 11px; font-family: var(--font-mono); }
+.verdict.healthy { color: var(--green); }
+.verdict.degraded { color: var(--amber); }
+.verdict-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.refresh-btn { background: none; border: 1px solid var(--border2); border-radius: 4px; color: var(--muted); padding: 4px 10px; font-size: 11px; cursor: pointer; font-family: var(--font-mono); transition: all .12s; }
+.refresh-btn:hover { color: var(--text); border-color: var(--green); }
+
+.content { padding: 24px 28px; }
+.page { display: none; }
+.page.active { display: block; }
+
+.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
+.metric { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+.metric .lbl { font-size: 10px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+.metric .val { font-size: 26px; font-weight: 600; font-family: var(--font-mono); line-height: 1; }
+.metric .sub { font-size: 10px; color: var(--muted); margin-top: 4px; }
+.metric.green .val { color: var(--green); }
+.metric.amber .val { color: var(--amber); }
+.metric.blue .val { color: var(--blue); }
+.metric.purple .val { color: var(--purple); }
+
+.section-title { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; margin-bottom: 18px; }
+.card-title { font-size: 11px; font-family: var(--font-mono); color: var(--muted); margin-bottom: 14px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+.layer-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.layer-row:last-child { border-bottom: none; }
+.layer-name { font-family: var(--font-mono); font-size: 11px; flex: 1; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.layer-cat { font-size: 10px; padding: 1px 6px; border-radius: 3px; flex-shrink: 0; }
+.cat-c2 { background: rgba(255,92,92,.15); color: var(--red); }
+.cat-persistence { background: rgba(245,166,35,.15); color: var(--amber); }
+.cat-evasion { background: rgba(167,139,250,.15); color: var(--purple); }
+.cat-entropy { background: rgba(91,156,246,.15); color: var(--blue); }
+.cat-payload { background: rgba(255,92,92,.15); color: #ff8c8c; }
+.cat-identity { background: rgba(62,207,142,.15); color: var(--green); }
+.cat-llm { background: rgba(167,139,250,.15); color: #c4b0ff; }
+.cat-meta { background: rgba(107,107,138,.2); color: var(--muted); }
+.layer-stealth { font-family: var(--font-mono); font-size: 11px; min-width: 40px; text-align: right; }
+.layer-bar-wrap { width: 60px; height: 4px; background: var(--bg3); border-radius: 2px; flex-shrink: 0; }
+.layer-bar { height: 100%; border-radius: 2px; }
+.layer-runs { font-size: 10px; color: var(--muted); min-width: 50px; text-align: right; }
+
+.sigma-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.sigma-row:last-child { border-bottom: none; }
+.sigma-name { font-family: var(--font-mono); font-size: 11px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.verdict-badge { font-size: 10px; padding: 2px 8px; border-radius: 3px; font-family: var(--font-mono); flex-shrink: 0; }
+.verdict-triggered { background: var(--green-dim); color: var(--green); border: 1px solid rgba(62,207,142,.25); }
+.verdict-partial { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,166,35,.25); }
+.verdict-not { background: rgba(255,255,255,.04); color: var(--muted); border: 1px solid var(--border); }
+.verdict-unsupported { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,92,92,.25); }
+
+.assumption-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.assumption-row:last-child { border-bottom: none; }
+.assumption-id { font-family: var(--font-mono); font-size: 11px; color: var(--text); }
+.assumption-status { font-size: 10px; padding: 2px 8px; border-radius: 3px; font-family: var(--font-mono); }
+.status-supported { background: var(--green-dim); color: var(--green); }
+.status-partial { background: var(--amber-dim); color: var(--amber); }
+.status-violated { background: var(--red-dim); color: var(--red); }
+
+.timeline-item { display: flex; gap: 14px; padding: 8px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+.timeline-item:last-child { border-bottom: none; }
+.timeline-ts { font-family: var(--font-mono); font-size: 10px; color: var(--muted); min-width: 140px; padding-top: 1px; }
+.timeline-layer { font-family: var(--font-mono); font-size: 11px; color: var(--green); flex: 1; }
+.timeline-type { font-size: 10px; color: var(--muted); }
+
+.coverage-bar-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.coverage-label { font-family: var(--font-mono); font-size: 11px; color: var(--muted); min-width: 100px; }
+.coverage-track { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.coverage-fill { height: 100%; border-radius: 3px; transition: width .6s ease; }
+.coverage-pct { font-family: var(--font-mono); font-size: 11px; min-width: 36px; text-align: right; }
+
+.loading { text-align: center; padding: 60px 0; }
+.loading .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border2); border-top-color: var(--green); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading .msg { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-top: 12px; }
+
+.error-box { background: var(--red-dim); border: 1px solid rgba(255,92,92,.2); border-radius: 6px; padding: 14px 16px; font-family: var(--font-mono); font-size: 11px; color: var(--red); }
+
+.mitre-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; }
+.mitre-cell { background: var(--bg3); border: 1px solid var(--border); border-radius: 5px; padding: 6px 8px; font-family: var(--font-mono); font-size: 10px; }
+.mitre-cell .tid { color: var(--blue); }
+.mitre-cell .tname { color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9px; }
+
+.phase-badge { font-size: 9px; padding: 1px 5px; border-radius: 3px; font-family: var(--font-mono); }
+.phase-observe { background: rgba(91,156,246,.12); color: var(--blue); }
+.phase-simulate { background: rgba(167,139,250,.12); color: var(--purple); }
+.phase-execute { background: rgba(245,166,35,.12); color: var(--amber); }
+.phase-adapt { background: rgba(62,207,142,.12); color: var(--green); }
+
+@media (max-width: 768px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } .two-col,.three-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<h1 class="sr-only" style="position:absolute;left:-9999px">SHENRON operator dashboard — synthetic telemetry framework status, layer execution, sigma coverage, and assumption validation</h1>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">SHENRON</div>
+      <div class="sub">operator dashboard // v0.3.3</div>
+    </div>
+    <div class="sidebar-health" id="sidebar-health">
+      <div class="health-row"><div class="health-dot pending"></div><span class="health-label">loading...</span></div>
+    </div>
+    <div class="nav-section">views</div>
+    <div class="nav-item active" onclick="nav('overview')"><span class="dot"></span>overview</div>
+    <div class="nav-item" onclick="nav('layers')"><span class="dot"></span>layers</div>
+    <div class="nav-item" onclick="nav('sigma')"><span class="dot"></span>sigma rules</div>
+    <div class="nav-item" onclick="nav('assumptions')"><span class="dot"></span>assumptions</div>
+    <div class="nav-item" onclick="nav('mitre')"><span class="dot"></span>mitre coverage</div>
+    <div class="nav-item" onclick="nav('mutations')"><span class="dot"></span>mutation log</div>
+    <div class="sidebar-footer" id="sidebar-ts">—</div>
+  </nav>
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">gnomeman4201 / shenron</div>
+      <div class="topbar-right">
+        <div class="verdict" id="topbar-verdict"><div class="verdict-dot" style="background:var(--amber)"></div><span style="color:var(--amber)">loading</span></div>
+        <button class="refresh-btn" onclick="loadAll()">refresh</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <div class="page active" id="page-overview">
+        <div class="metric-grid" id="metrics-overview"></div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">category coverage</div>
+            <div id="cat-coverage"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">health checks</div>
+            <div id="health-detail"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">phase distribution</div>
+          <div style="position:relative;height:160px"><canvas id="chart-phase" role="img" aria-label="Layer count per bananaTREE phase">Phase distribution chart.</canvas></div>
+        </div>
+      </div>
+
+      <div class="page" id="page-layers">
+        <div class="metric-grid" id="metrics-layers"></div>
+        <div class="card">
+          <div class="card-title">all layers — sorted by execution count</div>
+          <div id="layers-list"></div>
+        </div>
+      </div>
+
+      <div class="page" id="page-sigma">
+        <div class="metric-grid" id="metrics-sigma"></div>
+        <div class="card">
+          <div class="card-title">sigma rule verdicts</div>
+          <div id="sigma-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">coverage breakdown</div>
+          <div style="position:relative;height:200px"><canvas id="chart-sigma" role="img" aria-label="Sigma rule verdict distribution">Sigma verdicts chart.</canvas></div>
+        </div>
+      </div>
+
+      <div class="page" id="page-assumptions">
+        <div class="metric-grid" id="metrics-assumptions"></div>
+        <div class="card">
+          <div class="card-title">assumption validation — all categories</div>
+          <div id="assumptions-list"></div>
+        </div>
+      </div>
+
+      <div class="page" id="page-mitre">
+        <div class="metric-grid" id="metrics-mitre"></div>
+        <div class="card">
+          <div class="card-title">technique coverage</div>
+          <div class="mitre-grid" id="mitre-grid"></div>
+        </div>
+      </div>
+
+      <div class="page" id="page-mutations">
+        <div class="metric-grid" id="metrics-mutations"></div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">mutation activity — last 14 days</div>
+            <div style="position:relative;height:180px"><canvas id="chart-mutations" role="img" aria-label="Daily mutation count over past 14 days">Mutation timeline chart.</canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">top layers by execution</div>
+            <div id="top-layers"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">recent mutations</div>
+          <div id="mutation-log"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let DATA = null;
+const CHARTS = {};
+
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') === `nav('${page}')`) n.classList.add('active');
+  });
+}
+
+function fmt(n) { return Number(n).toLocaleString(); }
+
+function catClass(cat) {
+  const map = {c2:'cat-c2',persistence:'cat-persistence',evasion:'cat-evasion',
+    entropy:'cat-entropy',payload:'cat-payload',identity:'cat-identity',
+    llm:'cat-llm',meta:'cat-meta'};
+  return map[cat] || 'cat-meta';
+}
+
+function phaseClass(phase) {
+  const map = {OBSERVE:'phase-observe',SIMULATE:'phase-simulate',
+    EXECUTE:'phase-execute',ADAPT:'phase-adapt'};
+  return map[phase] || 'phase-simulate';
+}
+
+function stealth_color(s) {
+  if (s >= 80) return '#3ecf8e';
+  if (s >= 60) return '#f5a623';
+  return '#ff5c5c';
+}
+
+async function loadAll() {
+  try {
+    const res = await fetch('/api/dashboard');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    DATA = await res.json();
+    render();
+  } catch(e) {
+    document.getElementById('page-overview').innerHTML =
+      `<div class="error-box">Failed to connect to shenron_server.py — ${e.message}<br><br>` +
+      `Run: python3 shenron_server.py<br>Then open: http://localhost:7331</div>`;
+    document.getElementById('topbar-verdict').innerHTML =
+      `<div class="verdict-dot" style="background:var(--red)"></div><span style="color:var(--red)">offline</span>`;
+  }
+}
+
+function render() {
+  if (!DATA) return;
+  const d = DATA;
+
+  // Sidebar health
+  document.getElementById('sidebar-ts').textContent = d.checked_at ? d.checked_at.slice(0,19).replace('T',' ') : '—';
+  document.getElementById('sidebar-health').innerHTML = (d.health || []).map(h => `
+    <div class="health-row">
+      <div class="health-dot ${h.pass ? 'pass' : 'fail'}"></div>
+      <span class="health-label">${h.name}</span>
+      <span class="health-val">${h.summary || ''}</span>
+    </div>`).join('');
+
+  const allPass = (d.health || []).every(h => h.pass);
+  document.getElementById('topbar-verdict').innerHTML = allPass
+    ? `<div class="verdict-dot"></div><span>healthy</span>`
+    : `<div class="verdict-dot" style="background:var(--amber)"></div><span style="color:var(--amber)">degraded</span>`;
+  document.getElementById('topbar-verdict').className = 'verdict ' + (allPass ? 'healthy' : 'degraded');
+
+  renderOverview(d);
+  renderLayers(d);
+  renderSigma(d);
+  renderAssumptions(d);
+  renderMitre(d);
+  renderMutations(d);
+}
+
+function renderOverview(d) {
+  const layers = d.layers || [];
+  const sigma = d.sigma_results || [];
+  const triggered = sigma.filter(r => r.verdict === 'TRIGGERED').length;
+  const cats = [...new Set(layers.map(l => l.category))];
+
+  document.getElementById('metrics-overview').innerHTML = `
+    <div class="metric green"><div class="lbl">layers</div><div class="val">${layers.length}</div><div class="sub">simulation layers</div></div>
+    <div class="metric blue"><div class="lbl">techniques</div><div class="val">${d.mitre_count || 0}</div><div class="sub">MITRE ATT&CK</div></div>
+    <div class="metric green"><div class="lbl">sigma rules</div><div class="val">${triggered}/${sigma.length}</div><div class="sub">triggered</div></div>
+    <div class="metric amber"><div class="lbl">assumptions</div><div class="val">${d.assumption_count || 0}</div><div class="sub">yaml files</div></div>
+    <div class="metric purple"><div class="lbl">mutations</div><div class="val">${fmt(d.total_mutations || 0)}</div><div class="sub">total logged</div></div>
+    <div class="metric blue"><div class="lbl">executions</div><div class="val">${fmt(d.total_executions || 0)}</div><div class="sub">layer runs</div></div>
+  `;
+
+  // Category coverage
+  const catCounts = {};
+  layers.forEach(l => { catCounts[l.category] = (catCounts[l.category] || 0) + 1; });
+  const maxCat = Math.max(...Object.values(catCounts));
+  document.getElementById('cat-coverage').innerHTML = Object.entries(catCounts)
+    .sort((a,b) => b[1]-a[1])
+    .map(([cat, count]) => `
+      <div class="coverage-bar-wrap">
+        <span class="coverage-label">${cat}</span>
+        <div class="coverage-track"><div class="coverage-fill" style="width:${count/maxCat*100}%;background:var(--blue)"></div></div>
+        <span class="coverage-pct" style="color:var(--text)">${count}</span>
+      </div>`).join('');
+
+  // Health detail
+  document.getElementById('health-detail').innerHTML = (d.health || []).map(h => `
+    <div class="assumption-row">
+      <span class="assumption-id">${h.name}</span>
+      <span class="assumption-status ${h.pass ? 'status-supported' : 'status-violated'}">${h.pass ? 'PASS' : 'FAIL'}</span>
+    </div>`).join('');
+
+  // Phase chart
+  const phases = {OBSERVE:0,SIMULATE:0,EXECUTE:0,ADAPT:0};
+  layers.forEach(l => { if(l.phase && phases[l.phase] !== undefined) phases[l.phase]++; });
+  if (CHARTS.phase) CHARTS.phase.destroy();
+  CHARTS.phase = new Chart(document.getElementById('chart-phase'), {
+    type: 'bar',
+    data: {
+      labels: Object.keys(phases),
+      datasets: [{ data: Object.values(phases),
+        backgroundColor: ['#5b9cf688','#a78bfa88','#f5a62388','#3ecf8e88'],
+        borderColor: ['#5b9cf6','#a78bfa','#f5a623','#3ecf8e'],
+        borderWidth: 1 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#6b6b8a', font: { size: 11, family: 'monospace' } }, grid: { color: 'rgba(255,255,255,.04)' } },
+        y: { ticks: { color: '#6b6b8a', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.04)' }, beginAtZero: true }
+      }}
+  });
+}
+
+function renderLayers(d) {
+  const layers = [...(d.layers || [])].sort((a,b) => (b.runs||0)-(a.runs||0));
+  const maxRuns = Math.max(...layers.map(l => l.runs||0), 1);
+
+  document.getElementById('metrics-layers').innerHTML = `
+    <div class="metric green"><div class="lbl">total layers</div><div class="val">${layers.length}</div></div>
+    <div class="metric blue"><div class="lbl">categories</div><div class="val">${new Set(layers.map(l=>l.category)).size}</div></div>
+    <div class="metric amber"><div class="lbl">avg stealth</div><div class="val">${layers.length ? Math.round(layers.reduce((s,l)=>s+(l.stealth||0),0)/layers.length) : 0}</div></div>
+    <div class="metric green"><div class="lbl">total runs</div><div class="val">${fmt(layers.reduce((s,l)=>s+(l.runs||0),0))}</div></div>
+  `;
+
+  document.getElementById('layers-list').innerHTML = layers.map(l => `
+    <div class="layer-row">
+      <span class="layer-name" title="${l.name}">${l.name}</span>
+      <span class="layer-cat ${catClass(l.category)}">${l.category}</span>
+      ${l.tactic ? `<span style="font-size:9px;color:var(--muted);flex-shrink:0">${l.tactic}</span>` : ''}
+      ${l.variants ? `<span style="font-size:9px;color:var(--purple);flex-shrink:0">${l.variants}v</span>` : ''}
+      <div class="layer-bar-wrap"><div class="layer-bar" style="width:${((l.runs||0)/maxRuns*100).toFixed(1)}%;background:${stealth_color(l.stealth||0)}"></div></div>
+      <span class="layer-stealth" style="color:${stealth_color(l.stealth||0)}">${l.stealth||'—'}</span>
+      <span class="layer-runs">${l.runs||0} runs</span>
+    </div>`).join('');
+}
+
+function renderSigma(d) {
+  const rules = d.sigma_results || [];
+  const triggered = rules.filter(r=>r.verdict==='TRIGGERED').length;
+  const partial = rules.filter(r=>r.verdict==='PARTIAL').length;
+  const not_triggered = rules.filter(r=>r.verdict==='NOT_TRIGGERED').length;
+  const unsupported = rules.filter(r=>r.verdict==='UNSUPPORTED').length;
+
+  document.getElementById('metrics-sigma').innerHTML = `
+    <div class="metric green"><div class="lbl">triggered</div><div class="val">${triggered}</div></div>
+    <div class="metric amber"><div class="lbl">partial</div><div class="val">${partial}</div></div>
+    <div class="metric"><div class="lbl">not triggered</div><div class="val" style="color:var(--muted)">${not_triggered}</div></div>
+    <div class="metric"><div class="lbl">unsupported</div><div class="val" style="color:var(--muted)">${unsupported}</div></div>
+    <div class="metric blue"><div class="lbl">total rules</div><div class="val">${rules.length}</div></div>
+    <div class="metric green"><div class="lbl">fire rate</div><div class="val">${rules.length ? Math.round(triggered/rules.length*100) : 0}%</div></div>
+  `;
+
+  const verdictClass = v => ({TRIGGERED:'verdict-triggered',PARTIAL:'verdict-partial',NOT_TRIGGERED:'verdict-not',UNSUPPORTED:'verdict-unsupported'}[v]||'verdict-not');
+
+  document.getElementById('sigma-list').innerHTML = [...rules]
+    .sort((a,b) => {const order={TRIGGERED:0,PARTIAL:1,NOT_TRIGGERED:2,UNSUPPORTED:3};return (order[a.verdict]||9)-(order[b.verdict]||9);})
+    .map(r => `
+      <div class="sigma-row">
+        <span class="sigma-name" title="${r.rule}">${r.rule}</span>
+        ${r.category ? `<span class="layer-cat ${catClass(r.category)}">${r.category}</span>` : ''}
+        <span class="verdict-badge ${verdictClass(r.verdict)}">${r.verdict}</span>
+      </div>`).join('');
+
+  if (CHARTS.sigma) CHARTS.sigma.destroy();
+  CHARTS.sigma = new Chart(document.getElementById('chart-sigma'), {
+    type: 'doughnut',
+    data: {
+      labels: ['triggered','partial','not triggered','unsupported'],
+      datasets: [{ data: [triggered,partial,not_triggered,unsupported],
+        backgroundColor: ['#3ecf8e','#f5a623','#3a3a5a','#ff5c5c'],
+        borderColor: '#10101a', borderWidth: 2 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'65%',
+      plugins:{ legend:{ display:false } } }
+  });
+}
+
+function renderAssumptions(d) {
+  const assumptions = d.assumptions || [];
+  const supported = assumptions.filter(a=>a.status==='SUPPORTED').length;
+
+  document.getElementById('metrics-assumptions').innerHTML = `
+    <div class="metric green"><div class="lbl">supported</div><div class="val">${supported}/${assumptions.length}</div></div>
+    <div class="metric blue"><div class="lbl">categories</div><div class="val">${assumptions.length}</div></div>
+    <div class="metric green"><div class="lbl">coverage</div><div class="val">${assumptions.length ? Math.round(supported/assumptions.length*100) : 0}%</div></div>
+  `;
+
+  document.getElementById('assumptions-list').innerHTML = assumptions.map(a => `
+    <div class="assumption-row">
+      <div>
+        <div class="assumption-id">${a.id}</div>
+        ${a.description ? `<div style="font-size:10px;color:var(--muted);margin-top:2px">${a.description}</div>` : ''}
+      </div>
+      <span class="assumption-status ${a.status==='SUPPORTED'?'status-supported':a.status==='PARTIAL'?'status-partial':'status-violated'}">${a.status}</span>
+    </div>`).join('');
+}
+
+function renderMitre(d) {
+  const techniques = d.techniques || [];
+  const cats = [...new Set(techniques.map(t=>t.category||''))].filter(Boolean);
+
+  const tactics = [...new Set(techniques.map(t=>t.name).filter(Boolean))];
+  document.getElementById('metrics-mitre').innerHTML = `
+    <div class="metric blue"><div class="lbl">techniques</div><div class="val">${techniques.length}</div></div>
+    <div class="metric purple"><div class="lbl">tactics</div><div class="val">${tactics.length}</div></div>
+    <div class="metric green"><div class="lbl">status</div><div class="val" style="font-size:14px">${d.mitre_status||'—'}</div></div>
+    <div class="metric amber"><div class="lbl">version</div><div class="val" style="font-size:16px">${d.mitre_version||'—'}</div></div>
+  `;
+
+  document.getElementById('mitre-grid').innerHTML = techniques.map(t => `
+    <div class="mitre-cell" title="${t.name||''} — ${t.category||''}">
+      <div class="tid">${t.id}</div>
+      <div class="tname">${t.name||t.category||''}</div>
+    </div>`).join('');
+}
+
+function renderMutations(d) {
+  const log = d.mutation_log || [];
+  const total = d.total_mutations || 0;
+  const execs = d.total_executions || 0;
+  const loads = d.total_loads || 0;
+  const artifacts = d.sim_artifacts || 0;
+
+  document.getElementById('metrics-mutations').innerHTML = `
+    <div class="metric purple"><div class="lbl">total mutations</div><div class="val">${fmt(total)}</div></div>
+    <div class="metric blue"><div class="lbl">executions</div><div class="val">${fmt(execs)}</div></div>
+    <div class="metric amber"><div class="lbl">loads</div><div class="val">${fmt(loads)}</div></div>
+    <div class="metric green"><div class="lbl">artifacts</div><div class="val">${fmt(artifacts)}</div><div class="sub">safe-flagged</div></div>
+    <div class="metric blue"><div class="lbl">unique payloads</div><div class="val">${d.unique_payloads||0}</div></div>
+    <div class="metric green"><div class="lbl">detection</div><div class="val">${d.detection_coverage||'—'}</div></div>
+  `;
+
+  // Daily mutation chart from log
+  const dayCounts = {};
+  log.forEach(entry => {
+    const day = (entry.timestamp||'').slice(0,10);
+    if (day) dayCounts[day] = (dayCounts[day]||0) + 1;
+  });
+  const days = Object.keys(dayCounts).sort().slice(-14);
+  if (CHARTS.mutations) CHARTS.mutations.destroy();
+  CHARTS.mutations = new Chart(document.getElementById('chart-mutations'), {
+    type: 'bar',
+    data: {
+      labels: days.map(d => d.slice(5)),
+      datasets: [{ data: days.map(d => dayCounts[d]||0),
+        backgroundColor: '#a78bfa44', borderColor: '#a78bfa', borderWidth: 1 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{ x:{ ticks:{ color:'#6b6b8a', font:{ size:10, family:'monospace' } }, grid:{ display:false } },
+               y:{ ticks:{ color:'#6b6b8a', font:{ size:10 } }, grid:{ color:'rgba(255,255,255,.04)' }, beginAtZero:true } }}
+  });
+
+  // Top layers by runs (from layers data)
+  const layers = [...(d.layers||[])].sort((a,b)=>(b.runs||0)-(a.runs||0)).slice(0,8);
+  const maxR = Math.max(...layers.map(l=>l.runs||0),1);
+  document.getElementById('top-layers').innerHTML = layers.map(l => `
+    <div class="layer-row">
+      <span class="layer-name">${l.name}</span>
+      <div class="layer-bar-wrap"><div class="layer-bar" style="width:${((l.runs||0)/maxR*100).toFixed(1)}%;background:var(--purple)"></div></div>
+      <span class="layer-runs">${l.runs||0}</span>
+    </div>`).join('');
+
+  // Recent mutations
+  document.getElementById('mutation-log').innerHTML = [...log].reverse().slice(0,30).map(entry => `
+    <div class="timeline-item">
+      <span class="timeline-ts">${(entry.timestamp||'').slice(0,19).replace('T',' ')}</span>
+      <span class="timeline-layer">${entry.payload||entry.layer||'—'}</span>
+      <span class="timeline-type">${entry.mutation||''}</span>
+    </div>`).join('') || '<div style="color:var(--muted);font-size:11px;padding:12px 0">no mutation history found — run shenron to generate logs</div>';
+}
+
+loadAll();
+setInterval(loadAll, 30000);
+</script>
+</body>
+</html>
