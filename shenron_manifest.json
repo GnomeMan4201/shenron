@@ -1870,7 +1870,8 @@
       "simulation": {
         "fidelity": "high",
         "safe": true
-      }
+      },
+      "variant_count": 0
     },
     {
       "name": "dormant_sleeper_seed",
@@ -2120,10 +2121,37 @@
         "safe": true
       },
       "telemetry_layer": true
+    },
+    {
+      "name": "lsass_harvest_phantom",
+      "category": "credential-access",
+      "file": "lsass_harvest_phantom.py",
+      "description": "OS credential dumping \u2014 LSASS, SAM, NTDS, LSA secrets, cached creds",
+      "variant_count": 0,
+      "mitre": [
+        "T1003",
+        "T1003.001",
+        "T1003.002",
+        "T1003.003",
+        "T1003.004",
+        "T1003.005",
+        "T1552",
+        "T1552.001",
+        "T1555"
+      ],
+      "detection": [
+        "lsass_vm_read_access",
+        "minidumpwritedump_call",
+        "sam_hive_export",
+        "ntdsutil_ifm",
+        "vss_ntds_copy"
+      ],
+      "simulation": true,
+      "telemetry_layer": true
     }
   ],
   "summary": {
-    "total_canonical": 51,
+    "total_canonical": 54,
     "total_variants": 4355,
     "by_category": {
       "identity": 5,
