@@ -394,6 +394,82 @@
         "T1555"
       ],
       "tactic": "credential-access"
+    },
+    "passive_recon_harvester": {
+      "techniques": [
+        "T1589",
+        "T1589.002",
+        "T1589.003",
+        "T1590",
+        "T1590.001",
+        "T1591",
+        "T1591.004",
+        "T1592",
+        "T1592.002",
+        "T1593",
+        "T1594",
+        "T1596"
+      ],
+      "tactic": "reconnaissance"
+    },
+    "registry_mutator_cloak": {
+      "techniques": [
+        "T1112",
+        "T1484",
+        "T1484.001",
+        "T1222",
+        "T1222.001",
+        "T1562",
+        "T1562.001",
+        "T1562.004",
+        "T1070",
+        "T1070.001"
+      ],
+      "tactic": "defense-impairment"
+    },
+    "wmi_execution_ghost": {
+      "techniques": [
+        "T1047",
+        "T1053",
+        "T1053.002",
+        "T1053.003",
+        "T1053.005",
+        "T1546.003",
+        "T1059.001"
+      ],
+      "tactic": "execution"
+    },
+    "smb_lateral_crawler": {
+      "techniques": [
+        "T1021",
+        "T1021.001",
+        "T1021.002",
+        "T1021.004",
+        "T1021.006",
+        "T1550.002",
+        "T1557",
+        "T1558",
+        "T1558.003",
+        "T1570"
+      ],
+      "tactic": "lateral-movement"
+    },
+    "boot_persistence_anchor": {
+      "techniques": [
+        "T1037",
+        "T1037.001",
+        "T1037.004",
+        "T1037.005",
+        "T1543",
+        "T1543.001",
+        "T1543.002",
+        "T1543.003",
+        "T1547",
+        "T1547.001",
+        "T1574",
+        "T1574.006"
+      ],
+      "tactic": "persistence"
     }
   }
 }

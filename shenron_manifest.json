@@ -2148,10 +2148,147 @@
       ],
       "simulation": true,
       "telemetry_layer": true
+    },
+    {
+      "name": "passive_recon_harvester",
+      "category": "reconnaissance",
+      "file": "passive_recon_harvester.py",
+      "description": "Passive recon \u2014 identity harvest, network enum, org recon, host fingerprint",
+      "variant_count": 0,
+      "mitre": [
+        "T1589",
+        "T1589.002",
+        "T1589.003",
+        "T1590",
+        "T1590.001",
+        "T1591",
+        "T1591.004",
+        "T1592",
+        "T1592.002",
+        "T1593",
+        "T1594",
+        "T1596"
+      ],
+      "detection": [
+        "linkedin_bulk_scrape",
+        "passive_dns_enum",
+        "cert_transparency_query",
+        "shodan_org_query"
+      ],
+      "simulation": true,
+      "telemetry_layer": true
+    },
+    {
+      "name": "registry_mutator_cloak",
+      "category": "defense-impairment",
+      "file": "registry_mutator_cloak.py",
+      "description": "Defense impairment \u2014 Defender disable, log clear, UAC bypass, GPO mod, firewall tamper",
+      "variant_count": 0,
+      "mitre": [
+        "T1112",
+        "T1484",
+        "T1484.001",
+        "T1222",
+        "T1222.001",
+        "T1562",
+        "T1562.001",
+        "T1562.004",
+        "T1070",
+        "T1070.001"
+      ],
+      "detection": [
+        "defender_registry_write",
+        "event_log_clear_1102",
+        "uac_bypass_registry",
+        "gpo_sysvol_write",
+        "firewall_rule_add"
+      ],
+      "simulation": true,
+      "telemetry_layer": true
+    },
+    {
+      "name": "wmi_execution_ghost",
+      "category": "execution",
+      "file": "wmi_execution_ghost.py",
+      "description": "WMI and scheduled task execution \u2014 process create, subscription, lateral, schtasks, cron",
+      "variant_count": 0,
+      "mitre": [
+        "T1047",
+        "T1053",
+        "T1053.002",
+        "T1053.003",
+        "T1053.005",
+        "T1546.003",
+        "T1059.001"
+      ],
+      "detection": [
+        "wmi_process_create",
+        "wmi_subscription_root",
+        "schtasks_encoded_action",
+        "cron_network_fetch"
+      ],
+      "simulation": true,
+      "telemetry_layer": true
+    },
+    {
+      "name": "smb_lateral_crawler",
+      "category": "lateral-movement",
+      "file": "smb_lateral_crawler.py",
+      "description": "Lateral movement \u2014 SMB admin shares, RDP, pass-the-hash, SSH, Kerberoasting",
+      "variant_count": 0,
+      "mitre": [
+        "T1021",
+        "T1021.001",
+        "T1021.002",
+        "T1021.004",
+        "T1021.006",
+        "T1550.002",
+        "T1557",
+        "T1558",
+        "T1558.003",
+        "T1570"
+      ],
+      "detection": [
+        "admin_share_non_admin_tool",
+        "rdp_workstation_to_workstation",
+        "pass_the_hash_type3",
+        "kerberoasting_tgs_burst"
+      ],
+      "simulation": true,
+      "telemetry_layer": true
+    },
+    {
+      "name": "boot_persistence_anchor",
+      "category": "persistence",
+      "file": "boot_persistence_anchor.py",
+      "description": "Boot/logon persistence \u2014 Windows service, systemd, LaunchAgent, rc scripts, LD_PRELOAD, Run keys",
+      "variant_count": 0,
+      "mitre": [
+        "T1037",
+        "T1037.001",
+        "T1037.004",
+        "T1037.005",
+        "T1543",
+        "T1543.001",
+        "T1543.002",
+        "T1543.003",
+        "T1547",
+        "T1547.001",
+        "T1574",
+        "T1574.006"
+      ],
+      "detection": [
+        "service_create_non_installer",
+        "systemd_unit_non_pkg_manager",
+        "launch_agent_tmp_payload",
+        "ld_preload_modification"
+      ],
+      "simulation": true,
+      "telemetry_layer": true
     }
   ],
   "summary": {
-    "total_canonical": 54,
+    "total_canonical": 59,
     "total_variants": 4355,
     "by_category": {
       "identity": 5,
