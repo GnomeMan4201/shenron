@@ -22,7 +22,7 @@ def _get_artifact_log():
 
 
 # ── Output paths ──────────────────────────────────────────────────────────────
-ARTIFACT_LOG = _get_artifact_log()
+# artifact log path resolved at call time via _get_artifact_log()
 
 # ── Input validation ──────────────────────────────────────────────────────────
 BLOCKLIST = [
@@ -120,7 +120,7 @@ def generate_shroud_artifact(label: str = "test", depth: int = 3) -> dict:
 
 def emit_artifact(artifact: dict) -> None:
     """Write artifact to JSONL log for detector consumption."""
-    with open(ARTIFACT_LOG, "a") as f:
+    with open(_get_artifact_log(), "a") as f:
         f.write(json.dumps(artifact) + "\n")
 
 def print_artifact(artifact: dict) -> None:
@@ -139,7 +139,7 @@ def print_artifact(artifact: dict) -> None:
         print(f"  {layer['comment']}")
         print()
     print(f"  [SAFE]        no executable content — simulation artifact only")
-    print(f"  [LOGGED]      {ARTIFACT_LOG}")
+    print(f"  [LOGGED]      {_get_artifact_log()}")
 
 # ── Public API ────────────────────────────────────────────────────────────────
 def simulate(label: str = "test", depth: int = 3) -> dict | None:

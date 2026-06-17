@@ -2289,16 +2289,21 @@
   ],
   "summary": {
     "total_canonical": 59,
-    "total_variants": 4355,
+    "total_variants": 4278,
     "by_category": {
-      "identity": 5,
-      "evasion": 7,
-      "payload": 8,
-      "persistence": 6,
-      "entropy": 8,
       "c2": 8,
+      "credential-access": 1,
+      "defense-impairment": 1,
+      "entropy": 8,
+      "evasion": 7,
+      "execution": 1,
+      "identity": 5,
+      "lateral-movement": 1,
       "llm": 4,
-      "meta": 5
+      "meta": 5,
+      "payload": 10,
+      "persistence": 7,
+      "reconnaissance": 1
     }
   }
 }
