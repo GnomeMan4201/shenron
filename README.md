@@ -232,3 +232,19 @@ python3 shenron.py --validate-sigma-dir sigma/rules/ \
 
 *gnomeman4201 / badBANANA Research Collective*
 > Observable adversarial behavior, not portable adversarial procedure.
+
+
+---
+
+## Part of the BANANA_TREE Research Ecosystem
+
+| | |
+|--|--|
+| **Research Hub** | [GnomeMan4201](https://github.com/GnomeMan4201/GnomeMan4201) |
+| **Corpus & Discovery** | [r4b1t](https://gnomeman4201.github.io/r4b1t) — 53,869 verified OSINT/security URLs |
+| **Investigation Management** | [inv-hub](https://github.com/GnomeMan4201/inv-hub) |
+| **Knowledge Base** | [PRAXIS](https://github.com/GnomeMan4201/PRAXIS) |
+| **Detection Engineering** | [SHENRON](https://github.com/GnomeMan4201/SHENRON) |
+| **Kernel Telemetry** | [bpf-watch](https://github.com/GnomeMan4201/bpf-watch) |
+
+*badBANANA Research Collective · [dev.to/gnomeman4201](https://dev.to/gnomeman4201)*
