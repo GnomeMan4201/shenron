@@ -11,7 +11,7 @@ import os
 import json
 from datetime import datetime, timezone
 
-LOG_FILE = os.path.expanduser("~/SHENRON/logs/mutation_history.json")
+LOG_FILE = os.path.expanduser("~/SHENRON/logs/mutation_history.jsonl")
 os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
 
 def log_mutation(payload_name, mutation_type, stealth_score, notes=""):
@@ -24,15 +24,8 @@ def log_mutation(payload_name, mutation_type, stealth_score, notes=""):
     }
 
     try:
-        if not os.path.exists(LOG_FILE):
-            with open(LOG_FILE, 'w') as f:
-                json.dump([entry], f, indent=2)
-        else:
-            with open(LOG_FILE, 'r') as f:
-                data = json.load(f)
-            data.append(entry)
-            with open(LOG_FILE, 'w') as f:
-                json.dump(data, f, indent=2)
+        with open(LOG_FILE, 'a') as f:
+            f.write(json.dumps(entry) + "\n")
         print(f"[+] Mutation logged for: {payload_name}")
     except Exception as e:
         print(f"[!] Failed to write mutation log: {e}")
@@ -42,9 +35,10 @@ def show_history():
         print("[!] No mutation history found.")
         return
     with open(LOG_FILE, 'r') as f:
-        data = json.load(f)
-        for entry in data[-20:]:
-            print(f"- {entry['timestamp']} | {entry['payload']} | {entry['mutation']} | Stealth: {entry['stealth_score']}")
+        lines = [l.strip() for l in f if l.strip()]
+    data = [json.loads(l) for l in lines[-20:]]
+    for entry in data:
+        print(f"- {entry['timestamp']} | {entry['payload']} | {entry['mutation']} | Stealth: {entry['stealth_score']}")
 
 if __name__ == "__main__":
     import sys
