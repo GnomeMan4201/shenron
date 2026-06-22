@@ -91,8 +91,8 @@ def sigma_results(artifact_log):
 
 def test_sigma_rule_count(sigma_results):
     """Exactly 20 rules must be present."""
-    assert len(sigma_results) == 20, (
-        f"Expected 20 sigma rules, found {len(sigma_results)}. "
+    assert len(sigma_results) == 27, (
+        f"Expected 27 sigma rules, found {len(sigma_results)}. "
         "Update this test if you intentionally add/remove rules."
     )
 
