@@ -54,11 +54,18 @@ FIELD_MAP = {
 UNSUPPORTED_FIELDS = {"EventID", "Hashes", "Channel", "Provider_Name"}
 
 
+_HOMOGLYPH_MAP = {
+    'а': 'a', 'е': 'e', 'о': 'o', 'р': 'p', 'с': 'c',
+    'х': 'x', 'і': 'i', 'ѕ': 's', 'ј': 'j', 'у': 'y',
+    'ԁ': 'd', 'ɡ': 'g', 'һ': 'h', 'κ': 'k', 'м': 'm',
+    'н': 'h', 'т': 't', 'ѵ': 'v', 'ѡ': 'w'
+}
+
 def _normalize(s: str) -> str:
-    import unicodedata
-    s = unicodedata.normalize("NFKD", s)
-    s = s.encode("ascii", "ignore").decode("ascii")
-    return s.lower().strip().replace("-", "_").replace(" ", "_")
+    s = s.lower()
+    for cyr, lat in _HOMOGLYPH_MAP.items():
+        s = s.replace(cyr, lat)
+    return s.strip().replace("-", "_").replace(" ", "_")
 
 
 def _get_artifact_values(art: dict, shenron_fields: list) -> list:

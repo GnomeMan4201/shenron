@@ -77,6 +77,37 @@ class BrittlenessReport:
         )
 
 
+    def report_to_markdown(self) -> str:
+        """Generates a human-readable Markdown brittleness report."""
+        lines = []
+        lines.append("# Brittleness Report: " + self.scenario_name)
+        lines.append("**Campaign ID:** " + self.campaign_id + "  ")
+        lines.append("**Generated At:** " + self.generated_at + "  ")
+        lines.append("**Overall Brittleness Score:** " + f"{self.overall_brittleness_score:.2f}" + "  ")
+        lines.append("**Most Brittle Stage:** " + self.most_brittle_stage + "  ")
+        lines.append("**Most Effective Strategy:** " + self.most_effective_strategy + "  ")
+        lines.append("**Correlation Breaks:** " + str(self.correlation_break_count) + "  ")
+        lines.append("**Rules Evaluated:** " + str(self.rule_count) + "  ")
+        lines.append("**Artifacts Scored:** " + str(self.artifact_count) + "  ")
+        lines.append("")
+        lines.append("## Per-Stage Breakdown")
+        lines.append("")
+        lines.append("| Stage | Layer | Detected | Evasion Rate | Evading Strategies |")
+        lines.append("|---|---|---|---|---|")
+        for ab in self.per_artifact:
+            trig = "Yes" if ab.original_triggered else "No"
+            evades = ", ".join(ab.variants_that_evade) if ab.variants_that_evade else "None"
+            lines.append("| " + ab.stage + " | " + ab.layer_name + " | " + trig + " | " + f"{ab.evasion_rate:.2f}" + " | " + evades + " |")
+        lines.append("")
+        lines.append("## Remediation Guidance")
+        lines.append("")
+        for ab in self.per_artifact:
+            if ab.variants_that_evade:
+                strats = ", ".join(ab.variants_that_evade)
+                lines.append("- **" + ab.stage + "** (" + ab.layer_name + "): evaded by " + strats + ".")
+        return chr(10).join(lines)
+
+
 class BrittlenessScorer:
     """Scores campaign artifacts against Sigma rules using mutation evasion rates."""
 

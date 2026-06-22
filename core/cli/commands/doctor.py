@@ -116,6 +116,11 @@ def _handle_doctor(args):
         for ab in report.per_artifact:
             most_evaded = ab.variants_that_evade[0] if ab.variants_that_evade else "none"
             print(f"    [{ab.stage}] 1 artifact | brittleness: {ab.evasion_rate:.2f} | most evaded by: {most_evaded}")
+        md_path = _Path("artifacts/brittleness") / f"{c.campaign_id}_doctor_report.md"
+        md_path.parent.mkdir(parents=True, exist_ok=True)
+        md_path.write_text(report.report_to_markdown())
+        print(f"
+  [MD]       {md_path}")
         return
 
     from core.config import artifact_log_path

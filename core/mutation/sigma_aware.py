@@ -89,10 +89,13 @@ class SigmaAwareMutator:
 
         if strategy == "value_swap":
             if isinstance(original_val, str):
-                if "powershell" in original_val.lower():
-                    mutated_val = "pwsh.exe"
-                elif ".exe" in original_val.lower():
-                    mutated_val = "rundll32.exe"
+                if original_val in self.targets.get(target_field, []):
+                    if original_val.endswith(".exe"):
+                        mutated_val = original_val[:-4] + " .exe"
+                    elif "\\" in original_val:
+                        mutated_val = original_val.replace("\\", "/")
+                    else:
+                        mutated_val = original_val + "\t"
                 else:
                     mutated_val = original_val + "_alt"
             elif isinstance(original_val, list) and original_val:

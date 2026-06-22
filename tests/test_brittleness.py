@@ -93,3 +93,83 @@ def test_apt29_scenario_not_fully_evaded(tmp_path):
     report = scorer.score_campaign(campaign)
     assert report.overall_brittleness_score < 1.0, "Expected at least one stage to be caught"
     assert any(ab.original_triggered for ab in report.per_artifact), "Expected at least one original artifact to trigger"
+
+
+def test_unicode_substitute_neutralized_by_evaluator():
+    """Homoglyph map in evaluator should transliterate Cyrillic to Latin."""
+    from core.sigma.evaluator import _normalize
+    # 'а' is Cyrillic U+0430, 'е' is Cyrillic U+0435
+    assert _normalize("lsаss.exe") == "lsass.exe"
+    assert _normalize("pоwеrshеll") == "powershell"
+
+
+def test_custom_scenario_composition():
+    """Dynamic scenario composition via from_custom_sequence."""
+    from core.campaign.builder import CampaignBuilder, CampaignStage
+    custom_stages = [
+        (CampaignStage.INITIAL_ACCESS, "passive_recon_harvester"),
+        (CampaignStage.EXFIL, "transient_exfil_shell"),
+    ]
+    builder = CampaignBuilder.from_custom_sequence(custom_stages, 24)
+    campaign = builder.build()
+    assert len(campaign.events) == 2
+    assert campaign.events[0].layer_name == "passive_recon_harvester"
+    assert campaign.events[1].layer_name == "transient_exfil_shell"
+    assert campaign.events[0].parent_event_id is None
+    assert campaign.events[1].parent_event_id == campaign.events[0].event_id
+
+
+def test_markdown_report_generation():
+    """Brittleness report renders valid Markdown."""
+    import os
+    sigma_dir = "sigma/rules"
+    if not os.path.exists(sigma_dir):
+        import pytest
+        pytest.skip("sigma/rules directory not found")
+    builder = CampaignBuilder.from_scenario("insider-threat", 24)
+    campaign = builder.build()
+    scorer = BrittlenessScorer(sigma_dir)
+    report = scorer.score_campaign(campaign)
+    md = report.report_to_markdown()
+    assert "# Brittleness Report" in md
+    assert "Per-Stage Breakdown" in md
+    assert "| Stage | Layer |" in md
+    assert "Remediation Guidance" in md
+
+
+def test_unicode_substitute_neutralized_by_evaluator():
+    from core.sigma.evaluator import _normalize
+    assert _normalize("lsаss.exe") == "lsass.exe"
+    assert _normalize("pоwеrshеll") == "powershell"
+
+
+def test_custom_scenario_composition():
+    from core.campaign.builder import CampaignBuilder, CampaignStage
+    custom_stages = [
+        (CampaignStage.INITIAL_ACCESS, "passive_recon_harvester"),
+        (CampaignStage.EXFIL, "transient_exfil_shell"),
+    ]
+    builder = CampaignBuilder.from_custom_sequence(custom_stages, 24)
+    campaign = builder.build()
+    assert len(campaign.events) == 2
+    assert campaign.events[0].layer_name == "passive_recon_harvester"
+    assert campaign.events[1].layer_name == "transient_exfil_shell"
+    assert campaign.events[0].parent_event_id is None
+    assert campaign.events[1].parent_event_id == campaign.events[0].event_id
+
+
+def test_markdown_report_generation():
+    import os
+    sigma_dir = "sigma/rules"
+    if not os.path.exists(sigma_dir):
+        import pytest
+        pytest.skip("sigma/rules directory not found")
+    builder = CampaignBuilder.from_scenario("insider-threat", 24)
+    campaign = builder.build()
+    scorer = BrittlenessScorer(sigma_dir)
+    report = scorer.score_campaign(campaign)
+    md = report.report_to_markdown()
+    assert "# Brittleness Report" in md
+    assert "Per-Stage Breakdown" in md
+    assert "| Stage | Layer |" in md
+    assert "Remediation Guidance" in md

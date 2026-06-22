@@ -77,4 +77,7 @@ def handle(args):
         report_path = Path("artifacts/brittleness") / f"{campaign.campaign_id}_report.json"
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report_path.write_text(json.dumps(report.report_to_dict(), indent=2))
+        md_path = Path("artifacts/brittleness") / f"{campaign.campaign_id}_report.md"
+        md_path.write_text(report.report_to_markdown())
         print(f"\n  [REPORT]   {report_path}")
+        print(f"  [MD]       {md_path}")

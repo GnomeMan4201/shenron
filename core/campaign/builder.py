@@ -95,6 +95,23 @@ class CampaignBuilder:
             raise ValueError(f"Unknown scenario: {name}. Available: {list(SCENARIOS.keys())}")
         return CampaignBuilder(name, duration_hours)
 
+    @staticmethod
+    def from_custom_sequence(
+        stages: list[tuple[CampaignStage, str]],
+        duration_hours: int = 72,
+    ) -> "CampaignBuilder":
+        """Initialize a builder from a custom sequence of (stage, layer_name) tuples."""
+        builder = CampaignBuilder("custom-sequence", duration_hours)
+        # Store on instance only — do not mutate global SCENARIOS
+        builder._custom_stages = stages
+        return builder
+
+    def _get_scenario_stages(self) -> list[tuple[CampaignStage, str]]:
+        """Return stages for this campaign, supporting custom sequences."""
+        if hasattr(self, "_custom_stages"):
+            return self._custom_stages
+        return SCENARIOS[self.scenario_name]
+
     def _generate_artifacts(self, layer_name: str, stage: CampaignStage, ts: datetime) -> List[dict]:
         """Invoke the real layer generator and return all emitted artifacts."""
         from core.engine import payload_registry
@@ -166,7 +183,7 @@ class CampaignBuilder:
 
     def build(self) -> Campaign:
         """Build the Campaign dataclass containing ordered events."""
-        scenario = SCENARIOS[self.scenario_name]
+        scenario = self._get_scenario_stages()
         current_time = datetime.fromisoformat(self.start_timestamp.replace("Z", "+00:00"))
         parent_id: Optional[str] = None
 
