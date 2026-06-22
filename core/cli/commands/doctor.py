@@ -119,8 +119,7 @@ def _handle_doctor(args):
         md_path = _Path("artifacts/brittleness") / f"{c.campaign_id}_doctor_report.md"
         md_path.parent.mkdir(parents=True, exist_ok=True)
         md_path.write_text(report.report_to_markdown())
-        print(f"
-  [MD]       {md_path}")
+        print("\n  [MD]       " + str(md_path))
         return
 
     from core.config import artifact_log_path
