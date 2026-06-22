@@ -55,7 +55,7 @@ def test_target_extractor_loads_rules(rules_dir):
 def test_mutator_produces_5_variants(rules_dir, base_artifact):
     mutator = SigmaAwareMutator(rules_dir)
     variants = mutator.mutate_all_strategies(base_artifact)
-    assert len(variants) == 5
+    assert len(variants) == 6
 
 
 def test_variants_have_mutation_meta(rules_dir, base_artifact):

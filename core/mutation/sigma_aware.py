@@ -78,7 +78,7 @@ class SigmaAwareMutator:
                 return k
         return None
 
-    def mutate_targeted(self, artifact: dict, strategy: str) -> dict:
+    def mutate_targeted(self, artifact: dict, strategy: str, seed: int = 42) -> dict:
         """Return a single mutated artifact variant with _mutation_meta."""
         target_field = self._get_mutable_field(artifact)
         if not target_field:
@@ -104,7 +104,8 @@ class SigmaAwareMutator:
             mutated_val = None
         elif strategy == "case_flip":
             if isinstance(original_val, str):
-                mutated_val = ''.join(c.upper() if random.random() > 0.5 else c.lower() for c in original_val)
+                rng = random.Random(seed)
+                mutated_val = ''.join(c.upper() if rng.random() > 0.5 else c.lower() for c in original_val)
             elif isinstance(original_val, list):
                 mutated_val = [v.upper() if isinstance(v, str) else v for v in original_val]
         elif strategy == "unicode_substitute":
@@ -127,7 +128,7 @@ class SigmaAwareMutator:
         }
         return out
 
-    def mutate_all_strategies(self, artifact: dict) -> List[dict]:
-        """Returns one variant per strategy, list of 5 dicts."""
-        strategies = ["value_swap", "field_omit", "case_flip", "unicode_substitute", "whitespace_inject"]
-        return [self.mutate_targeted(artifact, s) for s in strategies]
+    def mutate_all_strategies(self, artifact: dict, seed: int = 42) -> List[dict]:
+        """Returns one variant per strategy, list of 6 dicts."""
+        strategies = ["value_swap", "field_omit", "case_flip", "unicode_substitute", "whitespace_inject", "combined_evasion"]
+        return [self.mutate_targeted(artifact, s, seed + i) for i, s in enumerate(strategies)]

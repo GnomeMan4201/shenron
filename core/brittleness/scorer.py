@@ -34,6 +34,7 @@ class BrittlenessReport:
     artifact_count: int
     per_artifact: List[ArtifactBrittleness] = field(default_factory=list)
     overall_brittleness_score: float = 0.0
+    weighted_brittleness_score: float = 0.0
     most_brittle_stage: str = ""
     most_effective_strategy: str = ""
     correlation_break_count: int = 0
@@ -46,6 +47,7 @@ class BrittlenessReport:
             "rule_count": self.rule_count,
             "artifact_count": self.artifact_count,
             "overall_brittleness_score": self.overall_brittleness_score,
+            "weighted_brittleness_score": self.weighted_brittleness_score,
             "most_brittle_stage": self.most_brittle_stage,
             "most_effective_strategy": self.most_effective_strategy,
             "correlation_break_count": self.correlation_break_count,
@@ -84,6 +86,7 @@ class BrittlenessReport:
         lines.append("**Campaign ID:** " + self.campaign_id + "  ")
         lines.append("**Generated At:** " + self.generated_at + "  ")
         lines.append("**Overall Brittleness Score:** " + f"{self.overall_brittleness_score:.2f}" + "  ")
+        lines.append("**Weighted Brittleness Score:** " + f"{self.weighted_brittleness_score:.2f}" + "  ")
         lines.append("**Most Brittle Stage:** " + self.most_brittle_stage + "  ")
         lines.append("**Most Effective Strategy:** " + self.most_effective_strategy + "  ")
         lines.append("**Correlation Breaks:** " + str(self.correlation_break_count) + "  ")
@@ -111,7 +114,16 @@ class BrittlenessReport:
 class BrittlenessScorer:
     """Scores campaign artifacts against Sigma rules using mutation evasion rates."""
 
-    STRATEGIES = ["value_swap", "field_omit", "case_flip", "unicode_substitute", "whitespace_inject"]
+    STRATEGIES = ["value_swap", "field_omit", "case_flip", "unicode_substitute", "whitespace_inject", "combined_evasion"]
+
+    ADVERSARY_WEIGHTS = {
+        "case_flip":         1.0,
+        "whitespace_inject": 0.8,
+        "combined_evasion":  0.8,
+        "unicode_substitute": 0.6,
+        "field_omit":        0.4,
+        "value_swap":        0.2,
+    }
 
     def __init__(self, rules_dir: str):
         self.rules_dir = rules_dir
@@ -151,19 +163,24 @@ class BrittlenessScorer:
         )
         strategy_evade_counts = {s: 0 for s in self.STRATEGIES}
         stage_evasion_rates: dict[str, list[float]] = {}
+        weighted_scores = []
+        total_weight = sum(self.ADVERSARY_WEIGHTS.values())
 
         for event in campaign.events:
             all_arts = getattr(event, "artifacts", [event.artifact])
-            variants = self.mutator.mutate_all_strategies(event.artifact)
+            seed = hash(event.event_id) % 10000
+            variants = self.mutator.mutate_all_strategies(event.artifact, seed=seed)
             orig_triggered = self._check_artifacts_against_rules(all_arts)
             evade_list = []
             correlation_broken = False
+            weighted_evasion_sum = 0.0
 
             for i, variant in enumerate(variants):
                 strat_name = self.STRATEGIES[i]
                 if not self._check_artifacts_against_rules([variant]):
                     evade_list.append(strat_name)
                     strategy_evade_counts[strat_name] += 1
+                    weighted_evasion_sum += self.ADVERSARY_WEIGHTS.get(strat_name, 0.5)
                 if variant.get("campaign_id") != event.artifact.get("campaign_id"):
                     correlation_broken = True
 
@@ -171,6 +188,7 @@ class BrittlenessScorer:
                 report.correlation_break_count += 1
 
             evasion_rate = len(evade_list) / len(self.STRATEGIES)
+            weighted_scores.append(weighted_evasion_sum / total_weight)
             report.per_artifact.append(ArtifactBrittleness(
                 event_id=event.event_id,
                 stage=event.stage.value,
@@ -185,6 +203,7 @@ class BrittlenessScorer:
             report.overall_brittleness_score = sum(
                 ab.evasion_rate for ab in report.per_artifact
             ) / len(report.per_artifact)
+            report.weighted_brittleness_score = sum(weighted_scores) / len(weighted_scores)
             report.most_effective_strategy = max(
                 strategy_evade_counts, key=strategy_evade_counts.get
             )
