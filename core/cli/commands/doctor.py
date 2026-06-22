@@ -52,12 +52,72 @@ def register(subparsers):
         "--json", action="store_true",
         help="output results as JSON (for CI integration)",
     )
+    p.add_argument(
+        "--campaign", action="store_true",
+        help="run brittleness check on most recent campaign artifacts",
+    )
     p.set_defaults(func=_handle_doctor)
 
 
 def _handle_doctor(args):
     import json
     from pathlib import Path
+    if getattr(args, "campaign", False):
+        from core.brittleness.scorer import BrittlenessScorer
+        from core.campaign.builder import Campaign, CampaignEvent, CampaignStage
+        from pathlib import Path as _Path
+        import os as _os, json as _json
+        campaigns_dir = _Path("artifacts/campaigns")
+        if not campaigns_dir.exists():
+            print("  [!] No campaigns found in artifacts/campaigns/")
+            return
+        files = sorted(campaigns_dir.glob("*.jsonl"), key=_os.path.getmtime, reverse=True)
+        if not files:
+            print("  [!] No campaign JSONL files found.")
+            return
+        latest_file = files[0]
+        print(f"\n  [DOCTOR] Loading latest campaign: {latest_file}")
+        events = []
+        campaign_id = ""
+        r = {}
+        with open(latest_file) as f:
+            for line in f:
+                r = _json.loads(line)
+                campaign_id = r.get("campaign_id", "")
+                event = CampaignEvent(
+                    stage=CampaignStage(r.get("stage", "EXECUTION")),
+                    layer_name=r.get("layer", ""),
+                    artifact=r,
+                    timestamp=r.get("timestamp", ""),
+                    parent_event_id=r.get("parent_event_id"),
+                    event_id=r.get("event_id", ""),
+                    session_id=r.get("session_id", ""),
+                    actor_id=r.get("actor_id", ""),
+                    campaign_id=campaign_id,
+                    causal_chain_index=r.get("causal_chain_index", 0),
+                )
+                events.append(event)
+        c = Campaign(
+            campaign_id=campaign_id,
+            scenario_name=r.get("scenario_name", "unknown"),
+            actor_id=events[0].actor_id if events else "",
+            session_id=events[0].session_id if events else "",
+            start_timestamp=events[0].timestamp if events else "",
+            duration_hours=0,
+            events=events,
+        )
+        sigma_dir = "sigma"
+        if not _os.path.exists(sigma_dir):
+            print("  [!] Sigma rules dir not found. Cannot score.")
+            return
+        scorer = BrittlenessScorer(sigma_dir)
+        report = scorer.score_campaign(c)
+        print(f"  [STRESS] Campaign ID: {c.campaign_id}")
+        for ab in report.per_artifact:
+            most_evaded = ab.variants_that_evade[0] if ab.variants_that_evade else "none"
+            print(f"    [{ab.stage}] 1 artifact | brittleness: {ab.evasion_rate:.2f} | most evaded by: {most_evaded}")
+        return
+
     from core.config import artifact_log_path
 
     # Resolve events path
