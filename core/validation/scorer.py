@@ -71,7 +71,10 @@ def _match_expectation(
 
     # Also check manifest alert_signatures and expected_events for all layers
     manifest_signals = []
-    for layer_name, layer_data in manifest.items():
+    for layer_data in manifest.get("layers", []):
+        if not isinstance(layer_data, dict):
+            continue
+        layer_name = layer_data.get("name", "")
         det = layer_data.get("detection", {})
         for sig in det.get("alert_signatures", []):
             manifest_signals.append((layer_name, sig))

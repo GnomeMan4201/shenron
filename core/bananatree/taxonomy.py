@@ -47,7 +47,14 @@ def build_phase_summary(manifest: list) -> dict:
     for phase, layers in grouped.items():
         techniques = set()
         for layer in layers:
-            for t in layer.get("mitre", {}).get("techniques", []):
+            mitre = layer.get("mitre", {})
+            if isinstance(mitre, dict):
+                techniques_list = mitre.get("techniques", [])
+            elif isinstance(mitre, list):
+                techniques_list = mitre
+            else:
+                techniques_list = []
+            for t in techniques_list:
                 techniques.add(t)
         summary[phase.value] = {
             "layer_count":     len(layers),

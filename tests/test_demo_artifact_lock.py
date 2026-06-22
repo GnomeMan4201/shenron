@@ -14,7 +14,7 @@ import hashlib
 from pathlib import Path
 
 DEMO_PATH     = Path("artifacts/demo/shenron_demo_run.jsonl")
-EXPECTED_SHA256 = "d2eb0b62912b6aeff5c0ebe442e72803b8074b8be736ab4283a352ceae41cd9f"
+EXPECTED_SHA256 = "3277081208e702ff3f5c960e22c4c87517e324f3bf40e6803afb49e3cb5882c1"
 
 
 def test_demo_artifact_exists():
@@ -30,7 +30,7 @@ def test_demo_artifact_schema():
     required = {"artifact_id", "session_id", "layer", "mitre_techniques",
                  "simulation_only", "behavior_class", "detection_opportunities"}
     records = [json.loads(l) for l in DEMO_PATH.read_text().splitlines() if l.strip()]
-    assert len(records) == 40, f"Expected 40 demo records, got {len(records)}"
+    assert len(records) == 50, f"Expected 50 demo records, got {len(records)}"
     for i, r in enumerate(records):
         missing = required - set(r.keys())
         assert not missing, f"Record {i+1} missing fields: {missing}"

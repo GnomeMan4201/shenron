@@ -108,9 +108,9 @@ def test_bundle_reproducibility_counts_match():
     with tempfile.TemporaryDirectory() as tmp:
         _run(tmp)
         repro = json.loads((Path(tmp) / "reproducibility.json").read_text())
-        assert repro["inputs"]["events_count"] == 40
-        assert repro["inputs"]["rules_count"] == 20
-        assert repro["summary"]["mitre_techniques"] == 39
+        assert repro["inputs"]["events_count"] == 50
+        assert repro["inputs"]["rules_count"] == 27
+        assert repro["summary"]["mitre_techniques"] == 36
 
 
 def test_bundle_index_html_contains_html_tag():
