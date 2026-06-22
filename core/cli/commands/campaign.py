@@ -59,7 +59,7 @@ def handle(args):
     if getattr(args, "stress_test", False):
         from core.brittleness.scorer import BrittlenessScorer
 
-        sigma_dir = "sigma"
+        sigma_dir = "sigma/rules"
         if not os.path.exists(sigma_dir):
             print("  [!] Sigma rules directory not found for stress test. Skipping.")
             return

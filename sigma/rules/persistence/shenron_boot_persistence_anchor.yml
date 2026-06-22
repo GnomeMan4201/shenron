@@ -1,0 +1,52 @@
+title: SHENRON Boot Persistence Anchor
+id: shenron-boot-persistence-anchor-001
+status: experimental
+description: >
+  Detects boot persistence mechanisms simulated by SHENRON across
+  Windows services, systemd units, launchd agents, RC scripts,
+  LD_PRELOAD hijacks, and startup folder implants.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-22
+references:
+  - https://github.com/GnomeMan4201/shenron
+tags:
+  - attack.t1037
+  - attack.t1543
+  - attack.t1547
+  - attack.t1574
+  - attack.persistence
+logsource:
+  category: shenron_simulation
+  product: boot_persistence_anchor
+detection:
+  selection_windows_service:
+    layer: boot_persistence_anchor
+    phase: windows_service
+  selection_systemd_service:
+    layer: boot_persistence_anchor
+    phase: systemd_service
+  selection_launch_agent:
+    layer: boot_persistence_anchor
+    phase: launch_agent
+  selection_rc_script:
+    layer: boot_persistence_anchor
+    phase: rc_script
+  selection_ld_preload:
+    layer: boot_persistence_anchor
+    phase: ld_preload
+  selection_startup_folder:
+    layer: boot_persistence_anchor
+    phase: startup_folder
+  condition: 1 of selection_*
+falsepositives:
+  - Legitimate software installers creating services or launch agents
+  - Authorized system configuration management tools
+level: high
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_opportunities
+  - mitre_techniques
+  - simulation_only

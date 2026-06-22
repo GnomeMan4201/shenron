@@ -1,0 +1,36 @@
+title: SHENRON Payload Skinwalker
+id: shenron-payload-skinwalker-001
+status: experimental
+description: >
+  Detects payload skinwalker execution simulated by SHENRON.
+  Covers base analysis and clone generation phases.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-22
+references:
+  - https://github.com/GnomeMan4201/shenron
+tags:
+  - attack.t1027
+  - attack.t1059
+  - attack.execution
+logsource:
+  category: shenron_simulation
+  product: payload_skinwalker
+detection:
+  selection_base_analysis:
+    layer: payload_skinwalker
+    phase: base_analysis
+  selection_clone_generation:
+    layer: payload_skinwalker
+    phase: clone_generation
+  condition: 1 of selection_*
+falsepositives:
+  - Authorized malware analysis in sandboxed environments
+level: high
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_opportunities
+  - mitre_techniques
+  - simulation_only

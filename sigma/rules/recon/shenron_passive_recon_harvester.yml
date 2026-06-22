@@ -1,0 +1,48 @@
+title: SHENRON Passive Recon Harvester
+id: shenron-passive-recon-harvester-001
+status: experimental
+description: >
+  Detects passive reconnaissance activities simulated by SHENRON.
+  Covers identity harvesting, network recon, org structure mapping,
+  and host fingerprinting phases.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-22
+references:
+  - https://github.com/GnomeMan4201/shenron
+tags:
+  - attack.t1589
+  - attack.t1590
+  - attack.t1591
+  - attack.t1592
+  - attack.t1593
+  - attack.t1594
+  - attack.reconnaissance
+logsource:
+  category: shenron_simulation
+  product: passive_recon_harvester
+detection:
+  selection_identity:
+    layer: passive_recon_harvester
+    phase: identity_harvest
+  selection_network:
+    layer: passive_recon_harvester
+    phase: network_recon
+  selection_org:
+    layer: passive_recon_harvester
+    phase: org_recon
+  selection_host:
+    layer: passive_recon_harvester
+    phase: host_recon
+  condition: 1 of selection_*
+falsepositives:
+  - Authorized OSINT assessments with documented scope
+  - Legitimate network enumeration by security teams
+level: low
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_opportunities
+  - mitre_techniques
+  - simulation_only

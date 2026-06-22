@@ -1,0 +1,56 @@
+title: SHENRON LSASS Harvest Phantom
+id: shenron-lsass-harvest-phantom-001
+status: experimental
+description: >
+  Detects credential harvesting activities simulated by SHENRON covering
+  LSASS memory dumps, SAM hive extraction, NTDS.dit extraction,
+  LSA secrets access, cached credential extraction, and credential file sweeps.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-22
+references:
+  - https://github.com/GnomeMan4201/shenron
+tags:
+  - attack.t1003
+  - attack.t1003.001
+  - attack.t1003.002
+  - attack.t1003.003
+  - attack.t1003.004
+  - attack.t1003.005
+  - attack.t1552
+  - attack.t1555
+  - attack.credential_access
+logsource:
+  category: shenron_simulation
+  product: lsass_harvest_phantom
+detection:
+  selection_lsass_dump:
+    layer: lsass_harvest_phantom
+    phase: lsass_dump
+  selection_sam_dump:
+    layer: lsass_harvest_phantom
+    phase: sam_dump
+  selection_ntds_extraction:
+    layer: lsass_harvest_phantom
+    phase: ntds_extraction
+  selection_lsa_secrets:
+    layer: lsass_harvest_phantom
+    phase: lsa_secrets
+  selection_cached_creds:
+    layer: lsass_harvest_phantom
+    phase: cached_creds
+  selection_credential_files:
+    layer: lsass_harvest_phantom
+    phase: credential_files
+  condition: 1 of selection_*
+falsepositives:
+  - Authorized red team operations with documented scope
+  - Legitimate backup tools accessing NTDS
+level: critical
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_opportunities
+  - mitre_techniques
+  - simulation_only

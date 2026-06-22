@@ -1,0 +1,39 @@
+title: SHENRON Dormant Sleeper Seed
+id: shenron-dormant-sleeper-seed-001
+status: experimental
+description: >
+  Detects dormant sleeper seed persistence simulated by SHENRON.
+  Covers persistence install, trigger registration, and trigger evaluation phases.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-22
+references:
+  - https://github.com/GnomeMan4201/shenron
+tags:
+  - attack.t1053
+  - attack.t1547
+  - attack.persistence
+logsource:
+  category: shenron_simulation
+  product: dormant_sleeper_seed
+detection:
+  selection_install:
+    layer: dormant_sleeper_seed
+    phase: persistence_install
+  selection_trigger_reg:
+    layer: dormant_sleeper_seed
+    phase: trigger_registration
+  selection_trigger_eval:
+    layer: dormant_sleeper_seed
+    phase: trigger_evaluation
+  condition: 1 of selection_*
+falsepositives:
+  - Legitimate scheduled task creation by software installers
+level: high
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_opportunities
+  - mitre_techniques
+  - simulation_only

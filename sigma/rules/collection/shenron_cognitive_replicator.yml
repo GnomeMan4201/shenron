@@ -1,0 +1,36 @@
+title: SHENRON Cognitive Replicator
+id: shenron-cognitive-replicator-001
+status: experimental
+description: >
+  Detects payload replication and collection activities simulated by SHENRON.
+  Covers source enumeration and replica drop phases.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-22
+references:
+  - https://github.com/GnomeMan4201/shenron
+tags:
+  - attack.t1036
+  - attack.t1078
+  - attack.collection
+logsource:
+  category: shenron_simulation
+  product: cognitive_replicator
+detection:
+  selection_source_enum:
+    layer: cognitive_replicator
+    phase: source_enumeration
+  selection_replica_drop:
+    layer: cognitive_replicator
+    phase: replica_drop_sim
+  condition: 1 of selection_*
+falsepositives:
+  - Authorized file replication and backup operations
+level: medium
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_opportunities
+  - mitre_techniques
+  - simulation_only

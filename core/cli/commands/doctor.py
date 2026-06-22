@@ -106,7 +106,7 @@ def _handle_doctor(args):
             duration_hours=0,
             events=events,
         )
-        sigma_dir = "sigma"
+        sigma_dir = "sigma/rules"
         if not _os.path.exists(sigma_dir):
             print("  [!] Sigma rules dir not found. Cannot score.")
             return

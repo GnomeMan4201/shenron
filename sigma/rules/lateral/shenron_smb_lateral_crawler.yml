@@ -1,0 +1,52 @@
+title: SHENRON SMB Lateral Crawler
+id: shenron-smb-lateral-crawler-001
+status: experimental
+description: >
+  Detects lateral movement activities simulated by SHENRON covering
+  SMB admin share access, RDP lateral movement, pass-the-hash,
+  SSH lateral movement, and Kerberoasting.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-22
+references:
+  - https://github.com/GnomeMan4201/shenron
+tags:
+  - attack.t1021
+  - attack.t1021.001
+  - attack.t1021.002
+  - attack.t1021.004
+  - attack.t1550
+  - attack.t1557
+  - attack.t1558
+  - attack.lateral_movement
+logsource:
+  category: shenron_simulation
+  product: smb_lateral_crawler
+detection:
+  selection_smb_admin_share:
+    layer: smb_lateral_crawler
+    phase: smb_admin_share
+  selection_rdp_lateral:
+    layer: smb_lateral_crawler
+    phase: rdp_lateral
+  selection_pass_the_hash:
+    layer: smb_lateral_crawler
+    phase: pass_the_hash
+  selection_ssh_lateral:
+    layer: smb_lateral_crawler
+    phase: ssh_lateral
+  selection_kerberoasting:
+    layer: smb_lateral_crawler
+    phase: kerberoasting
+  condition: 1 of selection_*
+falsepositives:
+  - Authorized penetration testing with documented scope
+  - Legitimate administrative SMB access
+level: high
+fields:
+  - artifact_id
+  - layer
+  - phase
+  - behavior_class
+  - detection_opportunities
+  - mitre_techniques
+  - simulation_only

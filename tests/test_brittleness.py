@@ -69,3 +69,27 @@ def test_correlation_break_count(rules_dir):
     report = scorer.score_campaign(campaign)
     assert isinstance(report.correlation_break_count, int)
     assert report.correlation_break_count >= 0
+
+
+def test_brittleness_scorer_resolves_correct_sigma_dir():
+    import os
+    sigma_dir = "sigma/rules"
+    if not os.path.exists(sigma_dir):
+        import pytest
+        pytest.skip("sigma/rules directory not found")
+    scorer = BrittlenessScorer(sigma_dir)
+    assert len(scorer.rule_paths) > 3, f"Expected >3 rules, got {len(scorer.rule_paths)}"
+
+
+def test_apt29_scenario_not_fully_evaded(tmp_path):
+    import os
+    sigma_dir = "sigma/rules"
+    if not os.path.exists(sigma_dir):
+        import pytest
+        pytest.skip("sigma/rules directory not found")
+    builder = CampaignBuilder.from_scenario("apt29-style", 24)
+    campaign = builder.build()
+    scorer = BrittlenessScorer(sigma_dir)
+    report = scorer.score_campaign(campaign)
+    assert report.overall_brittleness_score < 1.0, "Expected at least one stage to be caught"
+    assert any(ab.original_triggered for ab in report.per_artifact), "Expected at least one original artifact to trigger"

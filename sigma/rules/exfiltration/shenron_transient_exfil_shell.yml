@@ -8,7 +8,7 @@ description: >
   immediately by socket close.
   Designed for validation against SHENRON transient_exfil_shell layer output.
 author: GnomeMan4201 / badBANANA Research Collective
-date: 2026-06-02
+date: 2026-06-22
 references:
   - https://github.com/GnomeMan4201/shenron
 tags:
@@ -19,23 +19,12 @@ logsource:
   category: shenron_simulation
   product: transient_exfil_shell
 detection:
-  selection_spawn:
+  selection:
     layer: transient_exfil_shell
-    phase: shell_spawn_sim
-
-  selection_transfer:
-    layer: transient_exfil_shell
-    phase: data_transfer_sim
-
-  selection_dissolve:
-    layer: transient_exfil_shell
-    phase: shell_dissolve_sim
-
-  condition: 1 of selection_*
-
+  condition: selection
 falsepositives:
-  - Ephemeral service ports in microservice architectures — validate against service mesh policy
-  - Legitimate data transfer utilities (rsync, scp) — correlate with authorized transfer schedule
+  - Ephemeral service ports in microservice architectures
+  - Legitimate data transfer utilities (rsync, scp)
 level: high
 fields:
   - artifact_id
@@ -43,3 +32,4 @@ fields:
   - phase
   - behavior_class
   - detection_opportunities
+  - simulation_only

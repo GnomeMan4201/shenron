@@ -55,6 +55,9 @@ UNSUPPORTED_FIELDS = {"EventID", "Hashes", "Channel", "Provider_Name"}
 
 
 def _normalize(s: str) -> str:
+    import unicodedata
+    s = unicodedata.normalize("NFKD", s)
+    s = s.encode("ascii", "ignore").decode("ascii")
     return s.lower().strip().replace("-", "_").replace(" ", "_")
 
 
