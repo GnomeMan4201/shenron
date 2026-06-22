@@ -70,6 +70,26 @@ SCENARIOS: dict[str, list[tuple[CampaignStage, str]]] = {
         (CampaignStage.COLLECTION,     "cognitive_replicator"),
         (CampaignStage.EXFIL,          "transient_exfil_shell"),
     ],
+    "fin7-style": [
+        (CampaignStage.EXECUTION,            "lotl_execution_phantom"),
+        (CampaignStage.PERSISTENCE,          "dormant_sleeper_seed"),
+        (CampaignStage.PRIVILEGE_ESCALATION, "lsass_harvest_phantom"),
+        (CampaignStage.LATERAL_MOVEMENT,     "smb_lateral_crawler"),
+        (CampaignStage.COLLECTION,           "passive_recon_harvester"),
+        (CampaignStage.EXFIL,                "transient_exfil_shell"),
+    ],
+    "supply-chain": [
+        (CampaignStage.INITIAL_ACCESS,   "dependency_confusion_phantom"),
+        (CampaignStage.EXECUTION,        "lotl_execution_phantom"),
+        (CampaignStage.PERSISTENCE,      "boot_persistence_anchor"),
+        (CampaignStage.EXFIL,            "transient_exfil_shell"),
+    ],
+    "living-off-the-land": [
+        (CampaignStage.EXECUTION,        "lotl_execution_phantom"),
+        (CampaignStage.LATERAL_MOVEMENT, "smb_lateral_crawler"),
+        (CampaignStage.COLLECTION,       "cognitive_replicator"),
+        (CampaignStage.EXFIL,            "transient_exfil_shell"),
+    ],
 }
 
 

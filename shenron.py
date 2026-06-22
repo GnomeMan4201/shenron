@@ -15,6 +15,7 @@ from core.mitre.drift import check_drift, print_drift_report, drift_report_to_ma
 _SUBCOMMANDS = frozenset({
     "quickstart", "run", "sigma", "assumption",
     "report", "history", "artifact", "schema", "export", "audit", "doctor", "health",
+    "campaign", "compare-scenarios",
 })
 
 def main():
