@@ -85,8 +85,8 @@ class BrittlenessScorer:
     def __init__(self, rules_dir: str):
         self.rules_dir = rules_dir
         self.rule_paths = (
-            list(Path(rules_dir).glob("*.yml")) +
-            list(Path(rules_dir).glob("*.yaml"))
+            list(Path(rules_dir).rglob("*.yml")) +
+            list(Path(rules_dir).rglob("*.yaml"))
         )
         self.mutator = SigmaAwareMutator(rules_dir)
 
@@ -122,8 +122,9 @@ class BrittlenessScorer:
         stage_evasion_rates: dict[str, list[float]] = {}
 
         for event in campaign.events:
+            all_arts = getattr(event, "artifacts", [event.artifact])
             variants = self.mutator.mutate_all_strategies(event.artifact)
-            orig_triggered = self._check_artifacts_against_rules([event.artifact])
+            orig_triggered = self._check_artifacts_against_rules(all_arts)
             evade_list = []
             correlation_broken = False
 

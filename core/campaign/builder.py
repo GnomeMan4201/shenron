@@ -25,7 +25,8 @@ class CampaignStage(str, Enum):
 class CampaignEvent:
     stage: CampaignStage
     layer_name: str
-    artifact: dict
+    artifact: dict        # primary artifact (first emitted)
+    artifacts: List[dict] # all artifacts emitted by this layer run
     timestamp: str
     parent_event_id: Optional[str]
     event_id: str
@@ -94,23 +95,74 @@ class CampaignBuilder:
             raise ValueError(f"Unknown scenario: {name}. Available: {list(SCENARIOS.keys())}")
         return CampaignBuilder(name, duration_hours)
 
-    def _generate_artifact(self, layer_name: str, stage: CampaignStage, ts: datetime) -> dict:
-        """Generate a single synthetic artifact dict for a layer."""
-        art = {
-            "artifact_id": str(uuid.uuid4()),
-            "session_id": self.session_id,
-            "layer": layer_name,
-            "phase": stage.value,
-            "mitre_techniques": ["T1000"],
-            "behavior_class": f"{layer_name}_sim",
-            "detection_opportunities": ["simulation_detection_opp"],
-            "simulation_only": True,
-            "timestamp": ts.isoformat(),
-            "campaign_id": self.campaign_id,
-            "actor_id": self.actor_id,
-        }
-        art["safety"] = make_safe_record_fields()
-        return art
+    def _generate_artifacts(self, layer_name: str, stage: CampaignStage, ts: datetime) -> List[dict]:
+        """Invoke the real layer generator and return all emitted artifacts."""
+        from core.engine import payload_registry
+        from core.engine.layer_loader import load_all
+        import os
+
+        log_path = os.path.expanduser("~/SHENRON/logs/simulation_artifacts.jsonl")
+        if not os.path.exists(log_path):
+            # fallback: check alternate path
+            log_path = os.path.expanduser("~/.shenron/logs/simulation_artifacts.jsonl")
+
+        # Count lines before
+        try:
+            with open(log_path) as f:
+                before = f.readlines()
+        except FileNotFoundError:
+            before = []
+
+        # Ensure layer is loaded and run it
+        if layer_name not in payload_registry.list_registered():
+            load_all()
+        payload_registry.run(layer_name)
+
+        # Read back new records
+        try:
+            with open(log_path) as f:
+                after = f.readlines()
+        except FileNotFoundError:
+            after = []
+
+        new_records = after[len(before):]
+        import json as _json
+        artifacts = []
+        for line in new_records:
+            line = line.strip()
+            if line:
+                try:
+                    artifacts.append(_json.loads(line))
+                except Exception:
+                    pass
+
+        if not artifacts:
+            # Fallback stub if layer emits nothing
+            artifacts = [{
+                "artifact_id": str(uuid.uuid4()),
+                "session_id": self.session_id,
+                "layer": layer_name,
+                "phase": stage.value,
+                "mitre_techniques": ["T1000"],
+                "behavior_class": f"{layer_name}_sim",
+                "detection_opportunities": ["simulation_detection_opp"],
+                "simulation_only": True,
+                "safety": make_safe_record_fields(),
+            }]
+
+        # Inject campaign fields into all artifacts
+        result = []
+        for art in artifacts:
+            art = art.copy()
+            art["session_id"] = self.session_id
+            art["actor_id"] = self.actor_id
+            art["campaign_id"] = self.campaign_id
+            art["stage"] = stage.value
+            art["timestamp"] = ts.isoformat()
+            art.setdefault("simulation_only", True)
+            art.setdefault("safety", make_safe_record_fields())
+            result.append(art)
+        return result
 
     def build(self) -> Campaign:
         """Build the Campaign dataclass containing ordered events."""
@@ -120,11 +172,12 @@ class CampaignBuilder:
 
         for idx, (stage, layer_name) in enumerate(scenario):
             event_id = str(uuid.uuid4())
-            artifact = self._generate_artifact(layer_name, stage, current_time)
+            all_artifacts = self._generate_artifacts(layer_name, stage, current_time)
             event = CampaignEvent(
                 stage=stage,
                 layer_name=layer_name,
-                artifact=artifact,
+                artifact=all_artifacts[0],
+                artifacts=all_artifacts,
                 timestamp=current_time.isoformat(),
                 parent_event_id=parent_id,
                 event_id=event_id,
