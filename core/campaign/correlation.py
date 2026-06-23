@@ -185,8 +185,25 @@ class CorrelationBrittlenessScorer:
 
     TIME_THRESHOLD_HOURS = 6
 
-    def __init__(self, artifact_brittleness: float = 0.0):
+    @staticmethod
+    def _load_time_threshold(config_path: str = "shenron.config.yml") -> int:
+        import os
+        try:
+            import yaml
+            if os.path.exists(config_path):
+                with open(config_path) as f:
+                    cfg = yaml.safe_load(f)
+                t = cfg.get("brittleness", {}).get("correlation_time_threshold_hours")
+                if t is not None:
+                    return int(t)
+        except Exception:
+            pass
+        return CorrelationBrittlenessScorer.TIME_THRESHOLD_HOURS
+
+    def __init__(self, artifact_brittleness: float = 0.0,
+                 config_path: str = "shenron.config.yml"):
         self.artifact_brittleness = artifact_brittleness
+        self.TIME_THRESHOLD_HOURS = self._load_time_threshold(config_path)
 
     def score_campaign(self, campaign: Campaign) -> CorrelationBrittlenessReport:
         """Apply each strategy and score correlation integrity."""

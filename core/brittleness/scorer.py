@@ -125,13 +125,32 @@ class BrittlenessScorer:
         "value_swap":        0.2,
     }
 
-    def __init__(self, rules_dir: str):
+    @staticmethod
+    def load_weights_from_config(config_path: str = "shenron.config.yml") -> dict:
+        """Load adversary weight profile from config file. Falls back to defaults."""
+        import os
+        try:
+            import yaml
+            if os.path.exists(config_path):
+                with open(config_path) as f:
+                    cfg = yaml.safe_load(f)
+                weights = cfg.get("brittleness", {}).get("weights", {})
+                if weights:
+                    return weights
+        except Exception:
+            pass
+        return {}
+
+    def __init__(self, rules_dir: str, config_path: str = "shenron.config.yml"):
         self.rules_dir = rules_dir
         self.rule_paths = (
             list(Path(rules_dir).rglob("*.yml")) +
             list(Path(rules_dir).rglob("*.yaml"))
         )
         self.mutator = SigmaAwareMutator(rules_dir)
+        cfg_weights = self.load_weights_from_config(config_path)
+        if cfg_weights:
+            self.ADVERSARY_WEIGHTS = {**self.ADVERSARY_WEIGHTS, **cfg_weights}
 
     def _check_artifacts_against_rules(self, artifacts: list) -> bool:
         """Returns True if any rule triggers on any artifact."""

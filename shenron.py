@@ -40,7 +40,16 @@ def main():
         out_md.write_text(drift_report_to_markdown(report), encoding="utf-8")
         print(f"  [REPORT] {out_md}")
         sys.exit(2 if report.stale else 0)
-    if len(sys.argv) > 1 and sys.argv[1] in _SUBCOMMANDS:
+    first = sys.argv[1] if len(sys.argv) > 1 else None
+
+    # Bare invocation, --help, or unrecognized first arg → show new parser help
+    if first is None or first in ("-h", "--help") or (first not in _SUBCOMMANDS and not first.startswith("-")):
+        from core.cli import build_parser
+        build_parser().print_help()
+        print()
+        sys.exit(0)
+
+    if first in _SUBCOMMANDS:
         p = build_parser()
         p.add_argument("--check-mitre-drift", action="store_true", help="check manifest technique IDs against current ATT&CK")
         p.add_argument("--drift-offline", action="store_true", help="use cached bundle, no network")

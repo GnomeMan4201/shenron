@@ -15,7 +15,7 @@ It helps answer a narrower and more honest question:
 
 **Observable adversarial behavior, not portable adversarial procedure.**
 
-SHENRON generates structured synthetic JSONL telemetry representing adversarial behavior across 52 simulation layers. It does not contain payloads, exploit code, real network calls, subprocess execution, or operational malware logic. Every artifact is synthetic. Every layer carries an explicit safety contract.
+SHENRON generates structured synthetic JSONL telemetry representing adversarial behavior across 59 simulation layers. It does not contain payloads, exploit code, real network calls, subprocess execution, or operational malware logic. Every artifact is synthetic. Every layer carries an explicit safety contract.
 
 ---
 

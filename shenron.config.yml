@@ -1,0 +1,23 @@
+# SHENRON configuration
+# Weight profiles for brittleness scoring.
+# Weights represent adversary accessibility: higher = easier for adversary.
+# Set a weight to 0.0 to exclude a strategy from the weighted score entirely
+# (e.g. if your pipeline normalizes that transformation before rules fire).
+
+brittleness:
+  weights:
+    case_flip: 1.0          # zero sophistication — trivial one-liner
+    whitespace_inject: 0.8  # trivial
+    combined_evasion: 0.8   # trivial combination of trivial techniques
+    unicode_substitute: 0.6 # low sophistication — requires homoglyph tooling
+    field_omit: 0.4         # pipeline-dependent — check your log normalization
+    value_swap: 0.2         # informed — requires knowledge of detection stack
+
+  # Correlation time threshold in hours.
+  # Adjacent campaign events with gaps larger than this break temporal coherence.
+  correlation_time_threshold_hours: 6
+
+# Scenario defaults
+campaign:
+  default_scenario: apt29-style
+  default_length_hours: 72
