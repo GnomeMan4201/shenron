@@ -261,6 +261,9 @@ class CorrelationBrittlenessScorer:
             if not broken:
                 if mutated.events[i].stage == "UNKNOWN" or mutated.events[i - 1].stage == "UNKNOWN":
                     broken = True
+            if not broken:
+                if mutated.events[i].actor_id != mutated.events[i - 1].actor_id:
+                    broken = True
             if broken:
                 broken_link_count += 1
 

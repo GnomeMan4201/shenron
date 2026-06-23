@@ -110,6 +110,10 @@ def test_score_detects_actor_drift(short_campaign):
     scorer = CorrelationBrittlenessScorer()
     score = scorer._score_correlation(short_campaign, mutated)
     assert not score.actor_consistent
+    # Actor drift after midpoint should produce broken links
+    mid = len(short_campaign.events) // 2
+    if mid < len(short_campaign.events):
+        assert score.broken_link_count > 0
 
 
 def test_report_dict_has_expected_keys(short_campaign):

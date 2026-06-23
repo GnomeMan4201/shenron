@@ -15,6 +15,7 @@ class ScenarioResult:
     scenario_name: str
     overall_brittleness: float
     weighted_brittleness: float
+    correlation_brittleness: float
     per_stage: Dict[str, float]
     most_brittle_stage: str
     most_effective_strategy: str
@@ -47,6 +48,7 @@ class ComparisonReport:
                     "scenario_name": s.scenario_name,
                     "overall_brittleness": s.overall_brittleness,
                     "weighted_brittleness": s.weighted_brittleness,
+                    "correlation_brittleness": s.correlation_brittleness,
                     "per_stage": s.per_stage,
                     "most_brittle_stage": s.most_brittle_stage,
                     "most_effective_strategy": s.most_effective_strategy,
@@ -68,11 +70,11 @@ class ComparisonReport:
         lines.append("")
         lines.append("## Scenario Breakdown")
         lines.append("")
-        lines.append("| Scenario | Brittleness | Weighted | Triggered | Most Brittle Stage | Most Effective Evasion |")
+        lines.append("| Scenario | Brittleness | Weighted | Correlation | Triggered | Most Brittle Stage |")
         lines.append("|---|---|---|---|---|---|")
         for s in self.scenarios:
             trig = str(s.triggered_count) + "/" + str(s.total_stages)
-            lines.append("| " + s.scenario_name + " | " + f"{s.overall_brittleness:.2f}" + " | " + f"{s.weighted_brittleness:.2f}" + " | " + trig + " | " + s.most_brittle_stage + " | " + s.most_effective_strategy + " |")
+            lines.append("| " + s.scenario_name + " | " + f"{s.overall_brittleness:.2f}" + " | " + f"{s.weighted_brittleness:.2f}" + " | " + f"{s.correlation_brittleness:.2f}" + " | " + trig + " | " + s.most_brittle_stage + " |")
         lines.append("")
         lines.append("## Universal Stages")
         lines.append("")
@@ -109,10 +111,15 @@ class ScenarioComparator:
             if ab.original_triggered:
                 triggered_count += 1
 
+        from core.campaign.correlation import CorrelationBrittlenessScorer as _CorrScorer
+        corr_scorer = _CorrScorer(artifact_brittleness=report.overall_brittleness_score)
+        corr_report = corr_scorer.score_campaign(campaign)
+
         return ScenarioResult(
             scenario_name=name,
             overall_brittleness=report.overall_brittleness_score,
             weighted_brittleness=report.weighted_brittleness_score,
+            correlation_brittleness=corr_report.overall_correlation_brittleness,
             per_stage=per_stage,
             most_brittle_stage=report.most_brittle_stage,
             most_effective_strategy=report.most_effective_strategy,
