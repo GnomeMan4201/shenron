@@ -1,0 +1,232 @@
+{
+  "assumption_id": "full_kill_chain_coverage",
+  "assumption_path": "assumptions/examples/full_kill_chain_coverage.yaml",
+  "artifact_path": "artifacts/demo/shenron_demo_run.jsonl",
+  "generated_at": "2026-06-25T23:25:59.646020+00:00",
+  "original_status": "PARTIALLY_SUPPORTED",
+  "total_mutations": 23,
+  "verdict_changing_mutations": 1,
+  "claim_sensitivity": {
+    "persistence_present": 0.2,
+    "c2_present": 0.0,
+    "evasion_present": 0.0,
+    "lateral_present": 0.0
+  },
+  "most_sensitive_claim": "persistence_present",
+  "least_sensitive_claim": "c2_present",
+  "load_bearing_claims": [],
+  "redundant_claims": [
+    "c2_present",
+    "evasion_present",
+    "lateral_present"
+  ],
+  "results": [
+    {
+      "claim_id": "persistence_present",
+      "strategy": "claim_drop",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "SUPPORTED",
+      "verdict_changed": true,
+      "sensitivity_score": 1.0,
+      "note": "dropped claim persistence_present"
+    },
+    {
+      "claim_id": "persistence_present",
+      "strategy": "technique_swap",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "swapped techniques ['T1053', 'T1547', 'T1055'] -> ['T1543', 'T1547999', 'T1134']"
+    },
+    {
+      "claim_id": "persistence_present",
+      "strategy": "technique_add",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "added unsupported technique T1999"
+    },
+    {
+      "claim_id": "persistence_present",
+      "strategy": "signal_corrupt",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "no-op (no signals)"
+    },
+    {
+      "claim_id": "persistence_present",
+      "strategy": "signal_add",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "added phantom signal nonexistent_signal_xyz"
+    },
+    {
+      "claim_id": "c2_present",
+      "strategy": "claim_drop",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "dropped claim c2_present"
+    },
+    {
+      "claim_id": "c2_present",
+      "strategy": "technique_swap",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "swapped techniques ['T1071', 'T1095'] -> ['T1095', 'T1071']"
+    },
+    {
+      "claim_id": "c2_present",
+      "strategy": "technique_add",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "added unsupported technique T1998"
+    },
+    {
+      "claim_id": "c2_present",
+      "strategy": "signal_corrupt",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "no-op (no signals)"
+    },
+    {
+      "claim_id": "c2_present",
+      "strategy": "signal_add",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "added phantom signal phantom_detection_opportunity"
+    },
+    {
+      "claim_id": "evasion_present",
+      "strategy": "claim_drop",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "dropped claim evasion_present"
+    },
+    {
+      "claim_id": "evasion_present",
+      "strategy": "technique_swap",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "swapped techniques ['T1027', 'T1070', 'T1036'] -> ['T1140', 'T1107', 'T1014']"
+    },
+    {
+      "claim_id": "evasion_present",
+      "strategy": "technique_add",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "added unsupported technique T1997"
+    },
+    {
+      "claim_id": "evasion_present",
+      "strategy": "signal_corrupt",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "no-op (no signals)"
+    },
+    {
+      "claim_id": "evasion_present",
+      "strategy": "signal_add",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "added phantom signal ghost_behavior_class"
+    },
+    {
+      "claim_id": "lateral_present",
+      "strategy": "claim_drop",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "dropped claim lateral_present"
+    },
+    {
+      "claim_id": "lateral_present",
+      "strategy": "technique_swap",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "swapped techniques ['T1021'] -> ['T1570']"
+    },
+    {
+      "claim_id": "lateral_present",
+      "strategy": "technique_add",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "added unsupported technique T1996"
+    },
+    {
+      "claim_id": "lateral_present",
+      "strategy": "signal_corrupt",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "no-op (no signals)"
+    },
+    {
+      "claim_id": "lateral_present",
+      "strategy": "signal_add",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "added phantom signal synthetic_signal_not_in_artifact"
+    },
+    {
+      "claim_id": "(global)",
+      "strategy": "oos_inject_0",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "injected OOS claim requiring T1485"
+    },
+    {
+      "claim_id": "(global)",
+      "strategy": "oos_inject_1",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "injected OOS claim requiring T1486"
+    },
+    {
+      "claim_id": "(global)",
+      "strategy": "oos_inject_2",
+      "original_status": "PARTIALLY_SUPPORTED",
+      "mutated_status": "PARTIALLY_SUPPORTED",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "injected OOS claim requiring T1490"
+    }
+  ]
+}
