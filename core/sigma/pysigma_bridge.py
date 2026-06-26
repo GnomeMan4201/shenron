@@ -190,6 +190,12 @@ def _match_sigma_value(sigma_val: Any, event_values: List[str],
                 return True
         return False
 
+    # Numeric comparison — Sigma integer values vs string event fields
+    from sigma.types import SigmaNumber
+    if isinstance(sigma_val, SigmaNumber):
+        num_str = str(int(sigma_val.value)) if hasattr(sigma_val, "value") else str(sigma_val)
+        return any(str(ev) == num_str or ev == num_str for ev in event_values)
+
     # Convert sigma value to plain string
     if isinstance(sigma_val, SigmaString):
         # Handle wildcards embedded in SigmaString

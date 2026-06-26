@@ -1,17 +1,17 @@
-title: Windows Scheduled Task via Event Log
-id: shenron-test-unsupported
-status: test
-description: Windows EventLog rule — tests UNSUPPORTED verdict path
 author: gnomeman4201
-tags:
-    - attack.persistence
-    - attack.t1053
-logsource:
-    product: windows
-    service: security
+description: "Windows EventLog rule \u2014 tests UNSUPPORTED verdict path"
 detection:
-    selection:
-        EventID: 4698
-        TaskName: '*update*'
-    condition: selection
+  condition: selection
+  selection:
+    EventID: 4698
+    TaskName: '*update*'
+id: f64d1bed-780a-4c3c-9ca6-23a3b956c6b3
 level: high
+logsource:
+  product: windows
+  service: security
+status: test
+tags:
+- attack.persistence
+- attack.t1053
+title: Windows Scheduled Task via Event Log
