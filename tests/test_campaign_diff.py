@@ -33,7 +33,7 @@ SAMPLE_EVENTS_A = [
      "detection_opportunities": ["periodic_beacon"],
      "signal": "beacon_signal", "behavior_class": "c2_beacon",
      "simulation_only": True},
-    {"layer": "dormant_sleeper_seed", "phase": "EXECUTE",
+    {"layer": "dormant_persistence_sim", "phase": "EXECUTE",
      "mitre_techniques": ["T1053"],
      "detection_opportunities": ["scheduled_task_creation"],
      "signal": "persistence_signal", "behavior_class": "persistence",
@@ -105,7 +105,7 @@ def test_extract_phases_basic():
 def test_extract_layers_basic():
     layers = _extract_layers(SAMPLE_EVENTS_A)
     assert "beacon_emitter_cloak" in layers
-    assert "dormant_sleeper_seed" in layers
+    assert "dormant_persistence_sim" in layers
 
 def test_phase_density_basic():
     density = _phase_density(SAMPLE_EVENTS_A)

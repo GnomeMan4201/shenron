@@ -44,7 +44,7 @@ SAFETY = {
 }
 
 
-@register_payload(name="dark_signature_morpher")
+@register_payload(name="signature_mutation_sim")
 def main():
     ts = datetime.now(timezone.utc).isoformat()
     rng = random.Random(ts)
@@ -54,7 +54,7 @@ def main():
     candidate_hash = hashlib.sha256((ts + "candidate").encode()).hexdigest()[:16]
     events.append({
         "timestamp":               ts,
-        "layer":                   "dark_signature_morpher",
+        "layer":                   "signature_mutation_sim",
         "phase":                   "target_enumeration",
         "mitre_techniques":        MITRE_TECHNIQUES,
         "behavior_class":          "signature_target_enumeration_sim",
@@ -78,7 +78,7 @@ def main():
         suffix = hashlib.sha256((ts + mutation + str(i)).encode()).hexdigest()[:6]
         events.append({
             "timestamp":               ts,
-            "layer":                   "dark_signature_morpher",
+            "layer":                   "signature_mutation_sim",
             "phase":                   "mutation_cycle",
             "mitre_techniques":        MITRE_TECHNIQUES,
             "behavior_class":          mutation,
@@ -101,7 +101,7 @@ def main():
     # Phase 3: Hash verification — mtime-stable hash change
     events.append({
         "timestamp":               ts,
-        "layer":                   "dark_signature_morpher",
+        "layer":                   "signature_mutation_sim",
         "phase":                   "hash_verification_sim",
         "mitre_techniques":        MITRE_TECHNIQUES,
         "behavior_class":          "hash_mismatch_mtime_stable_sim",
@@ -120,7 +120,7 @@ def main():
         "no_payload_present": True,
     })
 
-    print(f"  [SHENRON]     dark_signature_morpher")
+    print(f"  [SHENRON]     signature_mutation_sim")
     print(f"  [TECHNIQUE]   {', '.join(MITRE_TECHNIQUES)}")
     print(f"  [BEHAVIOR]    polymorphic_mutation_sim x{num_cycles} cycles")
     print(f"  [EVENTS]      {len(events)} synthetic telemetry records")

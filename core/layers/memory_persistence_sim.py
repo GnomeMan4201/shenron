@@ -60,7 +60,7 @@ def simulate_memory_latch():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "undead_memory_latch",
+        "layer": "memory_persistence_sim",
         "phase": "injection_sim",
         "mitre_techniques": ["T1055"],
         "target_process_sim": target["name"],
@@ -86,7 +86,7 @@ def simulate_memory_latch():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "undead_memory_latch",
+        "layer": "memory_persistence_sim",
         "phase": "signal_block_sim",
         "mitre_techniques": ["T1055"],
         "signals_blocked_sim": blocked,
@@ -112,7 +112,7 @@ def simulate_memory_latch():
             "artifact_id": str(uuid.uuid4()),
             "session_id": session_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "layer": "undead_memory_latch",
+            "layer": "memory_persistence_sim",
             "phase": "watchdog_cycle",
             "mitre_techniques": ["T1547"],
             "cycle": i + 1,
@@ -136,7 +136,7 @@ def simulate_memory_latch():
     return session_id, target, events
 
 def print_simulation(session_id, target, events):
-    print(f"\n  [SIMULATION]  undead_memory_latch")
+    print(f"\n  [SIMULATION]  memory_persistence_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [TARGET_SIM]  {target['name']} (pid_sim={target['pid_sim']})")
     print(f"  [EVENTS]      {len(events)}")
@@ -164,7 +164,7 @@ def print_simulation(session_id, target, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no process spawning, no signal manipulation — simulation only")
 
-@register_payload(name="undead_memory_latch")
+@register_payload(name="memory_persistence_sim")
 def main():
     session_id, target, events = simulate_memory_latch()
     print_simulation(session_id, target, events)

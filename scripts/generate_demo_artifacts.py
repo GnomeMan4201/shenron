@@ -59,7 +59,7 @@ PHASES = ["OBSERVE", "SIMULATE", "EXECUTE", "ADAPT"]
 TECHNIQUE_MAP = {
     "OBSERVE": [
         ("beacon_emitter_cloak",        "T1071.001", "C2 beaconing shape — timing interval model"),
-        ("autonomous_signal_cloner",    "T1020",     "Signal clone across interfaces — descriptor only"),
+        ("signal_replication_sim",    "T1020",     "Signal clone across interfaces — descriptor only"),
         ("entropy_profiler",            "T1027",     "High-entropy payload region detector"),
         ("dns_shape_observer",          "T1071.004", "DNS query burst pattern — synthetic"),
         ("tls_fingerprint_recorder",    "T1573.001", "TLS JA3 fingerprint shape descriptor"),
@@ -70,10 +70,10 @@ TECHNIQUE_MAP = {
         ("auth_probe_logger",           "T1110",     "Credential probing event descriptor"),
     ],
     "SIMULATE": [
-        ("spectral_packet_weaver",      "T1048",     "Covert channel traffic shape — no socket"),
-        ("void_gateway_tunnel",         "T1095",     "Non-application layer protocol descriptor — no network"),
+        ("packet_covert_channel_sim",      "T1048",     "Covert channel traffic shape — no socket"),
+        ("covert_tunnel_sim",         "T1095",     "Non-application layer protocol descriptor — no network"),
         ("llm_prompt_injector",         "T1059.007", "LLM prompt injection telemetry shape"),
-        ("mirror_loop_deflector",       "T1070",     "Indicator removal / timestamp forge shape"),
+        ("traffic_reflection_sim",       "T1070",     "Indicator removal / timestamp forge shape"),
         ("lateral_probe_emitter",       "T1021",     "Remote service lateral probe shape"),
         ("payload_shape_model",         "T1027",     "Payload obfuscation pattern descriptor"),
         ("exfil_volume_sim",            "T1041",     "Data exfil volume shape — no data moved"),

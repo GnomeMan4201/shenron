@@ -21,25 +21,25 @@ tags:
   - attack.credential_access
 logsource:
   category: shenron_simulation
-  product: lsass_harvest_phantom
+  product: credential_harvest_sim
 detection:
   selection_lsass_dump:
-    layer: lsass_harvest_phantom
+    layer: credential_harvest_sim
     phase: lsass_dump
   selection_sam_dump:
-    layer: lsass_harvest_phantom
+    layer: credential_harvest_sim
     phase: sam_dump
   selection_ntds_extraction:
-    layer: lsass_harvest_phantom
+    layer: credential_harvest_sim
     phase: ntds_extraction
   selection_lsa_secrets:
-    layer: lsass_harvest_phantom
+    layer: credential_harvest_sim
     phase: lsa_secrets
   selection_cached_creds:
-    layer: lsass_harvest_phantom
+    layer: credential_harvest_sim
     phase: cached_creds
   selection_credential_files:
-    layer: lsass_harvest_phantom
+    layer: credential_harvest_sim
     phase: credential_files
   condition: 1 of selection_*
 falsepositives:

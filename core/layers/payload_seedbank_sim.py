@@ -80,7 +80,7 @@ def simulate_seedbank():
             "artifact_id": str(uuid.uuid4()),
             "session_id": session_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "layer": "recursive_payload_seedbank",
+            "layer": "payload_seedbank_sim",
             "phase": "seed_plant_sim",
             "mitre_techniques": ["T1027", "T1547"],
             "seed_index": seed_idx + 1,
@@ -115,7 +115,7 @@ def simulate_seedbank():
     return session_id, root_sim, events
 
 def print_simulation(session_id, root_sim, events):
-    print(f"\n  [SIMULATION]  recursive_payload_seedbank")
+    print(f"\n  [SIMULATION]  payload_seedbank_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [ROOT_SIM]    {root_sim}")
     print(f"  [SEEDS_SIM]   {len(events)}")
@@ -136,7 +136,7 @@ def print_simulation(session_id, root_sim, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no file writes, no chmod, no utime — telemetry only")
 
-@register_payload(name="recursive_payload_seedbank")
+@register_payload(name="payload_seedbank_sim")
 def main():
     session_id, root_sim, events = simulate_seedbank()
     print_simulation(session_id, root_sim, events)

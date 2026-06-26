@@ -57,7 +57,7 @@ def simulate_lure_illusion():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "evasion_lure_illusion",
+        "layer": "decoy_artifact_sim",
         "phase": "lure_selection",
         "mitre_techniques": ["T1036"],
         "behavior_class": "lure_selection",
@@ -80,7 +80,7 @@ def simulate_lure_illusion():
             "artifact_id": str(uuid.uuid4()),
             "session_id": session_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "layer": "evasion_lure_illusion",
+            "layer": "decoy_artifact_sim",
             "phase": "lure_deployment",
             "mitre_techniques": ["T1036", "T1055"],
             "behavior_class": "lure_deployment",
@@ -102,7 +102,7 @@ def simulate_lure_illusion():
 
 def print_simulation(session_id, lures, events):
     triggered = sum(1 for e in events if e.get("triggered"))
-    print(f"\n  [SIMULATION]  evasion_lure_illusion")
+    print(f"\n  [SIMULATION]  decoy_artifact_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [LURES_SIM]   {len(lures)} deployed, {triggered} triggered")
     print(f"  [EVENTS]      {len(events)}")
@@ -126,7 +126,7 @@ def print_simulation(session_id, lures, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no files created, no directories made — simulation only")
 
-@register_payload(name="evasion_lure_illusion")
+@register_payload(name="decoy_artifact_sim")
 def main():
     session_id, lures, events = simulate_lure_illusion()
     print_simulation(session_id, lures, events)

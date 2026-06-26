@@ -63,7 +63,7 @@ def simulate_shadow_rebuild():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "shadow_system_rebuilder",
+        "layer": "system_rebuild_sim",
         "phase": "integrity_scan",
         "mitre_techniques": ["T1547"],
         "files_scanned": len(scan_results),
@@ -87,7 +87,7 @@ def simulate_shadow_rebuild():
                 "artifact_id": str(uuid.uuid4()),
                 "session_id": session_id,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
-                "layer": "shadow_system_rebuilder",
+                "layer": "system_rebuild_sim",
                 "phase": "shadow_restore",
                 "mitre_techniques": ["T1543"],
                 "target_path_sim": result["path"],
@@ -110,7 +110,7 @@ def simulate_shadow_rebuild():
 
 def print_simulation(session_id, scan_results, events):
     mismatches = [r for r in scan_results if r["state"] != "match"]
-    print(f"\n  [SIMULATION]  shadow_system_rebuilder")
+    print(f"\n  [SIMULATION]  system_rebuild_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [FILES_SIM]   {len(scan_results)} scanned, {len(mismatches)} restored")
     print(f"  [EVENTS]      {len(events)}")
@@ -132,7 +132,7 @@ def print_simulation(session_id, scan_results, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no filesystem writes — simulation only")
 
-@register_payload(name="shadow_system_rebuilder")
+@register_payload(name="system_rebuild_sim")
 def main():
     session_id, scan_results, events = simulate_shadow_rebuild()
     print_simulation(session_id, scan_results, events)

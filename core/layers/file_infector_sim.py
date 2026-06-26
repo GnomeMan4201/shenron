@@ -58,7 +58,7 @@ def simulate_poltergeist():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "poltergeist_file_infector",
+        "layer": "file_infector_sim",
         "phase": "candidate_scan",
         "mitre_techniques": ["T1027"],
         "files_scanned_sim": len(candidates),
@@ -88,7 +88,7 @@ def simulate_poltergeist():
             "artifact_id": str(uuid.uuid4()),
             "session_id": session_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "layer": "poltergeist_file_infector",
+            "layer": "file_infector_sim",
             "phase": "candidate_evaluation",
             "mitre_techniques": ["T1027"],
             "file_path_sim": candidate["path"],
@@ -114,7 +114,7 @@ def simulate_poltergeist():
             "artifact_id": str(uuid.uuid4()),
             "session_id": session_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "layer": "poltergeist_file_infector",
+            "layer": "file_infector_sim",
             "phase": "infection_sim",
             "mitre_techniques": ["T1564.001"],
             "target_path_sim": target["path"],
@@ -138,7 +138,7 @@ def simulate_poltergeist():
     return session_id, target, events
 
 def print_simulation(session_id, target, events):
-    print(f"\n  [SIMULATION]  poltergeist_file_infector")
+    print(f"\n  [SIMULATION]  file_infector_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [TARGET_SIM]  {target['path'] if target else 'none selected'}")
     print(f"  [EVENTS]      {len(events)}")
@@ -165,7 +165,7 @@ def print_simulation(session_id, target, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no file writes, no filesystem traversal — simulation only")
 
-@register_payload(name="poltergeist_file_infector")
+@register_payload(name="file_infector_sim")
 def main():
     session_id, target, events = simulate_poltergeist()
     print_simulation(session_id, target, events)

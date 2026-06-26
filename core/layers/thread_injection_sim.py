@@ -25,7 +25,7 @@ SAFETY = {
 }
 
 
-@register_payload(name="phantom_thread_fabricator")
+@register_payload(name="thread_injection_sim")
 def main():
     ts = datetime.now(timezone.utc).isoformat()
     rng = random.Random(ts)
@@ -34,7 +34,7 @@ def main():
     # Phase 1: Thread inventory
     events.append({
         "timestamp":               ts,
-        "layer":                   "phantom_thread_fabricator",
+        "layer":                   "thread_injection_sim",
         "phase":                   "thread_inventory_sim",
         "mitre_techniques":        MITRE_TECHNIQUES,
         "behavior_class":          "thread_count_spike_sim",
@@ -57,7 +57,7 @@ def main():
         tmp_name = hashlib.md5((ts + "io" + str(i)).encode()).hexdigest()[:8]
         events.append({
             "timestamp":               ts,
-            "layer":                   "phantom_thread_fabricator",
+            "layer":                   "thread_injection_sim",
             "phase":                   "io_chatter_sim",
             "mitre_techniques":        MITRE_TECHNIQUES,
             "behavior_class":          "io_chatter_burst_sim",
@@ -79,7 +79,7 @@ def main():
     # Phase 3: Log rotation noise
     events.append({
         "timestamp":               ts,
-        "layer":                   "phantom_thread_fabricator",
+        "layer":                   "thread_injection_sim",
         "phase":                   "log_rotation_sim",
         "mitre_techniques":        MITRE_TECHNIQUES,
         "behavior_class":          "log_rotation_spoof_sim",
@@ -97,7 +97,7 @@ def main():
         "no_payload_present": True,
     })
 
-    print(f"  [SHENRON]     phantom_thread_fabricator")
+    print(f"  [SHENRON]     thread_injection_sim")
     print(f"  [TECHNIQUE]   {', '.join(MITRE_TECHNIQUES)}")
     print(f"  [BEHAVIOR]    anti_forensic_noise_sim — {num_cycles} IO cycles + thread inventory + log rotation")
     print(f"  [EVENTS]      {len(events)} synthetic telemetry records")

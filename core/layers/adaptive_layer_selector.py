@@ -62,7 +62,7 @@ def simulate_brainstem():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "adaptive_brainstem",
+        "layer": "adaptive_layer_selector",
         "phase": "state_load_sim",
         "mitre_techniques": ["T1027"],
         "behavior_class": "state_file_round_counter_read_sim",
@@ -86,7 +86,7 @@ def simulate_brainstem():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "adaptive_brainstem",
+        "layer": "adaptive_layer_selector",
         "phase": "decision_cycle_sim",
         "mitre_techniques": ["T1620"],
         "behavior_class": "round_based_layer_selection_sim",
@@ -114,7 +114,7 @@ def simulate_brainstem():
             "artifact_id": str(uuid.uuid4()),
             "session_id": session_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "layer": "adaptive_brainstem",
+            "layer": "adaptive_layer_selector",
             "phase": "layer_dispatch_sim",
             "mitre_techniques": ["T1620"],
             "behavior_class": "subprocess_popen_chain_decision_sim",
@@ -139,7 +139,7 @@ def simulate_brainstem():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "adaptive_brainstem",
+        "layer": "adaptive_layer_selector",
         "phase": "state_update_sim",
         "mitre_techniques": ["T1027"],
         "behavior_class": "state_file_round_counter_update_sim",
@@ -161,7 +161,7 @@ def simulate_brainstem():
     return session_id, round_count, selected_layers, events
 
 def print_simulation(session_id, round_count, selected_layers, events):
-    print(f"\n  [SIMULATION]  adaptive_brainstem")
+    print(f"\n  [SIMULATION]  adaptive_layer_selector")
     print(f"  [SESSION]     {session_id}")
     print(f"  [ROUND_SIM]   {round_count}")
     print(f"  [SELECTED]    {selected_layers}")
@@ -193,7 +193,7 @@ def print_simulation(session_id, round_count, selected_layers, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no subprocess, no state file writes — telemetry only")
 
-@register_payload(name="adaptive_brainstem")
+@register_payload(name="adaptive_layer_selector")
 def main():
     session_id, round_count, selected_layers, events = simulate_brainstem()
     print_simulation(session_id, round_count, selected_layers, events)

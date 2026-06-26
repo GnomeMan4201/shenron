@@ -77,7 +77,7 @@ def _base_event(session_id: str, mitre: list, behavior: str, opps: list, phase: 
     return {
         "artifact_id":            str(uuid.uuid4()),
         "session_id":             session_id,
-        "layer":                  "lotl_execution_phantom",
+        "layer":                  "lotl_execution_sim",
         "phase":                  phase,
         "mitre_techniques":       mitre,
         "behavior_class":         behavior,
@@ -322,7 +322,7 @@ def _phase_interp_masquerade(session_id: str):
 
 # ── Layer registration ─────────────────────────────────────────────────────────
 
-@register_payload("lotl_execution_phantom")
+@register_payload("lotl_execution_sim")
 def main():
     session_id = str(uuid.uuid4())
     events = []
@@ -336,7 +336,7 @@ def main():
         ("interp_masquerade", _phase_interp_masquerade),
     ]
 
-    print(f"\n  [SIMULATION]  lotl_execution_phantom")
+    print(f"\n  [SIMULATION]  lotl_execution_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [EVENTS]      {len(phases)}")
     print(f"  [MITRE]       T1059, T1059.004, T1059.006, T1059.007, T1140, T1027, T1105, T1036")

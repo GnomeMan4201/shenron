@@ -94,7 +94,7 @@ def _base_event(session_id: str, mitre: list,
     return {
         "artifact_id":             str(uuid.uuid4()),
         "session_id":              session_id,
-        "layer":                   "lsass_harvest_phantom",
+        "layer":                   "credential_harvest_sim",
         "phase":                   phase,
         "mitre_techniques":        mitre,
         "behavior_class":          behavior,
@@ -379,7 +379,7 @@ def _phase_credential_files(session_id: str) -> dict:
 
 # ── Layer registration ─────────────────────────────────────────────────────────
 
-@register_payload("lsass_harvest_phantom")
+@register_payload("credential_harvest_sim")
 def main():
     session_id = str(uuid.uuid4())
     events     = []
@@ -393,7 +393,7 @@ def main():
         ("credential_files",  _phase_credential_files),
     ]
 
-    print(f"\n  [SIMULATION]  lsass_harvest_phantom")
+    print(f"\n  [SIMULATION]  credential_harvest_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [EVENTS]      {len(phases)}")
     print(f"  [MITRE]       T1003, T1003.001, T1003.002, T1003.003, T1003.004, T1003.005, T1552, T1552.001, T1555")

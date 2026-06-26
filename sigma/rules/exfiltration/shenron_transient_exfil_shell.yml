@@ -6,7 +6,7 @@ description: >
   ephemeral high-port TCP listeners with single lifecycle, outbound connections
   on non-standard ports from non-network processes, and data transfer followed
   immediately by socket close.
-  Designed for validation against SHENRON transient_exfil_shell layer output.
+  Designed for validation against SHENRON transient_exfil_sim layer output.
 author: GnomeMan4201 / badBANANA Research Collective
 date: 2026-06-22
 references:
@@ -17,10 +17,10 @@ tags:
   - attack.exfiltration
 logsource:
   category: shenron_simulation
-  product: transient_exfil_shell
+  product: transient_exfil_sim
 detection:
   selection:
-    layer: transient_exfil_shell
+    layer: transient_exfil_sim
   condition: selection
 falsepositives:
   - Ephemeral service ports in microservice architectures

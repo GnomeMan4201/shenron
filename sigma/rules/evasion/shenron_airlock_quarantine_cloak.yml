@@ -5,7 +5,7 @@ description: >
   Detects synthetic telemetry patterns consistent with quarantine cloaking:
   access to AV quarantine directories from non-AV processes, AV engine probing,
   and signature hash spoofing with benign headers on suspicious files.
-  Designed for validation against SHENRON airlock_quarantine_cloak layer output.
+  Designed for validation against SHENRON sandbox_evasion_sim layer output.
 author: GnomeMan4201 / badBANANA Research Collective
 date: 2026-06-02
 references:
@@ -16,14 +16,14 @@ tags:
   - attack.defense_evasion
 logsource:
   category: shenron_simulation
-  product: airlock_quarantine_cloak
+  product: sandbox_evasion_sim
 detection:
   selection_av_profiling:
-    layer: airlock_quarantine_cloak
+    layer: sandbox_evasion_sim
     phase: av_profiling
 
   selection_quarantine_entry:
-    layer: airlock_quarantine_cloak
+    layer: sandbox_evasion_sim
     phase: quarantine_entry_sim
 
   condition: 1 of selection_*

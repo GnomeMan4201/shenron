@@ -12,7 +12,7 @@ from core.sigma.evaluator import evaluate_sigma_rule, _evaluate_detection_block,
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
-def _art(layer="dormant_sleeper_seed", techniques=None, behavior_class=None,
+def _art(layer="dormant_persistence_sim", techniques=None, behavior_class=None,
          detection_opps=None, phase="persistence_install", **kw):
     base = {
         "artifact_id":      "test-001",
@@ -34,7 +34,7 @@ def _persistence_artifacts():
         _art(techniques=["T1053","T1547"],
              behavior_class="persistence_trigger_sim",
              detection_opps=["scheduled_task_creation","cron_modification_sim"]),
-        _art(layer="undead_memory_latch",
+        _art(layer="memory_persistence_sim",
              techniques=["T1055","T1547"],
              behavior_class="process_injection_watchdog_sim",
              detection_opps=["process_injection_attempt_sim","watchdog_revival_sim"]),
@@ -52,7 +52,7 @@ def _c2_artifacts():
              behavior_class="http_beacon_sim",
              detection_opps=["periodic_beacon_to_external_host","http_beacon_sim"],
              phase="c2_beacon"),
-        _art(layer="spectral_packet_weaver",
+        _art(layer="packet_covert_channel_sim",
              techniques=["T1095","T1001"],
              behavior_class="covert_channel_dns_sim",
              detection_opps=["covert_channel_traffic","dns_tunneling_high_entropy"],
@@ -62,7 +62,7 @@ def _c2_artifacts():
 
 def _entropy_artifacts():
     return [
-        _art(layer="quantum_entropy_distorter",
+        _art(layer="entropy_injection_sim",
              techniques=["T1027","T1001"],
              behavior_class="high_entropy_sim",
              detection_opps=["log_file_high_entropy_content_non_logging_source"],

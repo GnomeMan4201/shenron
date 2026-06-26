@@ -2,7 +2,7 @@ title: SHENRON Generated — Mirror Loop Deflector
 id: shenron-gen-mirror-loop-deflecto-a815bf
 status: experimental
 description: >
-    Generated rule for mirror_loop_deflector. SHENRON: Mirror Loop Deflector — Process Reflection & Cloaking
+    Generated rule for traffic_reflection_sim. SHENRON: Mirror Loop Deflector — Process Reflection & Cloaking
 author: shenron-generator / gnomeman4201 / badBANANA Research Collective
 date: 2026-06-25
 references:
@@ -17,7 +17,7 @@ logsource:
     service: process
 detection:
     selection_layer:
-        layer: mirror_loop_deflector
+        layer: traffic_reflection_sim
         behavior_class: defensive_impair_signal
     selection_signals:
         detection_opp:

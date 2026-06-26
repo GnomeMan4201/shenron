@@ -5,7 +5,7 @@ description: >
   Detects synthetic telemetry patterns consistent with process masquerading:
   process names matching known system daemons but running from non-standard paths,
   fabricated command-line arguments, and PID spoofing.
-  Designed for validation against SHENRON mirror_loop_deflector layer output.
+  Designed for validation against SHENRON traffic_reflection_sim layer output.
 author: GnomeMan4201 / badBANANA Research Collective
 date: 2026-06-02
 references:
@@ -16,14 +16,14 @@ tags:
   - attack.defense_evasion
 logsource:
   category: shenron_simulation
-  product: mirror_loop_deflector
+  product: traffic_reflection_sim
 detection:
   selection_masquerade:
-    layer: mirror_loop_deflector
+    layer: traffic_reflection_sim
     phase: process_masquerade
 
   selection_deflection:
-    layer: mirror_loop_deflector
+    layer: traffic_reflection_sim
     phase: deflection_loop
 
   condition: 1 of selection_*

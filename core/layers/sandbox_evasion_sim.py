@@ -60,7 +60,7 @@ def simulate_quarantine_cloak():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "airlock_quarantine_cloak",
+        "layer": "sandbox_evasion_sim",
         "phase": "av_profiling",
         "mitre_techniques": ["T1036"],
         "behavior_class": "av_profiling",
@@ -85,7 +85,7 @@ def simulate_quarantine_cloak():
             "artifact_id": str(uuid.uuid4()),
             "session_id": session_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "layer": "airlock_quarantine_cloak",
+            "layer": "sandbox_evasion_sim",
             "phase": "quarantine_entry_sim",
             "mitre_techniques": ["T1564"],
             "behavior_class": "quarantine_entry_sim",
@@ -107,7 +107,7 @@ def simulate_quarantine_cloak():
 
 def print_simulation(session_id, av_engine, events):
     bypassed = sum(1 for e in events if e.get("bypassed"))
-    print(f"\n  [SIMULATION]  airlock_quarantine_cloak")
+    print(f"\n  [SIMULATION]  sandbox_evasion_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [AV_SIM]      {av_engine}")
     print(f"  [EVENTS]      {len(events)}")
@@ -131,7 +131,7 @@ def print_simulation(session_id, av_engine, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no files created, no quarantine interaction — simulation only")
 
-@register_payload(name="airlock_quarantine_cloak")
+@register_payload(name="sandbox_evasion_sim")
 def main():
     session_id, av_engine, events = simulate_quarantine_cloak()
     print_simulation(session_id, av_engine, events)

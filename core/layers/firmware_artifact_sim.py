@@ -63,7 +63,7 @@ def simulate_bios_artifact():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "forged_bios_artifact",
+        "layer": "firmware_artifact_sim",
         "phase": "bios_log_forge_sim",
         "mitre_techniques": ["T1542"],
         "behavior_class": "bios_tamper_log_write_sim",
@@ -100,7 +100,7 @@ def simulate_bios_artifact():
             "artifact_id": str(uuid.uuid4()),
             "session_id": session_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "layer": "forged_bios_artifact",
+            "layer": "firmware_artifact_sim",
             "phase": "uefi_trace_plant_sim",
             "mitre_techniques": ["T1036"],
             "behavior_class": "uefi_artifact_plant_sim",
@@ -127,7 +127,7 @@ def simulate_bios_artifact():
     return session_id, selected_bios_events, selected_uefi, events
 
 def print_simulation(session_id, bios_events, uefi_artifacts, events):
-    print(f"\n  [SIMULATION]  forged_bios_artifact")
+    print(f"\n  [SIMULATION]  firmware_artifact_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [BIOS_SIM]    {len(bios_events)} events forged")
     print(f"  [UEFI_SIM]    {len(uefi_artifacts)} artifacts planted")
@@ -154,7 +154,7 @@ def print_simulation(session_id, bios_events, uefi_artifacts, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no file writes, no firmware interaction — telemetry only")
 
-@register_payload(name="forged_bios_artifact")
+@register_payload(name="firmware_artifact_sim")
 def main():
     session_id, bios_events, uefi_artifacts, events = simulate_bios_artifact()
     print_simulation(session_id, bios_events, uefi_artifacts, events)

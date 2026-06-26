@@ -60,7 +60,7 @@ def simulate_reanimator():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "ethereal_payload_reanimator",
+        "layer": "payload_revival_sim",
         "phase": "payload_dir_enum",
         "mitre_techniques": ["T1055"],
         "behavior_class": "payload_directory_scan_sim",
@@ -88,7 +88,7 @@ def simulate_reanimator():
             "artifact_id": str(uuid.uuid4()),
             "session_id": session_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "layer": "ethereal_payload_reanimator",
+            "layer": "payload_revival_sim",
             "phase": "revival_attempt",
             "mitre_techniques": ["T1620"],
             "behavior_class": behavior,
@@ -117,7 +117,7 @@ def simulate_reanimator():
     return session_id, payloads_sim, events
 
 def print_simulation(session_id, payloads_sim, events):
-    print(f"\n  [SIMULATION]  ethereal_payload_reanimator")
+    print(f"\n  [SIMULATION]  payload_revival_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [PAYLOADS]    {len(payloads_sim)} found in dir_sim")
     print(f"  [EVENTS]      {len(events)}")
@@ -143,7 +143,7 @@ def print_simulation(session_id, payloads_sim, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no subprocess calls — telemetry only")
 
-@register_payload(name="ethereal_payload_reanimator")
+@register_payload(name="payload_revival_sim")
 def main():
     session_id, payloads_sim, events = simulate_reanimator()
     print_simulation(session_id, payloads_sim, events)

@@ -56,7 +56,7 @@ DETECTION_OPPORTUNITIES = [
 def _sim_hash():
     return hashlib.sha256(os.urandom(16)).hexdigest()
 
-def simulate_cognitive_replicator():
+def simulate_file_replica_dropper():
     session_id = str(uuid.uuid4())
     hostname_sim = f"shenron_host_sim_{random.randint(1000,9999)}"
     events = []
@@ -71,7 +71,7 @@ def simulate_cognitive_replicator():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "cognitive_replicator",
+        "layer": "file_replica_dropper",
         "phase": "source_enumeration",
         "mitre_techniques": ["T1036"],
         "behavior_class": "mutated_payload_dir_scan_sim",
@@ -101,7 +101,7 @@ def simulate_cognitive_replicator():
                 "artifact_id": str(uuid.uuid4()),
                 "session_id": session_id,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
-                "layer": "cognitive_replicator",
+                "layer": "file_replica_dropper",
                 "phase": "replica_drop_sim",
                 "mitre_techniques": ["T1078"],
                 "behavior_class": behavior,
@@ -130,7 +130,7 @@ def simulate_cognitive_replicator():
 
 def print_simulation(session_id, hostname_sim, targets, source_payloads, events):
     drops = [e for e in events if e["phase"] == "replica_drop_sim"]
-    print(f"\n  [SIMULATION]  cognitive_replicator")
+    print(f"\n  [SIMULATION]  file_replica_dropper")
     print(f"  [SESSION]     {session_id}")
     print(f"  [HOSTNAME]    {hostname_sim}")
     print(f"  [TARGETS_SIM] {len(targets)}")
@@ -156,9 +156,9 @@ def print_simulation(session_id, hostname_sim, targets, source_payloads, events)
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no file writes, no chmod — telemetry only")
 
-@register_payload(name="cognitive_replicator")
+@register_payload(name="file_replica_dropper")
 def main():
-    session_id, hostname_sim, targets, source_payloads, events = simulate_cognitive_replicator()
+    session_id, hostname_sim, targets, source_payloads, events = simulate_file_replica_dropper()
     print_simulation(session_id, hostname_sim, targets, source_payloads, events)
 
 if __name__ == "__main__":

@@ -65,7 +65,7 @@ def simulate_temporal_mirage():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "temporal_mirage_emulator",
+        "layer": "timestamp_decoy_sim",
         "phase": "clock_drift_sim",
         "mitre_techniques": ["T1070"],
         "behavior_class": "clock_drift_sim",
@@ -91,7 +91,7 @@ def simulate_temporal_mirage():
             "artifact_id": str(uuid.uuid4()),
             "session_id": session_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "layer": "temporal_mirage_emulator",
+            "layer": "timestamp_decoy_sim",
             "phase": "timestamp_forge",
             "mitre_techniques": ["T1036"],
             "behavior_class": "timestamp_forge",
@@ -112,7 +112,7 @@ def simulate_temporal_mirage():
     return session_id, drift_dir, drift_minutes, targets, events
 
 def print_simulation(session_id, drift_dir, drift_minutes, targets, events):
-    print(f"\n  [SIMULATION]  temporal_mirage_emulator")
+    print(f"\n  [SIMULATION]  timestamp_decoy_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [DRIFT_SIM]   {drift_dir} ({drift_minutes:+}min)")
     print(f"  [TARGETS_SIM] {len(targets)}")
@@ -138,7 +138,7 @@ def print_simulation(session_id, drift_dir, drift_minutes, targets, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no file writes, no system time changes — simulation only")
 
-@register_payload(name="temporal_mirage_emulator")
+@register_payload(name="timestamp_decoy_sim")
 def main():
     session_id, drift_dir, drift_minutes, targets, events = simulate_temporal_mirage()
     print_simulation(session_id, drift_dir, drift_minutes, targets, events)

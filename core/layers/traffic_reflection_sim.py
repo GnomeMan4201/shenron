@@ -57,7 +57,7 @@ def simulate_mirror_loop():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "mirror_loop_deflector",
+        "layer": "traffic_reflection_sim",
         "phase": "process_masquerade",
         "mitre_techniques": ["T1036.005"],
         "behavior_class": "process_masquerade",
@@ -83,7 +83,7 @@ def simulate_mirror_loop():
             "artifact_id": str(uuid.uuid4()),
             "session_id": session_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "layer": "mirror_loop_deflector",
+            "layer": "traffic_reflection_sim",
             "phase": "deflection_loop",
             "mitre_techniques": ["T1070"],
             "behavior_class": "deflection_loop",
@@ -105,7 +105,7 @@ def simulate_mirror_loop():
     return session_id, target_proc, pid_sim, events
 
 def print_simulation(session_id, target_proc, pid_sim, events):
-    print(f"\n  [SIMULATION]  mirror_loop_deflector")
+    print(f"\n  [SIMULATION]  traffic_reflection_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [MASQ_SIM]    {target_proc['name']} (pid_sim={pid_sim})")
     print(f"  [EVENTS]      {len(events)}")
@@ -129,7 +129,7 @@ def print_simulation(session_id, target_proc, pid_sim, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no process spawning, no file writes — simulation only")
 
-@register_payload(name="mirror_loop_deflector")
+@register_payload(name="traffic_reflection_sim")
 def main():
     session_id, target_proc, pid_sim, events = simulate_mirror_loop()
     print_simulation(session_id, target_proc, pid_sim, events)

@@ -28,7 +28,7 @@ EXAMPLE_SCENARIO = {
             "expected_findings": ["periodic_beacon_to_external_host", "dns_subdomain_query"],
         },
         "EXECUTE": {
-            "layers": ["dormant_sleeper_seed"],
+            "layers": ["dormant_persistence_sim"],
             "expected_findings": ["scheduled_task_creation"],
         },
     }

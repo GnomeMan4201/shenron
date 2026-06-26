@@ -55,7 +55,7 @@ def simulate_rootkit_shroud():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "spectral_rootkit_shroud",
+        "layer": "rootkit_evasion_sim",
         "phase": "syscall_hook_sim",
         "mitre_techniques": ["T1014"],
         "behavior_class": "syscall_hook_sim",
@@ -77,7 +77,7 @@ def simulate_rootkit_shroud():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "spectral_rootkit_shroud",
+        "layer": "rootkit_evasion_sim",
         "phase": "artifact_hiding_sim",
         "mitre_techniques": ["T1564"],
         "behavior_class": "artifact_hiding_sim",
@@ -101,7 +101,7 @@ def simulate_rootkit_shroud():
             "artifact_id": str(uuid.uuid4()),
             "session_id": session_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "layer": "spectral_rootkit_shroud",
+            "layer": "rootkit_evasion_sim",
             "phase": "noise_injection",
             "mitre_techniques": ["T1014"],
             "behavior_class": "noise_injection",
@@ -119,7 +119,7 @@ def simulate_rootkit_shroud():
     return session_id, hooks, hidden, events
 
 def print_simulation(session_id, hooks, hidden, events):
-    print(f"\n  [SIMULATION]  spectral_rootkit_shroud")
+    print(f"\n  [SIMULATION]  rootkit_evasion_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [HOOKS_SIM]   {len(hooks)}")
     print(f"  [HIDDEN_SIM]  {len(hidden)}")
@@ -144,7 +144,7 @@ def print_simulation(session_id, hooks, hidden, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no kernel interaction, no hooking — simulation only")
 
-@register_payload(name="spectral_rootkit_shroud")
+@register_payload(name="rootkit_evasion_sim")
 def main():
     session_id, hooks, hidden, events = simulate_rootkit_shroud()
     print_simulation(session_id, hooks, hidden, events)

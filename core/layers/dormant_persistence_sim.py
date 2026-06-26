@@ -62,7 +62,7 @@ def simulate_sleeper_seed():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "dormant_sleeper_seed",
+        "layer": "dormant_persistence_sim",
         "phase": "persistence_install",
         "mitre_techniques": ["T1053", "T1547"],
         "mechanism_type": mechanism["type"],
@@ -86,7 +86,7 @@ def simulate_sleeper_seed():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "dormant_sleeper_seed",
+        "layer": "dormant_persistence_sim",
         "phase": "trigger_registration",
         "mitre_techniques": ["T1053"],
         "trigger_type": random.choice(FAKE_TRIGGER_TYPES),
@@ -113,7 +113,7 @@ def simulate_sleeper_seed():
             "artifact_id": str(uuid.uuid4()),
             "session_id": session_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "layer": "dormant_sleeper_seed",
+            "layer": "dormant_persistence_sim",
             "phase": "trigger_evaluation",
             "mitre_techniques": ["T1053"],
             "check_number": i + 1,
@@ -134,7 +134,7 @@ def simulate_sleeper_seed():
     return session_id, events
 
 def print_simulation(session_id, events):
-    print(f"\n  [SIMULATION]  dormant_sleeper_seed")
+    print(f"\n  [SIMULATION]  dormant_persistence_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [EVENTS]      {len(events)}")
     print(f"  [MITRE]       T1053, T1547")
@@ -162,7 +162,7 @@ def print_simulation(session_id, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no execution, no loops — simulation artifact only")
 
-@register_payload(name="dormant_sleeper_seed")
+@register_payload(name="dormant_persistence_sim")
 def main():
     session_id, events = simulate_sleeper_seed()
     print_simulation(session_id, events)

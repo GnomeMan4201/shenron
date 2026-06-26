@@ -2,7 +2,7 @@ title: SHENRON Generated — Void Gateway Tunnel
 id: shenron-gen-void-gateway-tunnel-33f93c
 status: experimental
 description: >
-    Generated rule for void_gateway_tunnel. SHENRON // void_gateway_tunnel
+    Generated rule for covert_tunnel_sim. SHENRON // covert_tunnel_sim
 author: shenron-generator / gnomeman4201 / badBANANA Research Collective
 date: 2026-06-25
 references:
@@ -17,7 +17,7 @@ logsource:
     service: network
 detection:
     selection_layer:
-        layer: void_gateway_tunnel
+        layer: covert_tunnel_sim
         behavior_class: protocol_tunnel_shape
     selection_signals:
         detection_opp:

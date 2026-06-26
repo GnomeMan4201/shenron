@@ -14,7 +14,7 @@ import hashlib
 from pathlib import Path
 
 DEMO_PATH     = Path("artifacts/demo/shenron_demo_run.jsonl")
-EXPECTED_SHA256 = "3277081208e702ff3f5c960e22c4c87517e324f3bf40e6803afb49e3cb5882c1"
+EXPECTED_SHA256 = "6c8df17e8fafbccc1786d77d3d6351a3caa525e6059c090e714cd4c862a83d89"
 
 
 def test_demo_artifact_exists():

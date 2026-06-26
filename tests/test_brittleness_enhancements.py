@@ -24,7 +24,7 @@ def base_artifact():
     return {
         "artifact_id": "test-001",
         "session_id": "sess-test",
-        "layer": "lotl_execution_phantom",
+        "layer": "lotl_execution_sim",
         "behavior_class": "interpreter_inline_exec_sim",
         "detection_opportunities": ["interpreter_spawn_no_script_arg_sim"],
         "mitre_techniques": ["T1059"],

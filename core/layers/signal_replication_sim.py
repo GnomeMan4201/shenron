@@ -58,7 +58,7 @@ def simulate_signal_cloner():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "autonomous_signal_cloner",
+        "layer": "signal_replication_sim",
         "phase": "interface_enumeration",
         "mitre_techniques": ["T1071"],
         "behavior_class": "interface_enumeration",
@@ -85,7 +85,7 @@ def simulate_signal_cloner():
             "artifact_id": str(uuid.uuid4()),
             "session_id": session_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "layer": "autonomous_signal_cloner",
+            "layer": "signal_replication_sim",
             "phase": "signal_clone",
             "mitre_techniques": ["T1071", "T1102"],
             "behavior_class": "signal_clone",
@@ -108,7 +108,7 @@ def simulate_signal_cloner():
 
 def print_simulation(session_id, iface, events):
     established = sum(1 for e in events if e.get("established"))
-    print(f"\n  [SIMULATION]  autonomous_signal_cloner")
+    print(f"\n  [SIMULATION]  signal_replication_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [IFACE_SIM]   {iface['iface']} ({iface['ip_sim']})")
     print(f"  [EVENTS]      {len(events)}")
@@ -133,7 +133,7 @@ def print_simulation(session_id, iface, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no network calls — simulation only")
 
-@register_payload(name="autonomous_signal_cloner")
+@register_payload(name="signal_replication_sim")
 def main():
     session_id, iface, events = simulate_signal_cloner()
     print_simulation(session_id, iface, events)

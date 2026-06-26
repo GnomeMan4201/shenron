@@ -67,7 +67,7 @@ def simulate_exfil_shell():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "transient_exfil_shell",
+        "layer": "transient_exfil_sim",
         "phase": "shell_spawn_sim",
         "mitre_techniques": ["T1041"],
         "behavior_class": "transient_listener_spawn_sim",
@@ -97,7 +97,7 @@ def simulate_exfil_shell():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "transient_exfil_shell",
+        "layer": "transient_exfil_sim",
         "phase": "data_transfer_sim",
         "mitre_techniques": ["T1048"],
         "behavior_class": "one_shot_exfil_transfer_sim",
@@ -127,7 +127,7 @@ def simulate_exfil_shell():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "transient_exfil_shell",
+        "layer": "transient_exfil_sim",
         "phase": "shell_dissolve_sim",
         "mitre_techniques": ["T1041"],
         "behavior_class": "transient_channel_teardown_sim",
@@ -150,7 +150,7 @@ def simulate_exfil_shell():
     return session_id, proto_sim, port_sim, events
 
 def print_simulation(session_id, proto_sim, port_sim, events):
-    print(f"\n  [SIMULATION]  transient_exfil_shell")
+    print(f"\n  [SIMULATION]  transient_exfil_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [PROTO_SIM]   {proto_sim['proto']} / {proto_sim['desc']}")
     print(f"  [PORT_SIM]    {port_sim}")
@@ -175,7 +175,7 @@ def print_simulation(session_id, proto_sim, port_sim, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no sockets bound — telemetry only")
 
-@register_payload(name="transient_exfil_shell")
+@register_payload(name="transient_exfil_sim")
 def main():
     session_id, proto_sim, port_sim, events = simulate_exfil_shell()
     print_simulation(session_id, proto_sim, port_sim, events)

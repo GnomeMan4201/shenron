@@ -59,7 +59,7 @@ def simulate_dreamdive():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "dreamdive_overlay",
+        "layer": "memory_overlay_sim",
         "phase": "target_selection",
         "mitre_techniques": ["T1070.001"],
         "behavior_class": "target_selection",
@@ -83,7 +83,7 @@ def simulate_dreamdive():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "dreamdive_overlay",
+        "layer": "memory_overlay_sim",
         "phase": "log_injection_sim",
         "mitre_techniques": ["T1036"],
         "behavior_class": "log_injection_sim",
@@ -108,7 +108,7 @@ def simulate_dreamdive():
     return session_id, targets, method, fake_logs, events
 
 def print_simulation(session_id, targets, method, fake_logs, events):
-    print(f"\n  [SIMULATION]  dreamdive_overlay")
+    print(f"\n  [SIMULATION]  memory_overlay_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [TARGETS_SIM] {len(targets)}")
     print(f"  [METHOD_SIM]  {method}")
@@ -135,7 +135,7 @@ def print_simulation(session_id, targets, method, fake_logs, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no file writes, no real log injection — simulation only")
 
-@register_payload(name="dreamdive_overlay")
+@register_payload(name="memory_overlay_sim")
 def main():
     session_id, targets, method, fake_logs, events = simulate_dreamdive()
     print_simulation(session_id, targets, method, fake_logs, events)

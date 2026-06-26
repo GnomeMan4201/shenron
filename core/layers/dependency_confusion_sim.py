@@ -1,5 +1,5 @@
 """
-SHENRON Simulation Layer: dependency_confusion_phantom
+SHENRON Simulation Layer: dependency_confusion_sim
 Category: payload
 Phase: supply_chain_infiltration
 ATT&CK: T1195.001 (Supply Chain Compromise: Compromise Software Dependencies)
@@ -34,7 +34,7 @@ from datetime import datetime, timezone
 
 
 LAYER_META = {
-    "layer": "dependency_confusion_phantom",
+    "layer": "dependency_confusion_sim",
     "category": "payload",
     "subcategory": "supply_chain",
     "phase": "supply_chain_infiltration",
@@ -414,7 +414,7 @@ def _get_artifact_log():
     return p
 
 
-@register_payload(name="dependency_confusion_phantom")
+@register_payload(name="dependency_confusion_sim")
 def run(dry_run=False):
     artifact_id = str(uuid.uuid4())
     events = []
@@ -440,7 +440,7 @@ def run(dry_run=False):
             for ev in events:
                 f.write(__import__("json").dumps(ev) + "\n")
 
-        print(f"  [SIMULATION]  dependency_confusion_phantom")
+        print(f"  [SIMULATION]  dependency_confusion_sim")
         print(f"  [SESSION]     {artifact_id}")
         print(f"  [EVENTS]      {len(events)}")
         print(f"  [MITRE]       {', '.join(LAYER_META['mitre_techniques'])}")

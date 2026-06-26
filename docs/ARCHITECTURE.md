@@ -40,7 +40,7 @@ tests/                  — 335 tests
 
 `discover_canonical()` in `core/engine/layer_loader.py` filters the 50 canonical layers
 from mutation variants using a naming convention heuristic. Variants have 6-character
-alphanumeric suffixes (e.g. `adaptive_brainstem_PTYLo3.py`). Only the shortest-named
+alphanumeric suffixes (e.g. `adaptive_layer_selector_PTYLo3.py`). Only the shortest-named
 file per layer type is loaded and executed.
 
 Layers emit synthetic telemetry as dicts with flat safety fields:

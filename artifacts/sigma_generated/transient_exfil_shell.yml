@@ -2,7 +2,7 @@ title: SHENRON Generated — Transient Exfil Shell
 id: shenron-gen-transient-exfil-shel-71a68f
 status: experimental
 description: >
-    Generated rule for transient_exfil_shell. SHENRON Layer: Transient Exfiltration Shell
+    Generated rule for transient_exfil_sim. SHENRON Layer: Transient Exfiltration Shell
 author: shenron-generator / gnomeman4201 / badBANANA Research Collective
 date: 2026-06-25
 references:
@@ -18,7 +18,7 @@ logsource:
     service: network
 detection:
     selection_layer:
-        layer: transient_exfil_shell
+        layer: transient_exfil_sim
         behavior_class|contains:
             - one_shot_exfil_transfer_sim
             - transient_listener_spawn_sim

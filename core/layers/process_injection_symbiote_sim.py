@@ -65,7 +65,7 @@ def simulate_symbiote():
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "layer": "symbiote_payload",
+        "layer": "process_injection_symbiote_sim",
         "phase": "revival_script_stage_sim",
         "mitre_techniques": ["T1055"],
         "behavior_class": revival_behavior,
@@ -95,7 +95,7 @@ def simulate_symbiote():
             "artifact_id": str(uuid.uuid4()),
             "session_id": session_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "layer": "symbiote_payload",
+            "layer": "process_injection_symbiote_sim",
             "phase": "rc_injection_sim",
             "mitre_techniques": ["T1027"],
             "behavior_class": behavior,
@@ -126,7 +126,7 @@ def simulate_symbiote():
 def print_simulation(session_id, targets, events):
     injected = sum(1 for e in events
                    if e["phase"] == "rc_injection_sim" and not e["injection_skipped"])
-    print(f"\n  [SIMULATION]  symbiote_payload")
+    print(f"\n  [SIMULATION]  process_injection_symbiote_sim")
     print(f"  [SESSION]     {session_id}")
     print(f"  [TARGETS_SIM] {len(targets)}")
     print(f"  [INJECTED]    {injected} (skipped {len(targets)-injected} already-present)")
@@ -153,7 +153,7 @@ def print_simulation(session_id, targets, events):
     print(f"  [LOGGED]      {_get_artifact_log()}")
     print(f"  [SAFE]        no bashrc writes, no inject strings — telemetry only")
 
-@register_payload(name="symbiote_payload")
+@register_payload(name="process_injection_symbiote_sim")
 def main():
     session_id, targets, events = simulate_symbiote()
     print_simulation(session_id, targets, events)

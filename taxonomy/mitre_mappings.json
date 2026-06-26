@@ -6,7 +6,7 @@
     "note": "Edit this file to update technique mappings. Do not edit layer files or manifest directly."
   },
   "layers": {
-    "autonomous_signal_cloner": {
+    "signal_replication_sim": {
       "techniques": [
         "T1071",
         "T1102"
@@ -20,7 +20,7 @@
       ],
       "tactic": "command-and-control"
     },
-    "dreamdive_overlay": {
+    "memory_overlay_sim": {
       "techniques": [
         "T1070.001",
         "T1036"
@@ -42,7 +42,7 @@
       ],
       "tactic": "lateral-movement"
     },
-    "spectral_packet_weaver": {
+    "packet_covert_channel_sim": {
       "techniques": [
         "T1095",
         "T1001",
@@ -50,21 +50,21 @@
       ],
       "tactic": "command-and-control"
     },
-    "temporal_mirage_emulator": {
+    "timestamp_decoy_sim": {
       "techniques": [
         "T1070",
         "T1036"
       ],
       "tactic": "defense-evasion"
     },
-    "temporal_payload_phaser": {
+    "payload_timing_sim": {
       "techniques": [
         "T1027",
         "T1140"
       ],
       "tactic": "defense-evasion"
     },
-    "entropy_anchor_dropper": {
+    "entropy_anchor_sim": {
       "techniques": [
         "T1027",
         "T1140"
@@ -77,35 +77,35 @@
       ],
       "tactic": "defense-evasion"
     },
-    "neural_entropy_seeder": {
+    "entropy_seeder_sim": {
       "techniques": [
         "T1027",
         "T1036"
       ],
       "tactic": "defense-evasion"
     },
-    "quantum_entanglement_relay": {
+    "covert_socket_relay": {
       "techniques": [
         "T1095",
         "T1572"
       ],
       "tactic": "command-and-control"
     },
-    "quantum_entropy_distorter": {
+    "entropy_injection_sim": {
       "techniques": [
         "T1027",
         "T1001"
       ],
       "tactic": "defense-evasion"
     },
-    "quantum_state_shuffler": {
+    "payload_hash_shuffler": {
       "techniques": [
         "T1027",
         "T1001"
       ],
       "tactic": "defense-evasion"
     },
-    "quantum_trace_rewinder": {
+    "timestamp_spoof_sim": {
       "techniques": [
         "T1070",
         "T1027"
@@ -119,7 +119,7 @@
       ],
       "tactic": "command-and-control"
     },
-    "airlock_quarantine_cloak": {
+    "sandbox_evasion_sim": {
       "techniques": [
         "T1564",
         "T1036"
@@ -133,7 +133,7 @@
       ],
       "tactic": "defense-evasion"
     },
-    "dark_signature_morpher": {
+    "signature_mutation_sim": {
       "techniques": [
         "T1027",
         "T1620",
@@ -141,21 +141,21 @@
       ],
       "tactic": "defense-evasion"
     },
-    "evasion_lure_illusion": {
+    "decoy_artifact_sim": {
       "techniques": [
         "T1036",
         "T1055"
       ],
       "tactic": "defense-evasion"
     },
-    "mirror_loop_deflector": {
+    "traffic_reflection_sim": {
       "techniques": [
         "T1036.005",
         "T1070"
       ],
       "tactic": "defense-evasion"
     },
-    "phantom_thread_fabricator": {
+    "thread_injection_sim": {
       "techniques": [
         "T1055.003",
         "T1036",
@@ -163,28 +163,28 @@
       ],
       "tactic": "defense-evasion"
     },
-    "spectral_rootkit_shroud": {
+    "rootkit_evasion_sim": {
       "techniques": [
         "T1014",
         "T1564"
       ],
       "tactic": "defense-evasion"
     },
-    "cognitive_replicator": {
+    "file_replica_dropper": {
       "techniques": [
         "T1036",
         "T1078"
       ],
       "tactic": "defense-evasion"
     },
-    "forged_bios_artifact": {
+    "firmware_artifact_sim": {
       "techniques": [
         "T1542",
         "T1036"
       ],
       "tactic": "persistence"
     },
-    "shenron_bio_replication": {
+    "device_fingerprint_spoof": {
       "techniques": [
         "T1036"
       ],
@@ -204,7 +204,7 @@
       ],
       "tactic": "defense-evasion"
     },
-    "dragons_breath_destructor": {
+    "antiforensic_wipe_sim": {
       "techniques": [
         "T1070",
         "T1485"
@@ -232,14 +232,14 @@
       ],
       "tactic": "defense-evasion"
     },
-    "adaptive_brainstem": {
+    "adaptive_layer_selector": {
       "techniques": [
         "T1027",
         "T1620"
       ],
       "tactic": "defense-evasion"
     },
-    "manifest_vampire": {
+    "manifest_hijack_sim": {
       "techniques": [
         "T1005",
         "T1119"
@@ -253,7 +253,7 @@
       ],
       "tactic": "defense-evasion"
     },
-    "shenron_holo_emitter": {
+    "process_masquerade_sim": {
       "techniques": [
         "T1036",
         "T1027"
@@ -267,7 +267,7 @@
       ],
       "tactic": "defense-evasion"
     },
-    "ethereal_payload_reanimator": {
+    "payload_revival_sim": {
       "techniques": [
         "T1055",
         "T1620"
@@ -288,35 +288,35 @@
       ],
       "tactic": "execution"
     },
-    "recursive_payload_seedbank": {
+    "payload_seedbank_sim": {
       "techniques": [
         "T1027",
         "T1547"
       ],
       "tactic": "persistence"
     },
-    "symbiote_payload": {
+    "process_injection_symbiote_sim": {
       "techniques": [
         "T1055",
         "T1027"
       ],
       "tactic": "defense-evasion"
     },
-    "transient_exfil_shell": {
+    "transient_exfil_sim": {
       "techniques": [
         "T1041",
         "T1048"
       ],
       "tactic": "exfiltration"
     },
-    "void_gateway_tunnel": {
+    "covert_tunnel_sim": {
       "techniques": [
         "T1572",
         "T1090"
       ],
       "tactic": "command-and-control"
     },
-    "dependency_confusion_phantom": {
+    "dependency_confusion_sim": {
       "techniques": [
         "T1195.001",
         "T1059.007",
@@ -327,7 +327,7 @@
       ],
       "tactic": "initial-access"
     },
-    "dormant_sleeper_seed": {
+    "dormant_persistence_sim": {
       "techniques": [
         "T1053",
         "T1547"
@@ -341,7 +341,7 @@
       ],
       "tactic": "privilege-escalation"
     },
-    "poltergeist_file_infector": {
+    "file_infector_sim": {
       "techniques": [
         "T1027",
         "T1564.001"
@@ -355,21 +355,21 @@
       ],
       "tactic": "defense-evasion"
     },
-    "shadow_system_rebuilder": {
+    "system_rebuild_sim": {
       "techniques": [
         "T1547",
         "T1543"
       ],
       "tactic": "persistence"
     },
-    "undead_memory_latch": {
+    "memory_persistence_sim": {
       "techniques": [
         "T1055",
         "T1547"
       ],
       "tactic": "persistence"
     },
-    "lotl_execution_phantom": {
+    "lotl_execution_sim": {
       "techniques": [
         "T1059",
         "T1059.004",
@@ -381,7 +381,7 @@
       ],
       "tactic": "execution"
     },
-    "lsass_harvest_phantom": {
+    "credential_harvest_sim": {
       "techniques": [
         "T1003",
         "T1003.001",

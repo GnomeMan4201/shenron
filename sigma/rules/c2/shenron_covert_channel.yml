@@ -7,12 +7,20 @@ tags:
     - attack.command_and_control
     - attack.t1095
     - attack.t1572
+    - attack.t1048
 logsource:
     product: shenron
     category: simulation
 detection:
-    tunneling:
-        mitre_technique: T1095
-        layer: spectral_packet_weaver
-    condition: tunneling
+    selection_layer:
+        layer:
+            - packet_covert_channel_sim
+            - covert_tunnel_sim
+            - covert_socket_relay
+    selection_technique:
+        mitre_technique:
+            - T1095
+            - T1572
+            - T1048
+    condition: 1 of selection_*
 level: high

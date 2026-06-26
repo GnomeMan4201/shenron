@@ -2,7 +2,7 @@ title: SHENRON Generated — Spectral Packet Weaver
 id: shenron-gen-spectral-packet-weav-152fda
 status: experimental
 description: >
-    Generated rule for spectral_packet_weaver. SHENRON // spectral_packet_weaver
+    Generated rule for packet_covert_channel_sim. SHENRON // packet_covert_channel_sim
 author: shenron-generator / gnomeman4201 / badBANANA Research Collective
 date: 2026-06-25
 references:
@@ -21,7 +21,7 @@ logsource:
     service: network
 detection:
     selection_layer:
-        layer: spectral_packet_weaver
+        layer: packet_covert_channel_sim
         behavior_class|contains:
             - channel_establishment
             - covert_channel_shape

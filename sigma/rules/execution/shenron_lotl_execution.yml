@@ -3,7 +3,7 @@ id: shenron-lotl-execution-001
 status: experimental
 description: >
   Detects execution via living-off-the-land techniques simulated by SHENRON.
-  Matches any phase emitted by lotl_execution_phantom layer.
+  Matches any phase emitted by lotl_execution_sim layer.
 author: GnomeMan4201 / badBANANA Research Collective
 date: 2026-06-22
 references:
@@ -18,10 +18,10 @@ tags:
   - attack.execution
 logsource:
   category: shenron_simulation
-  product: lotl_execution_phantom
+  product: lotl_execution_sim
 detection:
   selection:
-    layer: lotl_execution_phantom
+    layer: lotl_execution_sim
   condition: selection
 falsepositives:
   - Legitimate interpreter usage in CI/CD pipelines

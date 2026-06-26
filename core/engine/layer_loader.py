@@ -29,14 +29,14 @@ REPO_ROOT  = Path(__file__).resolve().parents[2]
 LAYERS_DIR = REPO_ROOT / "core" / "layers"
 
 CATEGORIES = {
-    "identity":    ["shenron_bio_replication","forged_bios_artifact","cognitive_replicator","stealth_mimic"],
-    "evasion":     ["anti_forensics_molt","airlock_quarantine_cloak","evasion_lure_illusion","mirror_loop_deflector","spectral_rootkit_shroud","dark_signature_morpher",],
-    "payload":     ["payload_skinwalker","obfuscated_skinwalker_dropper","deadzone_payload","symbiote_payload","ethereal_payload_reanimator","recursive_payload_seedbank","transient_exfil_shell","void_gateway_tunnel","dependency_confusion_phantom","lotl_execution_phantom"],
-    "persistence": ["dormant_sleeper_seed","undead_memory_latch","memory_hijack_inheritor","shadow_system_rebuilder","self_sealing_nano_sandbox","poltergeist_file_infector"],
-    "entropy":     ["quantum_entropy_distorter","entropy_flux_disruptor","entropy_anchor_dropper","neural_entropy_seeder","quantum_state_shuffler","quantum_trace_rewinder","quantum_entanglement_relay","synthetic_splinter_seed"],
-    "c2":          ["beacon_emitter_cloak","autonomous_signal_cloner","lateral_webcrawler","parasitic_mesh_crawler","spectral_packet_weaver","temporal_payload_phaser","temporal_mirage_emulator","dreamdive_overlay"],
-    "llm":         ["llm_echo_chamber","llm_shroud_writer","dragons_breath_destructor","encrypted_echo_chamber"],
-    "meta":        ["mutation_history","polymorph_chain_stats","manifest_vampire","phantom_thread_fabricator","adaptive_brainstem","shenron_holo_emitter"],
+    "identity":    ["device_fingerprint_spoof","firmware_artifact_sim","file_replica_dropper","stealth_mimic"],
+    "evasion":     ["anti_forensics_molt","sandbox_evasion_sim","decoy_artifact_sim","traffic_reflection_sim","rootkit_evasion_sim","signature_mutation_sim",],
+    "payload":     ["payload_skinwalker","obfuscated_skinwalker_dropper","deadzone_payload","process_injection_symbiote_sim","payload_revival_sim","payload_seedbank_sim","transient_exfil_sim","covert_tunnel_sim","dependency_confusion_sim","lotl_execution_sim"],
+    "persistence": ["dormant_persistence_sim","memory_persistence_sim","memory_hijack_inheritor","system_rebuild_sim","self_sealing_nano_sandbox","file_infector_sim"],
+    "entropy":     ["entropy_injection_sim","entropy_flux_disruptor","entropy_anchor_sim","entropy_seeder_sim","payload_hash_shuffler","timestamp_spoof_sim","covert_socket_relay","synthetic_splinter_seed"],
+    "c2":          ["beacon_emitter_cloak","signal_replication_sim","lateral_webcrawler","parasitic_mesh_crawler","packet_covert_channel_sim","payload_timing_sim","timestamp_decoy_sim","memory_overlay_sim"],
+    "llm":         ["llm_echo_chamber","llm_shroud_writer","antiforensic_wipe_sim","encrypted_echo_chamber"],
+    "meta":        ["mutation_history","polymorph_chain_stats","manifest_hijack_sim","thread_injection_sim","adaptive_layer_selector","process_masquerade_sim"],
 }
 _TYPE_TO_CAT = {layer: cat for cat, layers in CATEGORIES.items() for layer in layers}
 

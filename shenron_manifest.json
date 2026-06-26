@@ -1,10 +1,10 @@
 {
   "layers": [
     {
-      "name": "autonomous_signal_cloner",
+      "name": "signal_replication_sim",
       "category": "c2",
-      "file": "autonomous_signal_cloner.py",
-      "description": "SHENRON // autonomous_signal_cloner",
+      "file": "signal_replication_sim.py",
+      "description": "SHENRON // signal_replication_sim",
       "variant_count": 61,
       "mitre": {
         "techniques": [
@@ -82,9 +82,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "dreamdive_overlay",
+      "name": "memory_overlay_sim",
       "category": "c2",
-      "file": "dreamdive_overlay.py",
+      "file": "memory_overlay_sim.py",
       "description": "SHENRON: DreamDive Overlay \u2014 Hallucinogenic Log Distortion",
       "variant_count": 65,
       "mitre": {
@@ -206,10 +206,10 @@
       "telemetry_layer": true
     },
     {
-      "name": "spectral_packet_weaver",
+      "name": "packet_covert_channel_sim",
       "category": "c2",
-      "file": "spectral_packet_weaver.py",
-      "description": "SHENRON // spectral_packet_weaver",
+      "file": "packet_covert_channel_sim.py",
+      "description": "SHENRON // packet_covert_channel_sim",
       "variant_count": 62,
       "mitre": {
         "techniques": [
@@ -247,9 +247,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "temporal_mirage_emulator",
+      "name": "timestamp_decoy_sim",
       "category": "c2",
-      "file": "temporal_mirage_emulator.py",
+      "file": "timestamp_decoy_sim.py",
       "description": "SHENRON Layer: Temporal Mirage Emulator",
       "variant_count": 135,
       "mitre": {
@@ -287,10 +287,10 @@
       "telemetry_layer": true
     },
     {
-      "name": "temporal_payload_phaser",
+      "name": "payload_timing_sim",
       "category": "c2",
-      "file": "temporal_payload_phaser.py",
-      "description": "SHENRON // temporal_payload_phaser",
+      "file": "payload_timing_sim.py",
+      "description": "SHENRON // payload_timing_sim",
       "variant_count": 67,
       "mitre": {
         "techniques": [
@@ -327,9 +327,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "entropy_anchor_dropper",
+      "name": "entropy_anchor_sim",
       "category": "entropy",
-      "file": "entropy_anchor_dropper.py",
+      "file": "entropy_anchor_sim.py",
       "description": "SHENRON: Entropy Anchor Dropper \u2014 Timing and Pattern Camouflage Engine",
       "variant_count": 64,
       "mitre": {
@@ -407,10 +407,10 @@
       "telemetry_layer": true
     },
     {
-      "name": "neural_entropy_seeder",
+      "name": "entropy_seeder_sim",
       "category": "entropy",
-      "file": "neural_entropy_seeder.py",
-      "description": "SHENRON // neural_entropy_seeder",
+      "file": "entropy_seeder_sim.py",
+      "description": "SHENRON // entropy_seeder_sim",
       "variant_count": 123,
       "mitre": {
         "techniques": [
@@ -447,9 +447,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "quantum_entanglement_relay",
+      "name": "covert_socket_relay",
       "category": "entropy",
-      "file": "quantum_entanglement_relay.py",
+      "file": "covert_socket_relay.py",
       "description": "SHENRON: Quantum Entanglement Relay \u2014 threaded socket relay for covert channel bridging",
       "variant_count": 30,
       "mitre": {
@@ -487,9 +487,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "quantum_entropy_distorter",
+      "name": "entropy_injection_sim",
       "category": "entropy",
-      "file": "quantum_entropy_distorter.py",
+      "file": "entropy_injection_sim.py",
       "description": "SHENRON Layer: Quantum Entropy Distorter",
       "variant_count": 132,
       "mitre": {
@@ -527,9 +527,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "quantum_state_shuffler",
+      "name": "payload_hash_shuffler",
       "category": "entropy",
-      "file": "quantum_state_shuffler.py",
+      "file": "payload_hash_shuffler.py",
       "description": "SHENRON: Quantum State Shuffler \u2013 Dynamic payload state randomizer for heuristic evasion",
       "variant_count": 66,
       "mitre": {
@@ -567,9 +567,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "quantum_trace_rewinder",
+      "name": "timestamp_spoof_sim",
       "category": "entropy",
-      "file": "quantum_trace_rewinder.py",
+      "file": "timestamp_spoof_sim.py",
       "description": "SHENRON: Quantum Trace Rewinder \u2014 Timeline Spoofing + Anti-Forensics",
       "variant_count": 64,
       "mitre": {
@@ -647,9 +647,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "airlock_quarantine_cloak",
+      "name": "sandbox_evasion_sim",
       "category": "evasion",
-      "file": "airlock_quarantine_cloak.py",
+      "file": "sandbox_evasion_sim.py",
       "description": "SHENRON: Airlock Quarantine Cloak \u2014 Simulates malware quarantine to fool antivirus",
       "variant_count": 61,
       "mitre": {
@@ -729,9 +729,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "dark_signature_morpher",
+      "name": "signature_mutation_sim",
       "category": "evasion",
-      "file": "dark_signature_morpher.py",
+      "file": "signature_mutation_sim.py",
       "description": "SHENRON Layer: Dark Signature Morpher \u2014 polymorphic signature mutation telemetry simulator",
       "variant_count": 0,
       "mitre": {
@@ -771,9 +771,9 @@
       "telemetry_layer": false
     },
     {
-      "name": "evasion_lure_illusion",
+      "name": "decoy_artifact_sim",
       "category": "evasion",
-      "file": "evasion_lure_illusion.py",
+      "file": "decoy_artifact_sim.py",
       "description": "SHENRON Layer: Evasion Lure Illusion",
       "variant_count": 128,
       "mitre": {
@@ -811,9 +811,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "mirror_loop_deflector",
+      "name": "traffic_reflection_sim",
       "category": "evasion",
-      "file": "mirror_loop_deflector.py",
+      "file": "traffic_reflection_sim.py",
       "description": "SHENRON: Mirror Loop Deflector \u2014 Process Reflection & Cloaking",
       "variant_count": 59,
       "mitre": {
@@ -850,9 +850,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "phantom_thread_fabricator",
+      "name": "thread_injection_sim",
       "category": "evasion",
-      "file": "phantom_thread_fabricator.py",
+      "file": "thread_injection_sim.py",
       "description": "SHENRON Layer: Phantom Thread Fabricator \u2014 IO chatter and thread noise anti-forensic telemetry simulator",
       "variant_count": 0,
       "mitre": {
@@ -892,10 +892,10 @@
       "telemetry_layer": false
     },
     {
-      "name": "spectral_rootkit_shroud",
+      "name": "rootkit_evasion_sim",
       "category": "evasion",
-      "file": "spectral_rootkit_shroud.py",
-      "description": "SHENRON // spectral_rootkit_shroud",
+      "file": "rootkit_evasion_sim.py",
+      "description": "SHENRON // rootkit_evasion_sim",
       "variant_count": 33,
       "mitre": {
         "techniques": [
@@ -933,10 +933,10 @@
       "telemetry_layer": true
     },
     {
-      "name": "cognitive_replicator",
+      "name": "file_replica_dropper",
       "category": "identity",
-      "file": "cognitive_replicator.py",
-      "description": "cognitive_replicator.py - SHENRON Self-Replication Engine",
+      "file": "file_replica_dropper.py",
+      "description": "file_replica_dropper.py - SHENRON Self-Replication Engine",
       "variant_count": 119,
       "mitre": {
         "techniques": [
@@ -973,9 +973,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "forged_bios_artifact",
+      "name": "firmware_artifact_sim",
       "category": "identity",
-      "file": "forged_bios_artifact.py",
+      "file": "firmware_artifact_sim.py",
       "description": "SHENRON: Forged BIOS Artifact Seeder \u2014 Creates low-level tamper illusions",
       "variant_count": 60,
       "mitre": {
@@ -1014,9 +1014,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "shenron_bio_replication",
+      "name": "device_fingerprint_spoof",
       "category": "identity",
-      "file": "shenron_bio_replication.py",
+      "file": "device_fingerprint_spoof.py",
       "description": "SHENRON: Bio-Replication Layer",
       "variant_count": 63,
       "mitre": {
@@ -1141,9 +1141,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "dragons_breath_destructor",
+      "name": "antiforensic_wipe_sim",
       "category": "llm",
-      "file": "dragons_breath_destructor.py",
+      "file": "antiforensic_wipe_sim.py",
       "description": "SHENRON: Dragons Breath Destructor \u2014 aggressive file/process scorched-earth cleanup layer",
       "variant_count": 31,
       "mitre": {
@@ -1268,10 +1268,10 @@
       "telemetry_layer": false
     },
     {
-      "name": "adaptive_brainstem",
+      "name": "adaptive_layer_selector",
       "category": "meta",
-      "file": "adaptive_brainstem.py",
-      "description": "adaptive_brainstem.py - SHENRON Layer 6: Context-Aware Neural Reflex Controller",
+      "file": "adaptive_layer_selector.py",
+      "description": "adaptive_layer_selector.py - SHENRON Layer 6: Context-Aware Neural Reflex Controller",
       "variant_count": 130,
       "mitre": {
         "techniques": [
@@ -1310,10 +1310,10 @@
       "telemetry_layer": true
     },
     {
-      "name": "manifest_vampire",
+      "name": "manifest_hijack_sim",
       "category": "meta",
-      "file": "manifest_vampire.py",
-      "description": "manifest_vampire.py - SHENRON Layer 4: Manifest Leech + Clone Engine",
+      "file": "manifest_hijack_sim.py",
+      "description": "manifest_hijack_sim.py - SHENRON Layer 4: Manifest Leech + Clone Engine",
       "variant_count": 131,
       "mitre": {
         "techniques": [
@@ -1408,9 +1408,9 @@
       "telemetry_layer": false
     },
     {
-      "name": "shenron_holo_emitter",
+      "name": "process_masquerade_sim",
       "category": "meta",
-      "file": "shenron_holo_emitter.py",
+      "file": "process_masquerade_sim.py",
       "description": "SHENRON: Hologram Emitter",
       "variant_count": 63,
       "mitre": {
@@ -1489,9 +1489,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "ethereal_payload_reanimator",
+      "name": "payload_revival_sim",
       "category": "payload",
-      "file": "ethereal_payload_reanimator.py",
+      "file": "payload_revival_sim.py",
       "description": "SHENRON: Ethereal Payload Reanimator \u2014 subprocess-based dormant payload revival engine",
       "variant_count": 30,
       "mitre": {
@@ -1608,9 +1608,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "recursive_payload_seedbank",
+      "name": "payload_seedbank_sim",
       "category": "payload",
-      "file": "recursive_payload_seedbank.py",
+      "file": "payload_seedbank_sim.py",
       "description": "SHENRON: Recursive Payload Seedbank \u2014 plants dormant recursive payloads",
       "variant_count": 63,
       "mitre": {
@@ -1648,10 +1648,10 @@
       "telemetry_layer": true
     },
     {
-      "name": "symbiote_payload",
+      "name": "process_injection_symbiote_sim",
       "category": "payload",
-      "file": "symbiote_payload.py",
-      "description": "symbiote_payload.py - SHENRON Layer 3: Parasitic Persistence",
+      "file": "process_injection_symbiote_sim.py",
+      "description": "process_injection_symbiote_sim.py - SHENRON Layer 3: Parasitic Persistence",
       "variant_count": 123,
       "mitre": {
         "techniques": [
@@ -1688,9 +1688,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "transient_exfil_shell",
+      "name": "transient_exfil_sim",
       "category": "payload",
-      "file": "transient_exfil_shell.py",
+      "file": "transient_exfil_sim.py",
       "description": "SHENRON Layer: Transient Exfiltration Shell",
       "variant_count": 130,
       "mitre": {
@@ -1729,10 +1729,10 @@
       "telemetry_layer": true
     },
     {
-      "name": "void_gateway_tunnel",
+      "name": "covert_tunnel_sim",
       "category": "payload",
-      "file": "void_gateway_tunnel.py",
-      "description": "SHENRON // void_gateway_tunnel",
+      "file": "covert_tunnel_sim.py",
+      "description": "SHENRON // covert_tunnel_sim",
       "variant_count": 64,
       "mitre": {
         "techniques": [
@@ -1769,11 +1769,11 @@
       "telemetry_layer": true
     },
     {
-      "name": "dependency_confusion_phantom",
+      "name": "dependency_confusion_sim",
       "category": "payload",
       "subcategory": "supply_chain",
       "file": "dependency_confusion_layer.py",
-      "description": "SHENRON // dependency_confusion_phantom \u2014 npm supply chain / dependency confusion behavioral simulation",
+      "description": "SHENRON // dependency_confusion_sim \u2014 npm supply chain / dependency confusion behavioral simulation",
       "variant_count": 54,
       "mitre": {
         "techniques": [
@@ -1841,10 +1841,10 @@
       "telemetry_layer": true
     },
     {
-      "name": "lotl_execution_phantom",
+      "name": "lotl_execution_sim",
       "category": "payload",
-      "file": "lotl_execution_phantom.py",
-      "description": "SHENRON // lotl_execution_phantom \u2014 Living off the Land execution proxy simulation",
+      "file": "lotl_execution_sim.py",
+      "description": "SHENRON // lotl_execution_sim \u2014 Living off the Land execution proxy simulation",
       "mitre": {
         "techniques": [
           "T1059",
@@ -1874,10 +1874,10 @@
       "variant_count": 0
     },
     {
-      "name": "dormant_sleeper_seed",
+      "name": "dormant_persistence_sim",
       "category": "persistence",
-      "file": "dormant_sleeper_seed.py",
-      "description": "dormant_sleeper_seed.py - SHENRON latent payload trigger system",
+      "file": "dormant_persistence_sim.py",
+      "description": "dormant_persistence_sim.py - SHENRON latent payload trigger system",
       "variant_count": 125,
       "mitre": {
         "techniques": [
@@ -1958,9 +1958,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "poltergeist_file_infector",
+      "name": "file_infector_sim",
       "category": "persistence",
-      "file": "poltergeist_file_infector.py",
+      "file": "file_infector_sim.py",
       "description": "SHENRON: Poltergeist File Infector \u2014 randomized file-level infection and persistence dropper",
       "variant_count": 33,
       "mitre": {
@@ -2040,9 +2040,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "shadow_system_rebuilder",
+      "name": "system_rebuild_sim",
       "category": "persistence",
-      "file": "shadow_system_rebuilder.py",
+      "file": "system_rebuild_sim.py",
       "description": "SHENRON: Shadow System Rebuilder \u2014 Restores original file states post-compromise",
       "variant_count": 61,
       "mitre": {
@@ -2081,9 +2081,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "undead_memory_latch",
+      "name": "memory_persistence_sim",
       "category": "persistence",
-      "file": "undead_memory_latch.py",
+      "file": "memory_persistence_sim.py",
       "description": "SHENRON Layer: Undead Memory Latch",
       "variant_count": 128,
       "mitre": {
@@ -2123,9 +2123,9 @@
       "telemetry_layer": true
     },
     {
-      "name": "lsass_harvest_phantom",
+      "name": "credential_harvest_sim",
       "category": "credential-access",
-      "file": "lsass_harvest_phantom.py",
+      "file": "credential_harvest_sim.py",
       "description": "OS credential dumping \u2014 LSASS, SAM, NTDS, LSA secrets, cached creds",
       "variant_count": 0,
       "mitre": [
