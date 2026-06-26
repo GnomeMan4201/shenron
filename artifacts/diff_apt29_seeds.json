@@ -1,0 +1,87 @@
+{
+  "artifact_a": "artifacts/diffs/apt29-style_seed42.jsonl",
+  "artifact_b": "artifacts/diffs/apt29-style_seed99.jsonl",
+  "generated_at": "2026-06-25T23:55:13.344628+00:00",
+  "event_count_a": 7,
+  "event_count_b": 7,
+  "technique_stability": 1.0,
+  "signal_stability": 1.0,
+  "overall_stability": 1.0,
+  "coverage_delta": 0,
+  "seed_dependent": false,
+  "techniques_only_a": [],
+  "techniques_only_b": [],
+  "techniques_common": [
+    "T1003",
+    "T1003.001",
+    "T1021.002",
+    "T1036",
+    "T1041",
+    "T1059",
+    "T1059.004",
+    "T1059.006",
+    "T1543",
+    "T1543.003",
+    "T1570",
+    "T1589",
+    "T1589.002",
+    "T1589.003"
+  ],
+  "phases_only_a": [],
+  "phases_only_b": [],
+  "signals_only_a": [],
+  "signals_only_b": [],
+  "layers_only_a": [],
+  "layers_only_b": [],
+  "phase_density": [
+    {
+      "phase": "identity_harvest",
+      "count_a": 1,
+      "count_b": 1,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    {
+      "phase": "inline_execution",
+      "count_a": 1,
+      "count_b": 1,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    {
+      "phase": "lsass_dump",
+      "count_a": 1,
+      "count_b": 1,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    {
+      "phase": "shell_spawn_sim",
+      "count_a": 1,
+      "count_b": 1,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    {
+      "phase": "smb_admin_share",
+      "count_a": 1,
+      "count_b": 1,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    {
+      "phase": "source_enumeration",
+      "count_a": 1,
+      "count_b": 1,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    {
+      "phase": "windows_service",
+      "count_a": 1,
+      "count_b": 1,
+      "delta": 0,
+      "delta_pct": 0.0
+    }
+  ]
+}
