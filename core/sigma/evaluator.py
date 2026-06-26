@@ -4,7 +4,7 @@ SHENRON Sigma rule evaluator.
 Field mapping (Sigma -> SHENRON artifact):
   CommandLine     -> behavior_class, detection_opportunities
   Image           -> layer, behavior_class
-  EventID         -> (not emitted — unsupported)
+  EventID         -> event_id_sim, windows_event_id, EventID (via windows_event_log_sim + pySigma bridge)
   TargetFilename  -> target_path_sim, file_path_sim, synthetic_path
   DestinationIp   -> target_ip_sim
   DestinationPort -> port_sim
