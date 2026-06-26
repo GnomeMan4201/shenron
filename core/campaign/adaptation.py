@@ -266,6 +266,146 @@ ADAPTATION_STRATEGIES = [
     "combined",
 ]
 
+# ── Feedback-driven strategy selector ─────────────────────────────────────────
+
+# Maps SHENRON event field names -> mutation strategies that target them
+FIELD_TO_STRATEGY: Dict[str, str] = {
+    "layer":                   "sigma_aware_value_swap",
+    "behavior_class":          "sigma_aware_case_flip",
+    "signal":                  "sigma_aware_value_swap",
+    "phase":                   "sigma_aware_value_swap",
+    "mitre_techniques":        "sigma_aware_field_omit",
+    "mitre_technique":         "sigma_aware_field_omit",
+    "detection_opportunities": "sigma_aware_field_omit",
+    "CommandLine":             "sigma_aware_unicode",
+    "command_sim":             "sigma_aware_unicode",
+    "Image":                   "sigma_aware_case_flip",
+    "exe_sim":                 "sigma_aware_case_flip",
+    "TaskName":                "sigma_aware_whitespace",
+    "task_name_sim":           "sigma_aware_whitespace",
+    "ServiceName":             "sigma_aware_case_flip",
+    "service_name_sim":        "sigma_aware_case_flip",
+    "EventID":                 "sigma_aware_value_swap",
+    "Channel":                 "sigma_aware_value_swap",
+    "Provider_Name":           "sigma_aware_value_swap",
+    "injection_technique_sim": "sigma_aware_value_swap",
+    "target_model_sim":        "sigma_aware_value_swap",
+    "timestamp":               "timing_jitter",
+    "entropy":                 "label_ambiguity",
+}
+
+STRATEGY_PRIORITY = [
+    "sigma_aware_field_omit",
+    "sigma_aware_value_swap",
+    "sigma_aware_case_flip",
+    "sigma_aware_unicode",
+    "sigma_aware_whitespace",
+    "field_drop",
+    "label_ambiguity",
+    "timing_jitter",
+    "signal_density_low",
+    "technique_noise",
+    "phase_imbalance",
+    "combined",
+]
+
+
+def _extract_rule_targets_from_path(rule_path: str) -> Dict[str, List[str]]:
+    """Extract SHENRON event fields that a specific Sigma rule tests."""
+    try:
+        from core.sigma.loader import load_sigma_rule
+        from core.sigma.evaluator import FIELD_MAP
+        rule = load_sigma_rule(rule_path)
+        detection = rule.get("detection", {})
+        targets: Dict[str, List[str]] = {}
+        for block_name, block_def in detection.items():
+            if block_name == "condition" or not isinstance(block_def, dict):
+                continue
+            for sigma_field, expected_value in block_def.items():
+                shenron_fields = FIELD_MAP.get(sigma_field, [sigma_field])
+                values: List[str] = []
+                if isinstance(expected_value, list):
+                    values = [str(v) for v in expected_value if v]
+                elif isinstance(expected_value, str) and expected_value:
+                    values = [expected_value]
+                for sf in shenron_fields:
+                    targets.setdefault(sf, []).extend(values)
+        return targets
+    except Exception:
+        return {}
+
+
+def _score_strategy_for_firing_rules(
+    strategy: str,
+    still_firing: set,
+    rule_paths: List[Path],
+) -> int:
+    """Score a strategy by how many fields in still-firing rules it targets."""
+    if not still_firing:
+        return 0
+    firing_paths = [
+        str(rp) for rp in rule_paths
+        if any(fr_id in str(rp) for fr_id in still_firing)
+    ]
+    if not firing_paths:
+        firing_paths = [str(rp) for rp in rule_paths]
+    targeted_fields: set = set()
+    for rp in firing_paths:
+        targets = _extract_rule_targets_from_path(rp)
+        targeted_fields.update(targets.keys())
+    score = sum(
+        1 for field, strat in FIELD_TO_STRATEGY.items()
+        if strat == strategy and field in targeted_fields
+    )
+    return score
+
+
+def _select_strategy_feedback(
+    still_firing: set,
+    rule_paths: List[Path],
+    used_strategies: List[str],
+    iteration: int,
+) -> str:
+    """
+    Select the next mutation strategy based on which rules are still firing.
+
+    Replaces round-robin with genuine feedback-driven selection:
+    1. Extract fields tested by still-firing rules
+    2. Map those fields to mutation strategies via FIELD_TO_STRATEGY
+    3. Score each strategy by field coverage
+    4. Return highest-scoring strategy, preferring unused ones
+    5. Fall back to STRATEGY_PRIORITY order if tied
+    """
+    if not still_firing:
+        return "combined"
+
+    strategy_scores: Dict[str, int] = {}
+    for strategy in STRATEGY_PRIORITY:
+        score = _score_strategy_for_firing_rules(strategy, still_firing, rule_paths)
+        strategy_scores[strategy] = score
+
+    best_strategy = None
+    best_score = -1
+    for strategy in STRATEGY_PRIORITY:
+        score = strategy_scores[strategy]
+        # Penalize strategies used more than once without achieving new evasion
+        use_count = used_strategies.count(strategy)
+        if use_count == 0:
+            repetition_penalty = 0
+        elif use_count == 1:
+            repetition_penalty = 1
+        else:
+            repetition_penalty = use_count * 3  # steep penalty for repeated use
+        unused_bonus = 2 if strategy not in used_strategies else 0
+        effective_score = score * 2 + unused_bonus - repetition_penalty
+        if effective_score > best_score:
+            best_score = effective_score
+            best_strategy = strategy
+
+    return best_strategy or "combined"
+
+
+
 
 def _apply_mutation(
     events: List[dict],
@@ -447,12 +587,15 @@ def run_adaptation(
     evasion_achieved = False
 
     for iteration in range(1, max_iterations + 1):
-        strategy = ADAPTATION_STRATEGIES[(iteration - 1) % len(ADAPTATION_STRATEGIES)]
+        strategy = _select_strategy_feedback(still_firing, rule_paths, adaptation_path, iteration)
         run_id = f"adapt-{iteration:02d}-{strategy[:8]}"
         iter_seed = seed + iteration * 7
 
         if verbose:
-            print(f"  [ADAPT] Iter {iteration:02d}/{max_iterations} — strategy: {strategy}")
+            scores = {s: _score_strategy_for_firing_rules(s, still_firing, rule_paths) for s in STRATEGY_PRIORITY[:6]}
+            top = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:3]
+            print(f"  [ADAPT] Iter {iteration:02d}/{max_iterations} — strategy: {strategy} (feedback-selected)")
+            print(f"  [ADAPT]   Top candidates: {top}")
 
         # Apply mutation
         mutated_events = _apply_mutation(
