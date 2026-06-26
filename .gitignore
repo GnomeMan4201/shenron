@@ -39,3 +39,5 @@ github_botnet_discovery_revised.md
 .cache/
 shenron_core.zip
 tead
+frontend/node_modules/
+frontend/dist/
