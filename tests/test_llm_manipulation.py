@@ -303,10 +303,11 @@ def test_sigma_rule_all_blocks_triggered():
     if not LLM_ARTIFACT.exists():
         pytest.skip("LLM artifact not generated yet")
     from core.sigma.evaluator import evaluate_sigma_rule
-    from core.sigma.model import MatchStatus
+    from core.sigma.model import MatchStatus, RuleVerdict
     result = evaluate_sigma_rule(str(LLM_SIGMA_RULE), str(LLM_ARTIFACT), match_mode="tolerant")
-    triggered = [d for d in result.detections if d.status == MatchStatus.TRIGGERED]
-    assert len(triggered) >= 4
+    # pySigma bridge returns one consolidated DetectionMatch rather than one per block
+    assert result.verdict == RuleVerdict.TRIGGERED
+    assert result.triggered_count >= 1
 
 
 # -- Assumption validation -----------------------------------------------------

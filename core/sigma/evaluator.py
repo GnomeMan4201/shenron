@@ -374,7 +374,60 @@ def _eval_ast(node: dict, block_results: dict, block_names: list) -> bool:
 # ── Main evaluator ────────────────────────────────────────────────────────────
 
 def evaluate_sigma_rule(rule_path, artifact_path,
-                        match_mode: str = "strict") -> SigmaResult:
+                        match_mode: str = "strict",
+                        prefer_pysigma: bool = True) -> SigmaResult:
+    """
+    Evaluate a Sigma rule against a SHENRON artifact.
+
+    Routing logic:
+      1. If pySigma is available and prefer_pysigma=True (default):
+         Use core/sigma/pysigma_bridge.py — full Sigma grammar, EventID,
+         Channel, all modifiers, wildcard matching.
+      2. If pySigma unavailable or rule fails to parse:
+         Fall back to custom evaluator (existing behavior).
+
+    The pySigma bridge returns a BridgeResult; this function converts it
+    to a SigmaResult for drop-in compatibility with all existing callers.
+    """
+    if prefer_pysigma:
+        try:
+            from core.sigma.pysigma_bridge import (
+                evaluate_with_pysigma, BridgeVerdict, pysigma_available
+            )
+            if pysigma_available():
+                bridge_result = evaluate_with_pysigma(
+                    str(rule_path), str(artifact_path), match_mode=match_mode
+                )
+                if bridge_result.verdict != BridgeVerdict.ERROR:
+                    # Convert BridgeResult -> SigmaResult for compatibility
+                    # (FieldMatch, DetectionMatch, MatchStatus already imported at module level)
+                    verdict = (
+                        RuleVerdict.TRIGGERED
+                        if bridge_result.verdict == BridgeVerdict.TRIGGERED
+                        else RuleVerdict.NOT_TRIGGERED
+                    )
+                    detection = DetectionMatch(
+                        detection_name="pysigma",
+                        status=MatchStatus.TRIGGERED if verdict == RuleVerdict.TRIGGERED else MatchStatus.NOT_TRIGGERED,
+                        field_matches=[],
+                        matched_artifacts=bridge_result.matched_events,
+                        reason=bridge_result.coverage_note,
+                    )
+                    return SigmaResult(
+                        rule_id=bridge_result.rule_id,
+                        rule_title=bridge_result.rule_title,
+                        rule_file=str(rule_path),
+                        artifact_file=str(artifact_path),
+                        verdict=verdict,
+                        detections=[detection],
+                        triggered_count=bridge_result.triggered_count,
+                        missed_fields=[],
+                        coverage_note=f"[pySigma] {bridge_result.coverage_note}",
+                        timestamp=datetime.now(timezone.utc).isoformat(),
+                    )
+        except Exception:
+            pass  # Fall through to custom evaluator
+
     rule      = load_sigma_rule(rule_path)
     artifacts = load_artifacts(artifact_path)
 
