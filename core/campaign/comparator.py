@@ -95,9 +95,11 @@ class ComparisonReport:
 class ScenarioComparator:
     """Builds, scores, and compares multiple campaigns side-by-side."""
 
-    def __init__(self, rules_dir: str):
+    def __init__(self, rules_dir: str, persist: bool = False, db_path: str = "shenron_runs.db"):
         self.rules_dir = rules_dir
         self.scorer = BrittlenessScorer(rules_dir)
+        self.persist = persist
+        self.db_path = db_path
 
     def _evaluate_scenario(self, name: str) -> ScenarioResult:
         builder = CampaignBuilder.from_scenario(name)
@@ -115,7 +117,7 @@ class ScenarioComparator:
         corr_scorer = _CorrScorer(artifact_brittleness=report.overall_brittleness_score)
         corr_report = corr_scorer.score_campaign(campaign)
 
-        return ScenarioResult(
+        result = ScenarioResult(
             scenario_name=name,
             overall_brittleness=report.overall_brittleness_score,
             weighted_brittleness=report.weighted_brittleness_score,
@@ -126,6 +128,8 @@ class ScenarioComparator:
             triggered_count=triggered_count,
             total_stages=len(campaign.events),
         )
+        result._raw_report = report
+        return result
 
     def _build_report(self, results: List[ScenarioResult]) -> ComparisonReport:
         report = ComparisonReport(
@@ -163,9 +167,30 @@ class ScenarioComparator:
 
         return report
 
-    def run_all(self) -> ComparisonReport:
+    def run_all(self, persist: bool = None) -> ComparisonReport:
         """Runs all defined scenarios in SCENARIOS."""
-        results = [self._evaluate_scenario(name) for name in SCENARIOS.keys()]
+        _do_persist = persist if persist is not None else self.persist
+        _run_id = None
+        if _do_persist:
+            from core.persistence.db import init_db, insert_run, insert_scenario_result, insert_rule_metrics
+            from pathlib import Path as _Path
+            _db = _Path(self.db_path)
+            init_db(_db)
+            _run_id = insert_run(self.rules_dir, _db)
+        results = []
+        for name in SCENARIOS.keys():
+            r = self._evaluate_scenario(name)
+            results.append(r)
+            if _do_persist and _run_id is not None:
+                from core.persistence.db import insert_scenario_result, insert_rule_metrics
+                from pathlib import Path as _Path
+                _db = _Path(self.db_path)
+                insert_scenario_result(_run_id, r, _db)
+                _all_rm = []
+                for ab in r._raw_report.per_artifact:
+                    _all_rm.extend(getattr(ab, '_rule_metrics', []))
+                if _all_rm:
+                    insert_rule_metrics(_run_id, name, _all_rm, _db)
         return self._build_report(results)
 
     def run_selected(self, scenario_names: List[str]) -> ComparisonReport:

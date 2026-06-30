@@ -117,7 +117,7 @@ python3 shenron.py --history-compare persistence_coverage
 
 ## What it does
 
-**Synthetic telemetry generation** — 59 simulation layers across 8 categories (c2, entropy, identity, evasion, payload, llm, persistence, meta), organized through the bananaTREE four-phase campaign model: OBSERVE → SIMULATE → EXECUTE → ADAPT.
+**Synthetic telemetry generation** — 52 simulation layers across 8 categories (c2, entropy, identity, evasion, payload, llm, persistence, meta), organized through the bananaTREE four-phase campaign model: OBSERVE → SIMULATE → EXECUTE → ADAPT.
 
 **Sigma rule validation** — evaluates whether your detection rules would fire on realistic synthetic telemetry. Verdicts: TRIGGERED, PARTIAL, NOT_TRIGGERED, UNSUPPORTED. 19 rules across simulation and live categories.
 
@@ -165,7 +165,7 @@ core/
   validation/      — detector validation scoring and history
   reports/         — markdown and HTML report generation
   bananatree/      — campaign model (phases, taxonomy, cycle)
-  layers/          — 59 canonical simulation layers
+  layers/          — 52 canonical simulation layers
   engine/          — layer loader and payload registry
   mitre/           — ATT&CK STIX drift checker
   cli/commands/    — subcommand handlers (health, doctor, validate_all, ...)

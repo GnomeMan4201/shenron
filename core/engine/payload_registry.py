@@ -10,6 +10,8 @@ def register_payload(name: str, **kwargs):
 
 def get(name): return _REGISTRY.get(name)
 def list_registered(): return sorted(_REGISTRY.keys())
+def get_layer_names() -> list: return sorted(_REGISTRY.keys())
+def get_registered_layers() -> dict: return dict(_REGISTRY)
 def _log_execution(name, status, notes=""):
     try:
         import importlib.util, os
