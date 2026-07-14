@@ -1,0 +1,185 @@
+{
+  "assumption_id": "c2_coverage",
+  "assumption_path": "assumptions/examples/c2_coverage.yaml",
+  "artifact_path": "artifacts/demo/shenron_demo_run.jsonl",
+  "generated_at": "2026-06-25T23:25:31.985013+00:00",
+  "original_status": "OUT_OF_SCOPE_VIOLATION",
+  "total_mutations": 18,
+  "verdict_changing_mutations": 2,
+  "claim_sensitivity": {
+    "beacon_evidence": 0.0,
+    "covert_channel_evidence": 0.0,
+    "no_persistence_overclaim": 0.4
+  },
+  "most_sensitive_claim": "no_persistence_overclaim",
+  "least_sensitive_claim": "beacon_evidence",
+  "load_bearing_claims": [],
+  "redundant_claims": [
+    "beacon_evidence",
+    "covert_channel_evidence"
+  ],
+  "results": [
+    {
+      "claim_id": "beacon_evidence",
+      "strategy": "claim_drop",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "dropped claim beacon_evidence"
+    },
+    {
+      "claim_id": "beacon_evidence",
+      "strategy": "technique_swap",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "swapped techniques ['T1071'] -> ['T1095']"
+    },
+    {
+      "claim_id": "beacon_evidence",
+      "strategy": "technique_add",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "added unsupported technique T1999"
+    },
+    {
+      "claim_id": "beacon_evidence",
+      "strategy": "signal_corrupt",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "no-op (no signals)"
+    },
+    {
+      "claim_id": "beacon_evidence",
+      "strategy": "signal_add",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "added phantom signal nonexistent_signal_xyz"
+    },
+    {
+      "claim_id": "covert_channel_evidence",
+      "strategy": "claim_drop",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "dropped claim covert_channel_evidence"
+    },
+    {
+      "claim_id": "covert_channel_evidence",
+      "strategy": "technique_swap",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "swapped techniques ['T1095', 'T1572'] -> ['T1071', 'T1572999']"
+    },
+    {
+      "claim_id": "covert_channel_evidence",
+      "strategy": "technique_add",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "added unsupported technique T1998"
+    },
+    {
+      "claim_id": "covert_channel_evidence",
+      "strategy": "signal_corrupt",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "no-op (no signals)"
+    },
+    {
+      "claim_id": "covert_channel_evidence",
+      "strategy": "signal_add",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "added phantom signal phantom_detection_opportunity"
+    },
+    {
+      "claim_id": "no_persistence_overclaim",
+      "strategy": "claim_drop",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "SUPPORTED",
+      "verdict_changed": true,
+      "sensitivity_score": 1.0,
+      "note": "dropped claim no_persistence_overclaim"
+    },
+    {
+      "claim_id": "no_persistence_overclaim",
+      "strategy": "technique_swap",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "SUPPORTED",
+      "verdict_changed": true,
+      "sensitivity_score": 1.0,
+      "note": "swapped techniques ['T1053', 'T1547', 'T1055'] -> ['T1543', 'T1547999', 'T1134']"
+    },
+    {
+      "claim_id": "no_persistence_overclaim",
+      "strategy": "technique_add",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "added unsupported technique T1997"
+    },
+    {
+      "claim_id": "no_persistence_overclaim",
+      "strategy": "signal_corrupt",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "no-op (no signals)"
+    },
+    {
+      "claim_id": "no_persistence_overclaim",
+      "strategy": "signal_add",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "added phantom signal ghost_behavior_class"
+    },
+    {
+      "claim_id": "(global)",
+      "strategy": "oos_inject_0",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "injected OOS claim requiring T1485"
+    },
+    {
+      "claim_id": "(global)",
+      "strategy": "oos_inject_1",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "injected OOS claim requiring T1486"
+    },
+    {
+      "claim_id": "(global)",
+      "strategy": "oos_inject_2",
+      "original_status": "OUT_OF_SCOPE_VIOLATION",
+      "mutated_status": "OUT_OF_SCOPE_VIOLATION",
+      "verdict_changed": false,
+      "sensitivity_score": 0.0,
+      "note": "injected OOS claim requiring T1490"
+    }
+  ]
+}

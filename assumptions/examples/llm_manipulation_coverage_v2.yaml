@@ -1,0 +1,66 @@
+id: llm_manipulation_coverage_v2
+schema_version: "1.0"
+description: >
+  Validates artifact contains full LLM manipulation kill chain telemetry.
+  Covers prompt injection, hallucination injection, obfuscation, and exfiltration.
+  Version 2 — enriched from original with full technique and signal coverage.
+
+claims:
+  - id: prompt_injection_evidence
+    type: positive_evidence
+    severity: high
+    description: Artifact contains LLM prompt injection telemetry
+    requires_techniques:
+      - T1059.007
+      - T1190
+    requires_signals:
+      - prompt_role_boundary_violation
+      - llm_api_probe_pattern
+
+  - id: hallucination_injection_evidence
+    type: positive_evidence
+    severity: high
+    description: Artifact contains hallucination injection and echo chamber telemetry
+    requires_techniques:
+      - T1565
+      - T1036
+    requires_signals:
+      - llm_format_log_entries_from_non_llm_process
+      - hallucination_tagged_events_fixed_interval_non_inference
+
+  - id: obfuscation_evidence
+    type: positive_evidence
+    severity: medium
+    description: Artifact contains LLM-style obfuscation telemetry
+    requires_techniques:
+      - T1027
+    requires_signals:
+      - llm_style_obfuscation_mimicry
+      - entropy_layering_pattern
+      - multi_layer_encoding_non_crypto_process
+
+  - id: exfiltration_evidence
+    type: positive_evidence
+    severity: high
+    description: Artifact contains LLM output exfiltration telemetry
+    requires_techniques:
+      - T1048
+      - T1565.001
+    requires_signals:
+      - llm_output_exfil_pattern
+
+  - id: no_persistence_overclaim
+    type: out_of_scope_claim
+    severity: medium
+    description: This artifact should not be used to claim persistence detection
+    requires_techniques:
+      - T1053
+      - T1547
+
+  - id: no_lateral_movement_overclaim
+    type: out_of_scope_claim
+    severity: low
+    description: This artifact should not be used to claim lateral movement detection
+    requires_techniques:
+      - T1021
+      - T1570

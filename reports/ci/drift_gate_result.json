@@ -1,0 +1,25 @@
+{
+  "gate": "shenron_drift_gate",
+  "version": "0.1.0",
+  "timestamp": "2026-06-26T00:08:56.833562+00:00",
+  "manifest_path": "shenron_manifest.json",
+  "verdict": "PASS",
+  "exit_code": 0,
+  "error": "",
+  "report_path": "",
+  "drift_summary": {
+    "attack_version": "3.3.0",
+    "checked_at": "2026-06-26T00:08:55.292264+00:00",
+    "total_layers": 58,
+    "total_techniques": 175,
+    "ok_count": 175,
+    "stale_count": 0,
+    "renamed_count": 0,
+    "unknown_count": 0,
+    "drift_verdict": "CURRENT",
+    "has_issues": false,
+    "stale_techniques": [],
+    "renamed_techniques": [],
+    "layers_with_issues": []
+  }
+}

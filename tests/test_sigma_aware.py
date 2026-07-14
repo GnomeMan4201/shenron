@@ -34,7 +34,7 @@ def base_artifact():
     return {
         "artifact_id": "12345",
         "session_id": "sess-1",
-        "layer": "lotl_execution_phantom",
+        "layer": "lotl_execution_sim",
         "behavior_class": "execution_sim",
         "detection_opportunities": ["cmdline_sim"],
         "mitre_techniques": ["T1059"],

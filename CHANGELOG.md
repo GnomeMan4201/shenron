@@ -18,13 +18,13 @@ All notable changes to SHENRON are documented here.
 ### Added
 - 6 new Sigma rules covering previously uncovered layer families:
   - `sigma/rules/lateral/shenron_lateral_webcrawler.yml` (T1021, T1046, T1135)
-  - `sigma/rules/evasion/shenron_airlock_quarantine_cloak.yml` (T1564, T1036)
-  - `sigma/rules/evasion/shenron_mirror_loop_deflector.yml` (T1036.005, T1070)
-  - `sigma/rules/evasion/shenron_spectral_rootkit_shroud.yml` (T1014, T1564)
+  - `sigma/rules/evasion/shenron_sandbox_evasion_sim.yml` (T1564, T1036)
+  - `sigma/rules/evasion/shenron_traffic_reflection_sim.yml` (T1036.005, T1070)
+  - `sigma/rules/evasion/shenron_rootkit_evasion_sim.yml` (T1014, T1564)
   - `sigma/rules/evasion/shenron_deadzone_payload.yml` (T1027, T1140)
-  - `sigma/rules/exfiltration/shenron_transient_exfil_shell.yml` (T1041, T1048)
+  - `sigma/rules/exfiltration/shenron_transient_exfil_sim.yml` (T1041, T1048)
 - `schema_version` field added to all 16 assumption YAMLs; loader now emits `UserWarning` on missing or mismatched version
-- Demo artifact (`artifacts/demo/shenron_demo_run.jsonl`) expanded to include `airlock_quarantine_cloak`, `mirror_loop_deflector`, `spectral_rootkit_shroud`, `deadzone_payload`, `transient_exfil_shell`, `anti_forensics_molt`, `encrypted_echo_chamber`, `dragons_breath_destructor`
+- Demo artifact (`artifacts/demo/shenron_demo_run.jsonl`) expanded to include `sandbox_evasion_sim`, `traffic_reflection_sim`, `rootkit_evasion_sim`, `deadzone_payload`, `transient_exfil_sim`, `anti_forensics_molt`, `encrypted_echo_chamber`, `antiforensic_wipe_sim`
 - CI bumped to `actions/setup-python@v6`
 
 ### Changed
@@ -38,7 +38,7 @@ All notable changes to SHENRON are documented here.
 
 ### Security
 - Purged `basic_windows_keylogger.ps1`, `windows_reverse_shell.bat`, `mirror_module.sh` from all git history via `git filter-repo`
-- Rewrote `dark_signature_morpher.py` as simulation-only — no real file writes, no subprocess
+- Rewrote `signature_mutation_sim.py` as simulation-only — no real file writes, no subprocess
 - Removed 4402 unsafe mutation variant files from git tracking; added `.gitignore` rule
 - Identified generation-time safety constraint gap in mutation engine — variants were synthesizing real capability from canonical layer patterns
 
@@ -67,7 +67,7 @@ All notable changes to SHENRON are documented here.
 
 ### Added
 - Coverage history tracking — `record_validation`, `--history`, `--history-compare` with delta tracking
-- Mutation engine — dark_signature_morpher logs layer mutation events to SQLite
+- Mutation engine — signature_mutation_sim logs layer mutation events to SQLite
 - Enhanced release bundle — `--release-demo` produces complete evidence package
 
 ### Changed

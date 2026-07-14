@@ -47,7 +47,7 @@ All 50 layers produce defender-observable synthetic telemetry. No layer executes
 | persistence | EXECUTE | 6 |
 | meta | ADAPT | 6 |
 
-Three layers (`dark_signature_morpher`, `polymorph_chain_stats`, `mutation_history`) are operational infrastructure rather than simulators and are documented as such.
+Three layers (`signature_mutation_sim`, `polymorph_chain_stats`, `mutation_history`) are operational infrastructure rather than simulators and are documented as such.
 
 ### bananaTREE campaign model
 
@@ -125,7 +125,7 @@ All 50 layers produce defender-observable synthetic telemetry. No layer executes
 | persistence | EXECUTE | 6 |
 | meta | ADAPT | 6 |
 
-Three layers (`dark_signature_morpher`, `polymorph_chain_stats`, `mutation_history`) are operational infrastructure rather than simulators and are documented as such.
+Three layers (`signature_mutation_sim`, `polymorph_chain_stats`, `mutation_history`) are operational infrastructure rather than simulators and are documented as such.
 
 ### bananaTREE campaign model
 

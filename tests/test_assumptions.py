@@ -15,7 +15,7 @@ from core.assumptions.validator import validate_assumption, _check_claim
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
-def _art(layer="dormant_sleeper_seed", techniques=None, signals=None, **kw):
+def _art(layer="dormant_persistence_sim", techniques=None, signals=None, **kw):
     base = {
         "artifact_id":     "test-001",
         "layer":           layer,
@@ -44,7 +44,7 @@ def _c2_artifacts():
         _art(layer="beacon_emitter_cloak",
              techniques=["T1071"],
              signals=["periodic_beacon_to_external_host", "http_beacon_sim"]),
-        _art(layer="autonomous_signal_cloner",
+        _art(layer="signal_replication_sim",
              techniques=["T1102"],
              signals=["signal_clone_across_interfaces"]),
     ]

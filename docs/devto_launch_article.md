@@ -110,11 +110,11 @@ A campaign is a JSON file specifying which layers run in each phase and what det
   "name": "c2_shape_detection_test",
   "phases": {
     "OBSERVE": {
-      "layers": ["beacon_emitter_cloak", "autonomous_signal_cloner"],
+      "layers": ["beacon_emitter_cloak", "signal_replication_sim"],
       "expected_findings": ["periodic_beacon", "signal_clone_across_interfaces"]
     },
     "SIMULATE": {
-      "layers": ["spectral_packet_weaver", "void_gateway_tunnel"],
+      "layers": ["packet_covert_channel_sim", "covert_tunnel_sim"],
       "expected_findings": ["covert_channel_traffic", "dns_tunneling_high_entropy"]
     }
   }

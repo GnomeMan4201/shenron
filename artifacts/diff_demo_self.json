@@ -1,0 +1,130 @@
+{
+  "artifact_a": "artifacts/demo/shenron_demo_run.jsonl",
+  "artifact_b": "artifacts/demo/shenron_demo_run.jsonl",
+  "generated_at": "2026-06-25T23:54:51.270077+00:00",
+  "event_count_a": 50,
+  "event_count_b": 50,
+  "technique_stability": 1.0,
+  "signal_stability": 1.0,
+  "overall_stability": 1.0,
+  "coverage_delta": 0,
+  "seed_dependent": false,
+  "techniques_only_a": [],
+  "techniques_only_b": [],
+  "techniques_common": [
+    "T1001",
+    "T1020",
+    "T1021",
+    "T1021.001",
+    "T1027",
+    "T1036",
+    "T1041",
+    "T1047",
+    "T1048",
+    "T1053.003",
+    "T1053.005",
+    "T1055",
+    "T1055.012",
+    "T1059.001",
+    "T1059.007",
+    "T1068",
+    "T1070",
+    "T1071",
+    "T1071.001",
+    "T1071.004",
+    "T1082",
+    "T1095",
+    "T1110",
+    "T1132",
+    "T1135",
+    "T1205",
+    "T1497",
+    "T1543.003",
+    "T1547.001",
+    "T1572",
+    "T1573.001",
+    "T1574.002",
+    "T1589",
+    "T1590",
+    "T1595",
+    "T1622"
+  ],
+  "phases_only_a": [],
+  "phases_only_b": [],
+  "signals_only_a": [],
+  "signals_only_b": [],
+  "layers_only_a": [],
+  "layers_only_b": [],
+  "phase_density": [
+    {
+      "phase": "ADAPT",
+      "count_a": 10,
+      "count_b": 10,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    {
+      "phase": "EXECUTE",
+      "count_a": 10,
+      "count_b": 10,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    {
+      "phase": "OBSERVE",
+      "count_a": 10,
+      "count_b": 10,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    {
+      "phase": "SIMULATE",
+      "count_a": 10,
+      "count_b": 10,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    {
+      "phase": "beacon_emit",
+      "count_a": 3,
+      "count_b": 3,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    {
+      "phase": "channel_establishment",
+      "count_a": 1,
+      "count_b": 1,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    {
+      "phase": "data_transfer_sim",
+      "count_a": 1,
+      "count_b": 1,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    {
+      "phase": "packet_weave",
+      "count_a": 3,
+      "count_b": 3,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    {
+      "phase": "shell_dissolve_sim",
+      "count_a": 1,
+      "count_b": 1,
+      "delta": 0,
+      "delta_pct": 0.0
+    },
+    {
+      "phase": "shell_spawn_sim",
+      "count_a": 1,
+      "count_b": 1,
+      "delta": 0,
+      "delta_pct": 0.0
+    }
+  ]
+}

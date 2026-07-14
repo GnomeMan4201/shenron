@@ -1,13 +1,13 @@
-# SHENRON
-
 ![SHENRON](assets/shenron_banner.png)
 
-SHENRON is a safe synthetic telemetry and blue-team reasoning tool.
+SHENRON is a safe synthetic telemetry and detection engineering research tool.
 
 It does not prove that a detection stack is effective.
 
-It helps answer a narrower and more honest question:
-> Does this artifact support the validation claim being made about it?
+It helps answer a harder question:
+> How durable are your detection rules under adversarial pressure?
+
+Rule coverage is table stakes. Rule durability is the harder problem.
 
 ---
 
@@ -15,7 +15,7 @@ It helps answer a narrower and more honest question:
 
 **Observable adversarial behavior, not portable adversarial procedure.**
 
-SHENRON generates structured synthetic JSONL telemetry representing adversarial behavior across 59 simulation layers. It does not contain payloads, exploit code, real network calls, subprocess execution, or operational malware logic. Every artifact is synthetic. Every layer carries an explicit safety contract.
+SHENRON generates structured synthetic JSONL telemetry representing adversarial behavior across 66 simulation layers. It does not contain payloads, exploit code, real network calls, subprocess execution, or operational malware logic. Every artifact is synthetic. Every layer carries an explicit safety contract.
 
 ---
 
@@ -29,135 +29,75 @@ SHENRON does not contain:
 - Real file writes outside its own log directory
 - Exploit code of any kind
 
-This is not a disclaimer. It is an architectural constraint.
+This is not a disclaimer. It is an architectural constraint. Every layer is statically checked by tests/test_all_layers_safety_static.py.
 
 ---
 
-## Quickstart — one command, complete evidence bundle
+## Quickstart
 
-```bash
-git clone https://github.com/GnomeMan4201/shenron
-cd shenron
-python3 shenron.py --quickstart
-```
+Install: pip install pyyaml pytest pysigma --break-system-packages
 
-Produces in `reports/demo/`:
+Run a campaign: python3 shenron.py campaign --scenario apt29-style --stress-test
 
-- `sigma_validation.txt` — which detection rules fire on synthetic telemetry
-- `assumption_validation.txt` — which claims the artifact supports
-- `attack_navigator_layer.json` — import into ATT&CK Navigator
-- `shenron_report.html` — open in any browser
+Compare scenarios: python3 shenron.py compare-scenarios
 
-No setup. No external dependencies. No prior knowledge required.
+Evaluate Sigma rules (pySigma by default): python3 shenron.py sigma --validate-dir sigma/rules/ --events artifacts/demo/shenron_demo_run.jsonl
 
----
-
-## System health check
-
-```bash
-python3 shenron.py health
-```
-
-Runs all four validation dimensions in ~7 seconds:
-
-```
-  [✓] tests                PASS    390 passed
-  [✓] doctor               PASS    52 layers OK, 0 gaps
-  [✓] mitre-drift          PASS    110/110 current, v3.3.0
-  [✓] assumptions          PASS    7/7 categories SUPPORTED
-  [✓] VERDICT: HEALTHY — all 4 checks passed
-```
-
----
-
-## Full CLI
-
-```bash
-git clone https://github.com/GnomeMan4201/shenron
-cd shenron
-python3 -m pytest tests/ -q                         # 390 tests
-
-# Run a category
-python3 shenron.py --run persistence
-python3 shenron.py --run c2
-python3 shenron.py --run all --dry-run              # 52 ok | 0 failed
-
-# Scoped run — output to separate file for clean assumption validation
-python3 shenron.py --run persistence \
-  --scope-out /tmp/persistence_scoped.jsonl
-
-# Validate all category assumptions in one command
-python3 shenron.py --validate-all-assumptions
-
-# Validate a single assumption against scoped artifact
-python3 shenron.py --validate-assumption \
-  assumptions/examples/persistence_coverage.yaml \
-  --events /tmp/persistence_scoped.jsonl
-
-# Validate Sigma rules against synthetic telemetry
-python3 shenron.py --validate-sigma-dir sigma/rules/ \
-  --events ~/SHENRON/logs/simulation_artifacts.jsonl
-
-# MITRE ATT&CK drift check (detects stale/renamed technique IDs)
-python3 shenron.py --check-mitre-drift \
-  --drift-cache .cache/attack_bundle.json
-
-# Field emission coverage audit
-python3 shenron.py doctor
-
-# Generate standalone HTML report
-python3 shenron.py --report-html
-
-# View validation history
-python3 shenron.py --history
-python3 shenron.py --history-compare persistence_coverage
-```
+MITRE drift CI gate: python3 -m core.ci.drift_gate
 
 ---
 
 ## What it does
 
+<<<<<<< HEAD
 **Synthetic telemetry generation** — 52 simulation layers across 8 categories (c2, entropy, identity, evasion, payload, llm, persistence, meta), organized through the bananaTREE four-phase campaign model: OBSERVE → SIMULATE → EXECUTE → ADAPT.
+=======
+SHENRON scores detection brittleness across three dimensions:
+>>>>>>> f76b73332ee6244e7d43862a6c6853d7e80f587a
 
-**Sigma rule validation** — evaluates whether your detection rules would fire on realistic synthetic telemetry. Verdicts: TRIGGERED, PARTIAL, NOT_TRIGGERED, UNSUPPORTED. 19 rules across simulation and live categories.
+**Artifact-level brittleness** -- does a mutation on a single event cause a Sigma rule to stop firing? Six mutation strategies targeting fields your rules actually reference: value_swap, field_omit, case_flip, unicode_substitute, whitespace_inject, combined_evasion. Strategies are weighted by adversary accessibility -- case_flip requires zero sophistication, value_swap requires knowledge of the detection stack.
 
-**Assumption validation** — checks whether a JSONL artifact supports, partially supports, or violates the claims being made about it. Includes out-of-scope violation detection. All 7 categories validated and SUPPORTED.
+**Campaign-level correlation brittleness** -- do mutations on the relationships between events break the ability to correlate them into a coherent intrusion narrative? Four campaign-graph mutations: SESSION_ID_ROTATION, TIMESTAMP_STRETCH, STAGE_DROPOUT, ACTOR_DRIFT.
 
-**MITRE ATT&CK drift detection** — `--check-mitre-drift` fetches the current ATT&CK STIX bundle and compares all 110 pinned technique IDs against the live release. Exits non-zero on stale or renamed techniques. Runs in CI on every push.
-
-**Evidence discipline** — generates scope-bounded reports that tell you exactly what your artifact can and cannot honestly support. Prevents overclaiming.
-
-**Scoped artifact validation** — `--scope-out` runs a category and writes output to a dedicated file, enabling clean per-category assumption validation without full-log contamination.
-
-**HTML report output** — standalone HTML report with MITRE coverage, sigma results, assumption validation, and safe conclusion.
-
-**Validation history** — persists results per run for delta tracking and comparison over time.
+**Gap metric** -- the difference between artifact brittleness and correlation brittleness.
 
 ---
 
-## Live telemetry integration
+## Sigma evaluation -- pySigma by default
 
-SHENRON accepts live telemetry from [bpf-watch](https://github.com/GnomeMan4201/bpf-watch), an eBPF rootkit detection daemon that emits Shenron-compatible JSONL.
+evaluate_sigma_rule() routes through the pySigma bridge by default:
 
-```bash
-# Run bpf-watch and feed live output into Shenron validation
-sudo python3 bpfwatch.py --check \
-  --out ~/SHENRON/logs/bpfwatch_live.jsonl
+- All modifiers: contains, startswith, endswith, re, all, base64, cidr, exists
+- All condition operators: 1 of, all of, N of, wildcards in names, not, and, or
+- Windows Event Log fields: EventID, Channel, Provider_Name, Computer, SubjectUserName, ServiceName, TaskName, RegistryKey
+- LLM attack fields: injection_technique, target_model
 
-python3 shenron.py --validate-sigma-dir sigma/rules/ \
-  --events ~/SHENRON/logs/bpfwatch_live.jsonl
+Falls back to the custom evaluator if pySigma is unavailable.
 
-python3 shenron.py --validate-assumption \
-  assumptions/examples/assumption_bpfwatch_live_coverage.yaml \
-  --events ~/SHENRON/logs/bpfwatch_live.jsonl
-```
+### Windows Event Log telemetry
 
-5 live Sigma rules in `sigma/rules/live/` fire against real kernel telemetry. The kprobe sentinel rule has been confirmed TRIGGERED against real kernel execve hooks on kernel 6.18.7.
+core/layers/windows_event_log_sim.py emits real EventID, Channel, and Provider_Name fields.
+EventID 4698 + TaskName *update* Sigma rules fire correctly through the default evaluator path.
+
+### SHENRON to real log field mapping
+
+| Sigma field | SHENRON field(s) | Real log source |
+|---|---|---|
+| EventID | event_id_sim, windows_event_id, EventID | Windows Security/System |
+| Channel | channel_sim, windows_channel | Windows Event Log |
+| Provider_Name | provider_sim, windows_provider | Windows Event Log |
+| CommandLine | behavior_class, command_sim | Sysmon EID 1, Security EID 4688 |
+| Image | layer, exe_sim | Sysmon EID 1 |
+| TaskName | task_name_sim | Security EID 4698 |
+| ServiceName | service_name_sim | Security EID 4697, System EID 7045 |
+| SubjectUserName | user_sim, subject_user_sim | Security auth events |
+| TargetFilename | target_path_sim, synthetic_path | Sysmon EID 11 |
 
 ---
 
-## Repository structure
+## Feedback-driven adversary adaptation
 
+<<<<<<< HEAD
 ```
 core/
   assumptions/     — evidence discipline layer (validate, scope, index)
@@ -177,21 +117,68 @@ artifacts/demo/        — committed demo artifact for immediate use
 scenarios/examples/    — bananaTREE scenario JSON files
 tests/                 — 390 tests
 ```
+=======
+The adaptation engine (core/campaign/adaptation.py) implements genuine feedback-driven strategy selection:
+
+1. After each iteration, inspect which Sigma rules are still firing
+2. Extract which SHENRON event fields those rules test via live rule YAML parsing
+3. Score each mutation strategy by field coverage against still-firing rules
+4. Apply a diversity penalty for over-used strategies
+5. Select the highest-scoring strategy not yet exhausted
+
+Example output:
+  [ADAPT] Iter 01/8 -- strategy: sigma_aware_field_omit (feedback-selected)
+  [ADAPT]   Top candidates: [(sigma_aware_field_omit, 2), (sigma_aware_value_swap, 2)]
+  [ADAPT]   Firing: 1 | Evaded: 3 | Rate: 0.75
+>>>>>>> f76b73332ee6244e7d43862a6c6853d7e80f587a
 
 ---
 
-## Demo — no setup required
+## LLM manipulation telemetry
 
-```bash
-# Immediate demo from fresh clone
-python3 shenron.py --compare-assumptions \
-  assumptions/examples/persistence_coverage.yaml \
-  assumptions/examples/c2_coverage.yaml \
-  --events artifacts/demo/shenron_demo_run.jsonl
+The first structured multi-layer LLM attack scenario in the detection engineering space:
 
-python3 shenron.py --validate-sigma-dir sigma/rules/ \
-  --events artifacts/demo/shenron_demo_run.jsonl
-```
+- 7 injection techniques: role override, indirect RAG pipeline, jailbreak encoding, output poisoning, prompt fuzzing, context window overflow, multimodal injection
+- 5-phase kill chain: RECONNAISSANCE -> INJECT -> MANIPULATE -> OBFUSCATE -> EXFILTRATE
+- 9 MITRE techniques: T1059.007, T1190, T1027, T1565.001, T1036, T1048, T1590, T1565, T1027.002
+- 25 detection opportunities per scenario run
+- Sigma rule: sigma/rules/llm/shenron_llm_manipulation.yml -- 5 detection blocks, all TRIGGERED
+
+Platform log schema mappers (core/formats/llm_platform_logs.py):
+
+| Platform | Schema | Key fields |
+|---|---|---|
+| Azure OpenAI | azureDiagnostics table | TimeGenerated, OperationName, ResultType, properties_totalTokens_d |
+| AWS Bedrock | CloudTrail bedrock.amazonaws.com | eventSource, eventName, requestParameters.modelId, errorCode |
+| Anthropic API | Messages API audit log | model, stop_reason, usage.input_tokens, request_latency_ms |
+
+Role override injection: ResultType ContentFilter (Azure) / errorCode ValidationException (Bedrock) / stop_reason stop_sequence (Anthropic).
+
+---
+
+## Output format adapters
+
+| Format | Module | Target |
+|---|---|---|
+| ECS Elastic Common Schema | core/formats/adapter.py | Elastic / OpenSearch |
+| Splunk HEC | core/formats/adapter.py | Splunk HTTP Event Collector |
+| CEF | core/formats/cef_adapter.py | ArcSight, IBM QRadar, HP Logger |
+| Azure OpenAI logs | core/formats/llm_platform_logs.py | Azure Monitor / Log Analytics |
+| AWS Bedrock CloudTrail | core/formats/llm_platform_logs.py | AWS Security Lake / Athena |
+| Anthropic audit logs | core/formats/llm_platform_logs.py | Any SIEM with JSON ingest |
+
+---
+
+## Adversary archetypes
+
+| Scenario | Stages | Shape |
+|---|---|---|
+| apt29-style | 7 | Full kill chain with recon |
+| ransomware-precursor | 5 | Beacon to payload to persistence to lateral to exfil |
+| insider-threat | 4 | No initial access, direct collection |
+| fin7-style | 6 | Execution-first, credential harvest heavy |
+| supply-chain | 4 | Dependency confusion as initial access vector |
+| living-off-the-land | 4 | Pure LOtL, native tools throughout |
 
 ---
 
@@ -199,52 +186,67 @@ python3 shenron.py --validate-sigma-dir sigma/rules/ \
 
 | Check | Result |
 |---|---|
-| Test suite | 390 passed (Python 3.9–3.12) |
-| Layer dry-run | 52 ok, 0 failed |
-| Field emission coverage | 52 layers OK, 0 gaps |
+| Test suite | 885 passed (Python 3.12) |
+| Simulation layers | 66 |
+| Sigma rules | 28 |
+| Adversary scenarios | 6 |
+| Artifact mutation strategies | 11 (6 standard + 5 sigma-aware) |
+| Correlation mutation strategies | 4 |
 | Safety failures | 0 |
-| Sigma rules | 19 (14 simulation, 5 live) |
-| Assumption YAMLs | 15 |
-| Simulation layers | 52 |
-| MITRE techniques | 110/110 current |
-| Category assumptions | 7/7 SUPPORTED |
-| CI jobs | 8/8 green |
+| pySigma integration | default evaluator path |
+| Windows EventID support | windows_event_log_sim + pySigma bridge |
+| LLM platform log schemas | Azure OpenAI, AWS Bedrock, Anthropic |
+| CEF output | ArcSight/QRadar compatible |
+| Feedback-driven adaptation | field-coverage strategy scoring |
+| MITRE drift CI gate | exit codes 0/1/2 |
 
 ---
 
-## CI
+## Repository structure
 
-8-job pipeline runs on every push and PR to main:
-
-- **Test** (Python 3.9, 3.10, 3.11, 3.12) — full pytest suite
-- **Safety audit** — dry-run all layers, schema validation, audit bundle
-- **Package build** — wheel build and install verification
-- **MITRE ATT&CK drift** — live STIX bundle check, exits non-zero on stale techniques
-- **Assumption coverage** — `--validate-all-assumptions` across all 7 categories
+core/campaign        -- CampaignBuilder, AdaptationEngine feedback-driven, DiffTool
+core/brittleness     -- BrittlenessScorer, ArtifactBrittleness, weighted scoring
+core/mutation        -- SigmaAwareMutator, combined evasion, deterministic seeding
+core/sigma           -- evaluator pySigma default, pysigma_bridge, generator, loader
+core/layers          -- 66 canonical simulation layers incl Windows Event Log and LLM
+core/noise           -- BenignEventGenerator 6 categories 28 templates
+core/assumptions     -- validator, fuzzer, evidence discipline layer
+core/formats         -- ECS, Splunk HEC, CEF adapters; LLM platform log schemas
+core/ingest          -- journald normalizer
+core/ci              -- MITRE drift CI gate GitHub Actions compatible
+core/engine          -- layer loader and payload registry
+sigma/rules          -- 28 Sigma rules c2, persistence, evasion, execution, llm, live
+artifacts            -- demo, LLM, Windows, platform log artifacts
+docs                 -- layer rename map, field mapping documentation
+tests                -- 885 tests across 40+ test files
 
 ---
 
-## Launch Article
+## Live telemetry integration
 
-[Observable Adversarial Behavior, Not Portable Adversarial Procedure](https://dev.to/gnomeman4201/observable-adversarial-behavior-not-portable-adversarial-procedure-4mo6)
+SHENRON accepts live telemetry from bpf-watch (https://github.com/GnomeMan4201/bpf-watch), an eBPF rootkit detection daemon that emits SHENRON-compatible JSONL.
+
+5 live Sigma rules in sigma/rules/live/ fire against real kernel telemetry. The kprobe sentinel rule has been confirmed TRIGGERED against real kernel execve hooks on kernel 6.18.7.
 
 ---
 
-*gnomeman4201 / badBANANA Research Collective*
-> Observable adversarial behavior, not portable adversarial procedure.
+## Launch articles
 
+Observable Adversarial Behavior, Not Portable Adversarial Procedure
+https://dev.to/gnomeman4201/observable-adversarial-behavior-not-portable-adversarial-procedure-4mo6
+
+I Built a Tool That Scores How Fragile Your Detection Rules Are
+https://dev.to/gnomeman4201
 
 ---
 
 ## Part of the BANANA_TREE Research Ecosystem
 
-| | |
-|--|--|
-| **Research Hub** | [GnomeMan4201](https://github.com/GnomeMan4201/GnomeMan4201) |
-| **Corpus & Discovery** | [r4b1t](https://gnomeman4201.github.io/r4b1t) — 53,869 verified OSINT/security URLs |
-| **Investigation Management** | [inv-hub](https://github.com/GnomeMan4201/inv-hub) |
-| **Knowledge Base** | [PRAXIS](https://github.com/GnomeMan4201/PRAXIS) |
-| **Detection Engineering** | [SHENRON](https://github.com/GnomeMan4201/SHENRON) |
-| **Kernel Telemetry** | [bpf-watch](https://github.com/GnomeMan4201/bpf-watch) |
+r4b1t         https://gnomeman4201.github.io/r4b1t -- 119k verified OSINT/security URLs
+inv-hub       https://github.com/GnomeMan4201/inv-hub
+PRAXIS        https://github.com/GnomeMan4201/PRAXIS
+SHENRON       https://github.com/GnomeMan4201/shenron
+bpf-watch     https://github.com/GnomeMan4201/bpf-watch
 
-*badBANANA Research Collective · [dev.to/gnomeman4201](https://dev.to/gnomeman4201)*
+gnomeman4201 / badBANANA Research Collective
+Observable adversarial behavior, not portable adversarial procedure.

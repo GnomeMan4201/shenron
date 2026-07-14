@@ -39,12 +39,12 @@ Nine stages. Full ATT&CK coverage. Realistic inter-stage timing offsets.
 ```
 [STAGE 1/9] initial_c2             — beacon_emitter_cloak      +0s
 [STAGE 2/9] recon                  — lateral_webcrawler         +120s
-[STAGE 3/9] persistence_plant      — dormant_sleeper_seed       +300s
+[STAGE 3/9] persistence_plant      — dormant_persistence_sim       +300s
 [STAGE 4/9] memory_hijack          — memory_hijack_inheritor    +360s
 [STAGE 5/9] cover_tracks           — anti_forensics_molt        +420s
-[STAGE 6/9] masquerade             — mirror_loop_deflector      +450s
-[STAGE 7/9] persistence_reinforce  — shadow_system_rebuilder    +480s
-[STAGE 8/9] file_plant             — poltergeist_file_infector  +510s
+[STAGE 6/9] masquerade             — traffic_reflection_sim      +450s
+[STAGE 7/9] persistence_reinforce  — system_rebuild_sim    +480s
+[STAGE 8/9] file_plant             — file_infector_sim  +510s
 [STAGE 9/9] exfil_c2               — beacon_emitter_cloak       +600s
 ```
 
@@ -225,24 +225,24 @@ Full detection signal map:
 | recon | lateral_webcrawler | SMB port probe | T1021 |
 | recon | lateral_webcrawler | share enumeration | T1135 |
 | recon | lateral_webcrawler | sequential host requests | T1046 |
-| persistence_plant | dormant_sleeper_seed | scheduled task creation | T1053 |
-| persistence_plant | dormant_sleeper_seed | registry run key write | T1547 |
-| persistence_plant | dormant_sleeper_seed | cron modification | T1053 |
+| persistence_plant | dormant_persistence_sim | scheduled task creation | T1053 |
+| persistence_plant | dormant_persistence_sim | registry run key write | T1547 |
+| persistence_plant | dormant_persistence_sim | cron modification | T1053 |
 | memory_hijack | memory_hijack_inheritor | proc mem access | T1055 |
 | memory_hijack | memory_hijack_inheritor | token impersonation | T1134 |
 | memory_hijack | memory_hijack_inheritor | RWX region write | T1055 |
 | cover_tracks | anti_forensics_molt | log file cleared | T1070 |
 | cover_tracks | anti_forensics_molt | history truncated | T1107 |
 | cover_tracks | anti_forensics_molt | timestamp rollback | T1070 |
-| masquerade | mirror_loop_deflector | process name spoof | T1036.005 |
-| masquerade | mirror_loop_deflector | fake cmdline | T1036.005 |
-| masquerade | mirror_loop_deflector | PID masquerade | T1036 |
-| persistence_reinforce | shadow_system_rebuilder | file hash mismatch | T1547 |
-| persistence_reinforce | shadow_system_rebuilder | unauthorized file copy | T1543 |
-| persistence_reinforce | shadow_system_rebuilder | timestamp modification | T1547 |
-| file_plant | poltergeist_file_infector | recursive home traversal | T1564.001 |
-| file_plant | poltergeist_file_infector | script file append | T1027 |
-| file_plant | poltergeist_file_infector | hash change on script | T1027 |
+| masquerade | traffic_reflection_sim | process name spoof | T1036.005 |
+| masquerade | traffic_reflection_sim | fake cmdline | T1036.005 |
+| masquerade | traffic_reflection_sim | PID masquerade | T1036 |
+| persistence_reinforce | system_rebuild_sim | file hash mismatch | T1547 |
+| persistence_reinforce | system_rebuild_sim | unauthorized file copy | T1543 |
+| persistence_reinforce | system_rebuild_sim | timestamp modification | T1547 |
+| file_plant | file_infector_sim | recursive home traversal | T1564.001 |
+| file_plant | file_infector_sim | script file append | T1027 |
+| file_plant | file_infector_sim | hash change on script | T1027 |
 
 ---
 
@@ -272,7 +272,7 @@ are counted once — rewarding layers whose manifest accurately predicts
 runtime behavior.
 ```
 
-### Example: mirror_loop_deflector (score: 84)
+### Example: traffic_reflection_sim (score: 84)
 
 ```
 base_score          = 100
@@ -289,14 +289,14 @@ simulation bonus    → +5.0
 ### Results
 
 ```
-mirror_loop_deflector     ████████████████░░░░  84
+traffic_reflection_sim     ████████████████░░░░  84
 beacon_emitter_cloak      ████████████████░░░░  80
 lateral_webcrawler        ███████████████░░░░░  78
 anti_forensics_molt       ███████████████░░░░░  77
 memory_hijack_inheritor   █████████████░░░░░░░  68
-poltergeist_file_infector █████████████░░░░░░░  68
-dormant_sleeper_seed      █████████████░░░░░░░  65
-shadow_system_rebuilder   █████████████░░░░░░░  65
+file_infector_sim █████████████░░░░░░░  68
+dormant_persistence_sim      █████████████░░░░░░░  65
+system_rebuild_sim   █████████████░░░░░░░  65
 ```
 
 C2 and evasion layers score highest — designed to blend. Persistence layers score lowest — systemd unit creation and file integrity violations are hard to hide. Memory injection sits in the middle: detectable, but requires deeper visibility than log analysis alone.

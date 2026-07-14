@@ -7,9 +7,9 @@
     "OBSERVE": {
       "description": "Profile entropy distribution patterns",
       "layers": [
-        "quantum_entropy_distorter",
+        "entropy_injection_sim",
         "entropy_flux_disruptor",
-        "neural_entropy_seeder"
+        "entropy_seeder_sim"
       ],
       "expected_findings": [
         "log_high_entropy_non_logging_source",
@@ -20,9 +20,9 @@
     "SIMULATE": {
       "description": "Generate obfuscation-shaped telemetry",
       "layers": [
-        "quantum_state_shuffler",
-        "entropy_anchor_dropper",
-        "temporal_payload_phaser",
+        "payload_hash_shuffler",
+        "entropy_anchor_sim",
+        "payload_timing_sim",
         "llm_shroud_writer"
       ],
       "expected_findings": [
@@ -34,7 +34,7 @@
     "EXECUTE": {
       "description": "Run trace rewind and skinwalker simulators",
       "layers": [
-        "quantum_trace_rewinder",
+        "timestamp_spoof_sim",
         "payload_skinwalker",
         "obfuscated_skinwalker_dropper"
       ],
@@ -47,7 +47,7 @@
     "ADAPT": {
       "description": "Update entropy thresholds and obfuscation rules",
       "layers": [
-        "shenron_holo_emitter",
+        "process_masquerade_sim",
         "mutation_history"
       ],
       "expected_findings": [

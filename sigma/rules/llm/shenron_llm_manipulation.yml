@@ -1,0 +1,79 @@
+title: SHENRON LLM Manipulation Attack Chain
+id: shenron-llm-manipulation-001
+status: experimental
+description: >
+  Detects the full LLM manipulation kill chain simulated by SHENRON:
+  prompt injection, hallucination injection, obfuscation, and output exfiltration.
+  Covers reconnaissance through exfiltration across all three LLM attack layers.
+author: GnomeMan4201 / badBANANA Research Collective
+date: 2026-06-25
+references:
+  - https://github.com/GnomeMan4201/shenron
+  - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+tags:
+  - attack.t1059.007
+  - attack.t1190
+  - attack.t1027
+  - attack.t1565
+  - attack.t1565.001
+  - attack.t1036
+  - attack.t1048
+  - attack.t1590
+  - shenron.llm_manipulation
+logsource:
+  product: shenron
+  category: simulation
+detection:
+  selection_injection:
+    layer: llm_prompt_injector
+    behavior_class:
+      - role_boundary_violation_sim
+      - indirect_prompt_injection_sim
+      - encoded_jailbreak_attempt_sim
+      - context_window_saturation_sim
+      - prompt_fuzzing_pattern_sim
+      - llm_output_poisoning_sim
+      - multimodal_prompt_injection_sim
+      - llm_target_reconnaissance_sim
+      - llm_output_exfil_validation_sim
+  selection_echo:
+    layer: llm_echo_chamber
+    detection_opp:
+      - llm_format_log_entries_from_non_llm_process
+      - hallucination_tagged_events_fixed_interval_non_inference
+      - llm_hallucination_tag_outside_llm_runtime_paths
+      - token_embedding_metadata_from_non_inference_process
+  selection_shroud:
+    layer: llm_shroud_writer
+    detection_opp:
+      - llm_style_obfuscation_mimicry
+      - multi_layer_encoding_non_crypto_process
+      - entropy_layering_pattern
+  selection_scenario:
+    layer: llm_manipulation_scenario
+    behavior_class: llm_exfil_correlation_marker
+  selection_techniques:
+    mitre_technique:
+      - T1059.007
+      - T1190
+      - T1565.001
+      - T1027
+  condition: 1 of selection_*
+falsepositives:
+  - Authorized LLM security testing and red team exercises
+  - SHENRON synthetic telemetry validation runs
+  - Legitimate LLM application logging with verbose mode enabled
+level: high
+fields:
+  - artifact_id
+  - session_id
+  - scenario_id
+  - layer
+  - phase
+  - behavior_class
+  - signal
+  - detection_opportunities
+  - mitre_techniques
+  - injection_technique_sim
+  - target_model_sim
+  - simulation_only

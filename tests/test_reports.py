@@ -43,7 +43,7 @@ def _make_report(**kwargs) -> ShenronReport:
         run_id        = "run-test-001",
         campaign_name = "test_campaign",
         phases_run    = ["OBSERVE", "SIMULATE", "EXECUTE", "ADAPT"],
-        layers_run    = ["beacon_emitter_cloak", "dormant_sleeper_seed"],
+        layers_run    = ["beacon_emitter_cloak", "dormant_persistence_sim"],
         total_events  = 5,
         **kwargs
     )
@@ -62,18 +62,18 @@ def _make_report(**kwargs) -> ShenronReport:
             detections=["periodic_beacon"],
         ),
         Finding(
-            phase="EXECUTE", layer="dormant_sleeper_seed",
+            phase="EXECUTE", layer="dormant_persistence_sim",
             description="Persistence sim", mitre=["T1053"],
             detections=["scheduled_task_creation"],
         ),
     ]
     r.detections = [
         DetectionOpportunity("OBSERVE", "beacon_emitter_cloak", "periodic_beacon", ["T1071"]),
-        DetectionOpportunity("EXECUTE", "dormant_sleeper_seed", "scheduled_task_creation", ["T1053"]),
+        DetectionOpportunity("EXECUTE", "dormant_persistence_sim", "scheduled_task_creation", ["T1053"]),
     ]
     r.alert_signatures = [
         {"layer": "beacon_emitter_cloak", "phase": "OBSERVE", "signature": "regular beacon interval"},
-        {"layer": "dormant_sleeper_seed", "phase": "EXECUTE", "signature": "new scheduled task"},
+        {"layer": "dormant_persistence_sim", "phase": "EXECUTE", "signature": "new scheduled task"},
     ]
     r.artifacts = [
         EvidenceRef("art-001", "beacon_emitter_cloak", "OBSERVE", "2026-05-16T00:00:00", "signal_clone_sim", True),
@@ -176,11 +176,11 @@ def test_group_artifacts_by_layer():
     arts = [
         _safe_artifact(layer="beacon_emitter_cloak"),
         _safe_artifact(layer="beacon_emitter_cloak"),
-        _safe_artifact(layer="dormant_sleeper_seed"),
+        _safe_artifact(layer="dormant_persistence_sim"),
     ]
     grouped = group_artifacts_by_layer(arts)
     assert len(grouped["beacon_emitter_cloak"]) == 2
-    assert len(grouped["dormant_sleeper_seed"]) == 1
+    assert len(grouped["dormant_persistence_sim"]) == 1
 
 def test_get_campaign_runs_parses_timeline():
     timeline = [

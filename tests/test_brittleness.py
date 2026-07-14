@@ -17,7 +17,7 @@ logsource:
     product: windows
 detection:
     selection:
-        layer: transient_exfil_shell
+        layer: transient_exfil_sim
     condition: selection
 """
 
@@ -108,13 +108,13 @@ def test_custom_scenario_composition():
     from core.campaign.builder import CampaignBuilder, CampaignStage
     custom_stages = [
         (CampaignStage.INITIAL_ACCESS, "passive_recon_harvester"),
-        (CampaignStage.EXFIL, "transient_exfil_shell"),
+        (CampaignStage.EXFIL, "transient_exfil_sim"),
     ]
     builder = CampaignBuilder.from_custom_sequence(custom_stages, 24)
     campaign = builder.build()
     assert len(campaign.events) == 2
     assert campaign.events[0].layer_name == "passive_recon_harvester"
-    assert campaign.events[1].layer_name == "transient_exfil_shell"
+    assert campaign.events[1].layer_name == "transient_exfil_sim"
     assert campaign.events[0].parent_event_id is None
     assert campaign.events[1].parent_event_id == campaign.events[0].event_id
 
@@ -147,13 +147,13 @@ def test_custom_scenario_composition():
     from core.campaign.builder import CampaignBuilder, CampaignStage
     custom_stages = [
         (CampaignStage.INITIAL_ACCESS, "passive_recon_harvester"),
-        (CampaignStage.EXFIL, "transient_exfil_shell"),
+        (CampaignStage.EXFIL, "transient_exfil_sim"),
     ]
     builder = CampaignBuilder.from_custom_sequence(custom_stages, 24)
     campaign = builder.build()
     assert len(campaign.events) == 2
     assert campaign.events[0].layer_name == "passive_recon_harvester"
-    assert campaign.events[1].layer_name == "transient_exfil_shell"
+    assert campaign.events[1].layer_name == "transient_exfil_sim"
     assert campaign.events[0].parent_event_id is None
     assert campaign.events[1].parent_event_id == campaign.events[0].event_id
 

@@ -5,7 +5,7 @@ description: >
   Detects synthetic telemetry patterns consistent with rootkit-level evasion:
   syscall hook installation (getdents64 pattern), hidden /proc entries,
   LKM loading, and LD_PRELOAD modification.
-  Designed for validation against SHENRON spectral_rootkit_shroud layer output.
+  Designed for validation against SHENRON rootkit_evasion_sim layer output.
 author: GnomeMan4201 / badBANANA Research Collective
 date: 2026-06-02
 references:
@@ -16,18 +16,18 @@ tags:
   - attack.defense_evasion
 logsource:
   category: shenron_simulation
-  product: spectral_rootkit_shroud
+  product: rootkit_evasion_sim
 detection:
   selection_syscall_hook:
-    layer: spectral_rootkit_shroud
+    layer: rootkit_evasion_sim
     phase: syscall_hook_sim
 
   selection_artifact_hiding:
-    layer: spectral_rootkit_shroud
+    layer: rootkit_evasion_sim
     phase: artifact_hiding_sim
 
   selection_noise:
-    layer: spectral_rootkit_shroud
+    layer: rootkit_evasion_sim
     phase: noise_injection
 
   condition: 1 of selection_*

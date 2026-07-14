@@ -14,16 +14,16 @@ tags:
   - attack.persistence
 logsource:
   category: shenron_simulation
-  product: dormant_sleeper_seed
+  product: dormant_persistence_sim
 detection:
   selection_install:
-    layer: dormant_sleeper_seed
+    layer: dormant_persistence_sim
     phase: persistence_install
   selection_trigger_reg:
-    layer: dormant_sleeper_seed
+    layer: dormant_persistence_sim
     phase: trigger_registration
   selection_trigger_eval:
-    layer: dormant_sleeper_seed
+    layer: dormant_persistence_sim
     phase: trigger_evaluation
   condition: 1 of selection_*
 falsepositives:

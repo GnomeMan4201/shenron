@@ -32,7 +32,7 @@
 | Layer | Signal | MITRE |
 |-------|--------|-------|
 | `beacon_emitter_cloak` | `periodic_beacon` | T1071.001 |
-| `autonomous_signal_cloner` | `signal_clone` | T1020 |
+| `signal_replication_sim` | `signal_clone` | T1020 |
 | `entropy_profiler` | `entropy_spike` | T1027 |
 | `dns_shape_observer` | `dns_burst` | T1071.004 |
 | `tls_fingerprint_recorder` | `tls_ja3_shape` | T1573.001 |
@@ -46,8 +46,8 @@
 
 | Layer | Signal | MITRE |
 |-------|--------|-------|
-| `spectral_packet_weaver` | `covert_channel_shape` | T1048 |
-| `void_gateway_tunnel` | `protocol_tunnel_shape` | T1572 |
+| `packet_covert_channel_sim` | `covert_channel_shape` | T1048 |
+| `covert_tunnel_sim` | `protocol_tunnel_shape` | T1572 |
 | `llm_prompt_injector` | `llm_injection_signal` | T1059.007 |
 | `evasion_layer_sim` | `defensive_impair_signal` | T1562 |
 | `lateral_probe_emitter` | `lateral_probe_shape` | T1021 |

@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 SHENRON Sigma-Aware Targeted Mutator.
 Adds Sigma-targeted mutation capability on top of the existing engine.

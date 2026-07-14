@@ -37,8 +37,8 @@ BUILTIN_SCENARIOS = {
         "stages": [
             {"layer": "beacon_emitter_cloak", "delay_sim": 0,   "label": "initial_c2"},
             {"layer": "lateral_webcrawler",   "delay_sim": 120, "label": "recon_lateral"},
-            {"layer": "dormant_sleeper_seed", "delay_sim": 300, "label": "persistence_1"},
-            {"layer": "undead_memory_latch",  "delay_sim": 310, "label": "persistence_2"},
+            {"layer": "dormant_persistence_sim", "delay_sim": 300, "label": "persistence_1"},
+            {"layer": "memory_persistence_sim",  "delay_sim": 310, "label": "persistence_2"},
         ],
         "mitre_coverage": ["T1071", "T1132", "T1021", "T1046", "T1135", "T1053", "T1547", "T1055"],
         "expected_detection_points": [
@@ -58,7 +58,7 @@ BUILTIN_SCENARIOS = {
             {"layer": "lateral_webcrawler",   "delay_sim": 0,   "label": "initial_recon"},
             {"layer": "beacon_emitter_cloak", "delay_sim": 60,  "label": "c2_check_in"},
             {"layer": "beacon_emitter_cloak", "delay_sim": 180, "label": "c2_data_staging"},
-            {"layer": "dormant_sleeper_seed", "delay_sim": 240, "label": "persistence"},
+            {"layer": "dormant_persistence_sim", "delay_sim": 240, "label": "persistence"},
         ],
         "mitre_coverage": ["T1046", "T1135", "T1071", "T1132", "T1053"],
         "expected_detection_points": [
@@ -73,12 +73,12 @@ BUILTIN_SCENARIOS = {
         "description": "Full persistence category test — all six persistence mechanisms in sequence",
         "author": "gnomeman4201",
         "stages": [
-            {"layer": "dormant_sleeper_seed",      "delay_sim": 0,   "label": "sleeper_plant"},
-            {"layer": "undead_memory_latch",        "delay_sim": 30,  "label": "memory_latch"},
+            {"layer": "dormant_persistence_sim",      "delay_sim": 0,   "label": "sleeper_plant"},
+            {"layer": "memory_persistence_sim",        "delay_sim": 30,  "label": "memory_latch"},
             {"layer": "memory_hijack_inheritor",    "delay_sim": 60,  "label": "memory_hijack"},
-            {"layer": "shadow_system_rebuilder",    "delay_sim": 90,  "label": "shadow_rebuild"},
+            {"layer": "system_rebuild_sim",    "delay_sim": 90,  "label": "shadow_rebuild"},
             {"layer": "self_sealing_nano_sandbox",  "delay_sim": 120, "label": "sandbox_seal"},
-            {"layer": "poltergeist_file_infector",  "delay_sim": 150, "label": "file_infect"},
+            {"layer": "file_infector_sim",  "delay_sim": 150, "label": "file_infect"},
         ],
         "mitre_coverage": ["T1053", "T1547", "T1055", "T1134", "T1543", "T1564", "T1027"],
         "expected_detection_points": [
@@ -96,11 +96,11 @@ BUILTIN_SCENARIOS = {
         "author": "gnomeman4201",
         "stages": [
             {"layer": "anti_forensics_molt",      "delay_sim": 0,   "label": "forensics_wipe"},
-            {"layer": "mirror_loop_deflector",    "delay_sim": 30,  "label": "process_mirror"},
-            {"layer": "evasion_lure_illusion",    "delay_sim": 60,  "label": "lure_deploy"},
-            {"layer": "airlock_quarantine_cloak", "delay_sim": 90,  "label": "quarantine_cloak"},
-            {"layer": "spectral_rootkit_shroud",  "delay_sim": 120, "label": "rootkit_shroud"},
-            {"layer": "spectral_rootkit_shroud",  "delay_sim": 150, "label": "rootkit_shroud_2"},
+            {"layer": "traffic_reflection_sim",    "delay_sim": 30,  "label": "process_mirror"},
+            {"layer": "decoy_artifact_sim",    "delay_sim": 60,  "label": "lure_deploy"},
+            {"layer": "sandbox_evasion_sim", "delay_sim": 90,  "label": "quarantine_cloak"},
+            {"layer": "rootkit_evasion_sim",  "delay_sim": 120, "label": "rootkit_shroud"},
+            {"layer": "rootkit_evasion_sim",  "delay_sim": 150, "label": "rootkit_shroud_2"},
         ],
         "mitre_coverage": ["T1070", "T1107", "T1036", "T1036.005", "T1055", "T1564", "T1014"],
         "expected_detection_points": [
@@ -119,12 +119,12 @@ BUILTIN_SCENARIOS = {
         "stages": [
             {"layer": "beacon_emitter_cloak",      "delay_sim": 0,    "label": "initial_c2"},
             {"layer": "lateral_webcrawler",        "delay_sim": 120,  "label": "recon"},
-            {"layer": "dormant_sleeper_seed",      "delay_sim": 300,  "label": "persistence_plant"},
+            {"layer": "dormant_persistence_sim",      "delay_sim": 300,  "label": "persistence_plant"},
             {"layer": "memory_hijack_inheritor",   "delay_sim": 360,  "label": "memory_hijack"},
             {"layer": "anti_forensics_molt",       "delay_sim": 420,  "label": "cover_tracks"},
-            {"layer": "mirror_loop_deflector",     "delay_sim": 450,  "label": "masquerade"},
-            {"layer": "shadow_system_rebuilder",   "delay_sim": 480,  "label": "persistence_reinforce"},
-            {"layer": "poltergeist_file_infector", "delay_sim": 510,  "label": "file_plant"},
+            {"layer": "traffic_reflection_sim",     "delay_sim": 450,  "label": "masquerade"},
+            {"layer": "system_rebuild_sim",   "delay_sim": 480,  "label": "persistence_reinforce"},
+            {"layer": "file_infector_sim", "delay_sim": 510,  "label": "file_plant"},
             {"layer": "beacon_emitter_cloak",      "delay_sim": 600,  "label": "exfil_c2"},
         ],
         "mitre_coverage": [

@@ -8,7 +8,7 @@ Reads from taxonomy/mitre_mappings.json.
 
 Usage in layer files:
     from core.taxonomy import get_techniques
-    techniques = get_techniques("dormant_sleeper_seed")
+    techniques = get_techniques("dormant_persistence_sim")
     # returns ["T1053", "T1547"]
 
 Usage in manifest/validation:
@@ -76,7 +76,7 @@ def get_techniques(layer_name: str, default: Optional[list] = None) -> list:
     Return technique list for a layer.
 
     Args:
-        layer_name: canonical layer name (e.g. "dormant_sleeper_seed")
+        layer_name: canonical layer name (e.g. "dormant_persistence_sim")
         default: returned if layer not in taxonomy (default: [])
 
     Returns:

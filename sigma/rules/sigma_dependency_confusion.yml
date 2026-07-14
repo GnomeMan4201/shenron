@@ -6,7 +6,7 @@ description: >
   supply chain attacks: postinstall hook abuse, inflated version numbers,
   spoofed package metadata, C2 callback during install, tmpdir payload drop,
   detached child process, and environment variable reconnaissance.
-  Designed for validation against SHENRON dependency_confusion_phantom layer output.
+  Designed for validation against SHENRON dependency_confusion_sim layer output.
 author: GnomeMan4201 / badBANANA Research Collective
 date: 2026-06-02
 references:
@@ -24,22 +24,22 @@ tags:
   - attack.defense_evasion
 logsource:
   category: shenron_simulation
-  product: dependency_confusion_phantom
+  product: dependency_confusion_sim
 detection:
   selection_install:
-    layer: dependency_confusion_phantom
+    layer: dependency_confusion_sim
     behavior_class:
       - postinstall_hook_declared
       - namespace_squatting
 
   selection_exfil:
-    layer: dependency_confusion_phantom
+    layer: dependency_confusion_sim
     behavior_class:
       - outbound_connection_during_npm_install
       - payload_dropped_to_tmpdir
 
   selection_recon:
-    layer: dependency_confusion_phantom
+    layer: dependency_confusion_sim
     behavior_class: environment_variable_enumeration
 
   condition: 1 of selection_*

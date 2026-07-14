@@ -7,7 +7,7 @@
     "OBSERVE": {
       "description": "Enumerate persistence detection surface",
       "layers": [
-        "adaptive_brainstem"
+        "adaptive_layer_selector"
       ],
       "expected_findings": [
         "state_file_round_counter_in_hidden_dotpath"
@@ -16,9 +16,9 @@
     "SIMULATE": {
       "description": "Generate persistence-shaped telemetry",
       "layers": [
-        "poltergeist_file_infector",
+        "file_infector_sim",
         "self_sealing_nano_sandbox",
-        "shadow_system_rebuilder"
+        "system_rebuild_sim"
       ],
       "expected_findings": [
         "script_file_modified_unexpectedly",
@@ -29,8 +29,8 @@
     "EXECUTE": {
       "description": "Run all persistence simulators",
       "layers": [
-        "dormant_sleeper_seed",
-        "undead_memory_latch",
+        "dormant_persistence_sim",
+        "memory_persistence_sim",
         "memory_hijack_inheritor"
       ],
       "expected_findings": [

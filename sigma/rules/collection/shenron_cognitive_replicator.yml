@@ -14,13 +14,13 @@ tags:
   - attack.collection
 logsource:
   category: shenron_simulation
-  product: cognitive_replicator
+  product: file_replica_dropper
 detection:
   selection_source_enum:
-    layer: cognitive_replicator
+    layer: file_replica_dropper
     phase: source_enumeration
   selection_replica_drop:
-    layer: cognitive_replicator
+    layer: file_replica_dropper
     phase: replica_drop_sim
   condition: 1 of selection_*
 falsepositives:

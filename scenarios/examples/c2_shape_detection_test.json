@@ -8,8 +8,8 @@
       "description": "Map C2 signal surface",
       "layers": [
         "beacon_emitter_cloak",
-        "autonomous_signal_cloner",
-        "quantum_entanglement_relay"
+        "signal_replication_sim",
+        "covert_socket_relay"
       ],
       "expected_findings": [
         "periodic_beacon",
@@ -20,9 +20,9 @@
     "SIMULATE": {
       "description": "Generate C2-shaped telemetry",
       "layers": [
-        "spectral_packet_weaver",
-        "void_gateway_tunnel",
-        "dreamdive_overlay"
+        "packet_covert_channel_sim",
+        "covert_tunnel_sim",
+        "memory_overlay_sim"
       ],
       "expected_findings": [
         "covert_channel_traffic",
@@ -35,7 +35,7 @@
       "layers": [
         "lateral_webcrawler",
         "parasitic_mesh_crawler",
-        "temporal_mirage_emulator"
+        "timestamp_decoy_sim"
       ],
       "expected_findings": [
         "subnet_sweep",
@@ -46,7 +46,7 @@
     "ADAPT": {
       "description": "Tune beacon interval and DNS entropy rules",
       "layers": [
-        "manifest_vampire"
+        "manifest_hijack_sim"
       ],
       "expected_findings": [
         "dns_label_entropy_threshold",

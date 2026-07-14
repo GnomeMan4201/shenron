@@ -8,10 +8,10 @@
       "description": "Enumerate full adversarial signal surface",
       "layers": [
         "beacon_emitter_cloak",
-        "autonomous_signal_cloner",
-        "cognitive_replicator",
-        "shenron_bio_replication",
-        "neural_entropy_seeder",
+        "signal_replication_sim",
+        "file_replica_dropper",
+        "device_fingerprint_spoof",
+        "entropy_seeder_sim",
         "llm_echo_chamber"
       ],
       "expected_findings": [
@@ -26,12 +26,12 @@
       "description": "Generate full evasion, payload, LLM telemetry",
       "layers": [
         "anti_forensics_molt",
-        "mirror_loop_deflector",
-        "evasion_lure_illusion",
-        "airlock_quarantine_cloak",
-        "spectral_rootkit_shroud",
+        "traffic_reflection_sim",
+        "decoy_artifact_sim",
+        "sandbox_evasion_sim",
+        "rootkit_evasion_sim",
         "deadzone_payload",
-        "symbiote_payload",
+        "process_injection_symbiote_sim",
         "llm_shroud_writer"
       ],
       "expected_findings": [
@@ -47,15 +47,15 @@
     "EXECUTE": {
       "description": "Run persistence and lateral movement simulators",
       "layers": [
-        "dormant_sleeper_seed",
-        "undead_memory_latch",
+        "dormant_persistence_sim",
+        "memory_persistence_sim",
         "memory_hijack_inheritor",
-        "shadow_system_rebuilder",
+        "system_rebuild_sim",
         "self_sealing_nano_sandbox",
-        "poltergeist_file_infector",
+        "file_infector_sim",
         "lateral_webcrawler",
         "parasitic_mesh_crawler",
-        "transient_exfil_shell"
+        "transient_exfil_sim"
       ],
       "expected_findings": [
         "scheduled_task_creation",
@@ -72,8 +72,8 @@
     "ADAPT": {
       "description": "Synthesize findings \u2014 produce detection recommendations",
       "layers": [
-        "adaptive_brainstem",
-        "manifest_vampire",
+        "adaptive_layer_selector",
+        "manifest_hijack_sim",
         "mutation_history",
         "polymorph_chain_stats"
       ],

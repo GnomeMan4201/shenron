@@ -39,5 +39,10 @@ github_botnet_discovery_revised.md
 .cache/
 shenron_core.zip
 tead
+<<<<<<< HEAD
 shenron_runs.db
 *.db
+=======
+frontend/node_modules/
+frontend/dist/
+>>>>>>> f76b73332ee6244e7d43862a6c6853d7e80f587a

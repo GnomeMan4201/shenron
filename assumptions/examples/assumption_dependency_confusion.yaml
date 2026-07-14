@@ -1,16 +1,16 @@
 # SHENRON Assumption Validation
 schema_version: "1.0"
-# Layer: dependency_confusion_phantom
+# Layer: dependency_confusion_sim
 # Claim: this artifact supports detection coverage for npm dependency confusion
 # supply chain attack behavioral patterns
 
 assumption_id: dependency_confusion_coverage_v1
-layer: dependency_confusion_phantom
+layer: dependency_confusion_sim
 author: GnomeMan4201 / badBANANA Research Collective
 date: 2026-06-02
 
 claim: >
-  The dependency_confusion_phantom layer produces synthetic telemetry sufficient
+  The dependency_confusion_sim layer produces synthetic telemetry sufficient
   to validate whether a detection stack would observe npm-based supply chain
   attack behavior across the full attack lifecycle: package publication lure,
   CI/CD evasion, cache deduplication, project root traversal, C2 callback,
