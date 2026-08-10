@@ -35,25 +35,30 @@ This is not a disclaimer. It is an architectural constraint. Every layer is stat
 
 ## Quickstart
 
-Install: pip install pyyaml pytest pysigma --break-system-packages
+~~~bash
+# Install
+python3 -m pip install pyyaml pytest pysigma
 
-Run a campaign: python3 shenron.py campaign --scenario apt29-style --stress-test
+# Run a campaign
+python3 shenron.py campaign --scenario apt29-style --stress-test
 
-Compare scenarios: python3 shenron.py compare-scenarios
+# Compare scenarios
+python3 shenron.py compare-scenarios
 
-Evaluate Sigma rules (pySigma by default): python3 shenron.py sigma --validate-dir sigma/rules/ --events artifacts/demo/shenron_demo_run.jsonl
+# Evaluate Sigma rules through pySigma
+python3 shenron.py sigma \
+  --validate-dir sigma/rules/ \
+  --events artifacts/demo/shenron_demo_run.jsonl
 
-MITRE drift CI gate: python3 -m core.ci.drift_gate
+# Run the MITRE ATT&CK drift CI gate
+python3 -m core.ci.drift_gate
+~~~
 
 ---
 
 ## What it does
 
-<<<<<<< HEAD
-**Synthetic telemetry generation** — 52 simulation layers across 8 categories (c2, entropy, identity, evasion, payload, llm, persistence, meta), organized through the bananaTREE four-phase campaign model: OBSERVE → SIMULATE → EXECUTE → ADAPT.
-=======
-SHENRON scores detection brittleness across three dimensions:
->>>>>>> f76b73332ee6244e7d43862a6c6853d7e80f587a
+SHENRON generates structured synthetic telemetry across 66 simulation layers and scores detection brittleness across three dimensions:
 
 **Artifact-level brittleness** -- does a mutation on a single event cause a Sigma rule to stop firing? Six mutation strategies targeting fields your rules actually reference: value_swap, field_omit, case_flip, unicode_substitute, whitespace_inject, combined_evasion. Strategies are weighted by adversary accessibility -- case_flip requires zero sophistication, value_swap requires knowledge of the detection stack.
 
@@ -97,46 +102,27 @@ EventID 4698 + TaskName *update* Sigma rules fire correctly through the default 
 
 ## Feedback-driven adversary adaptation
 
-<<<<<<< HEAD
-```
-core/
-  assumptions/     — evidence discipline layer (validate, scope, index)
-  sigma/           — Sigma rule evaluation engine
-  validation/      — detector validation scoring and history
-  reports/         — markdown and HTML report generation
-  bananatree/      — campaign model (phases, taxonomy, cycle)
-  layers/          — 52 canonical simulation layers
-  engine/          — layer loader and payload registry
-  mitre/           — ATT&CK STIX drift checker
-  cli/commands/    — subcommand handlers (health, doctor, validate_all, ...)
-  config.py        — centralized path configuration
-assumptions/examples/  — 15 assumption YAML files (7 categories + live)
-sigma/rules/           — 19 Sigma rules (simulation + live bpf-watch)
-sigma/rules/live/      — 5 live rules for bpf-watch telemetry
-artifacts/demo/        — committed demo artifact for immediate use
-scenarios/examples/    — bananaTREE scenario JSON files
-tests/                 — 390 tests
-```
-=======
-The adaptation engine (core/campaign/adaptation.py) implements genuine feedback-driven strategy selection:
+The adaptation engine (`core/campaign/adaptation.py`) implements feedback-driven strategy selection:
 
-1. After each iteration, inspect which Sigma rules are still firing
-2. Extract which SHENRON event fields those rules test via live rule YAML parsing
-3. Score each mutation strategy by field coverage against still-firing rules
-4. Apply a diversity penalty for over-used strategies
-5. Select the highest-scoring strategy not yet exhausted
+1. Inspect which Sigma rules are still firing after each iteration.
+2. Extract the SHENRON event fields referenced by those rules.
+3. Score mutation strategies by field coverage against the still-firing rules.
+4. Apply a diversity penalty to overused strategies.
+5. Select the highest-scoring strategy that is not exhausted.
 
 Example output:
-  [ADAPT] Iter 01/8 -- strategy: sigma_aware_field_omit (feedback-selected)
-  [ADAPT]   Top candidates: [(sigma_aware_field_omit, 2), (sigma_aware_value_swap, 2)]
-  [ADAPT]   Firing: 1 | Evaded: 3 | Rate: 0.75
->>>>>>> f76b73332ee6244e7d43862a6c6853d7e80f587a
+
+~~~text
+[ADAPT] Iter 01/8 -- strategy: sigma_aware_field_omit (feedback-selected)
+[ADAPT] Top candidates: [(sigma_aware_field_omit, 2), (sigma_aware_value_swap, 2)]
+[ADAPT] Firing: 1 | Evaded: 3 | Rate: 0.75
+~~~
 
 ---
 
 ## LLM manipulation telemetry
 
-The first structured multi-layer LLM attack scenario in the detection engineering space:
+SHENRON includes a structured, multi-layer LLM manipulation scenario for detection-engineering experiments:
 
 - 7 injection techniques: role override, indirect RAG pipeline, jailbreak encoding, output poisoning, prompt fuzzing, context window overflow, multimodal injection
 - 5-phase kill chain: RECONNAISSANCE -> INJECT -> MANIPULATE -> OBFUSCATE -> EXFILTRATE
@@ -204,21 +190,23 @@ Role override injection: ResultType ContentFilter (Azure) / errorCode Validation
 
 ## Repository structure
 
-core/campaign        -- CampaignBuilder, AdaptationEngine feedback-driven, DiffTool
+~~~text
+core/campaign        -- CampaignBuilder, AdaptationEngine, DiffTool
 core/brittleness     -- BrittlenessScorer, ArtifactBrittleness, weighted scoring
 core/mutation        -- SigmaAwareMutator, combined evasion, deterministic seeding
-core/sigma           -- evaluator pySigma default, pysigma_bridge, generator, loader
-core/layers          -- 66 canonical simulation layers incl Windows Event Log and LLM
-core/noise           -- BenignEventGenerator 6 categories 28 templates
-core/assumptions     -- validator, fuzzer, evidence discipline layer
-core/formats         -- ECS, Splunk HEC, CEF adapters; LLM platform log schemas
+core/sigma           -- pySigma default evaluator, bridge, generator, loader
+core/layers          -- 66 canonical simulation layers, including Windows and LLM
+core/noise           -- BenignEventGenerator with 6 categories and 28 templates
+core/assumptions     -- validator, fuzzer, and evidence-discipline layer
+core/formats         -- ECS, Splunk HEC, CEF, and LLM platform adapters
 core/ingest          -- journald normalizer
-core/ci              -- MITRE drift CI gate GitHub Actions compatible
+core/ci              -- GitHub Actions-compatible MITRE ATT&CK drift gate
 core/engine          -- layer loader and payload registry
-sigma/rules          -- 28 Sigma rules c2, persistence, evasion, execution, llm, live
-artifacts            -- demo, LLM, Windows, platform log artifacts
-docs                 -- layer rename map, field mapping documentation
-tests                -- 885 tests across 40+ test files
+sigma/rules          -- 28 Sigma rules across simulation and live telemetry
+artifacts            -- committed demonstration and validation artifacts
+docs                 -- field mappings and layer rename documentation
+tests                -- 885 tests across more than 40 files
+~~~
 
 ---
 
@@ -232,21 +220,20 @@ SHENRON accepts live telemetry from bpf-watch (https://github.com/GnomeMan4201/b
 
 ## Launch articles
 
-Observable Adversarial Behavior, Not Portable Adversarial Procedure
-https://dev.to/gnomeman4201/observable-adversarial-behavior-not-portable-adversarial-procedure-4mo6
-
-I Built a Tool That Scores How Fragile Your Detection Rules Are
-https://dev.to/gnomeman4201
+- [Observable Adversarial Behavior, Not Portable Adversarial Procedure](https://dev.to/gnomeman4201/observable-adversarial-behavior-not-portable-adversarial-procedure-4mo6)
+- [SHENRON v0.3.3: From Telemetry Generator to Blue-Team Reasoning Instrument](https://dev.to/gnomeman4201/shenron-v033-from-telemetry-generator-to-blue-team-reasoning-instrument-2k91)
 
 ---
 
 ## Part of the BANANA_TREE Research Ecosystem
 
-r4b1t         https://gnomeman4201.github.io/r4b1t -- 119k verified OSINT/security URLs
-inv-hub       https://github.com/GnomeMan4201/inv-hub
-PRAXIS        https://github.com/GnomeMan4201/PRAXIS
-SHENRON       https://github.com/GnomeMan4201/shenron
-bpf-watch     https://github.com/GnomeMan4201/bpf-watch
+| Project | Role |
+|---|---|
+| [r4b1t](https://gnomeman4201.github.io/r4b1t) | Browser-based discovery across 53,869 verified OSINT and security URLs |
+| [drift_orchestrator](https://github.com/GnomeMan4201/drift_orchestrator) | LLM safety-monitor and policy-drift research |
+| [LANimals](https://github.com/GnomeMan4201/LANimals) | Local network intelligence and change detection |
+| [bpf-watch](https://github.com/GnomeMan4201/bpf-watch) | Live eBPF telemetry source for SHENRON |
 
 gnomeman4201 / badBANANA Research Collective
-Observable adversarial behavior, not portable adversarial procedure.
+
+*Observable adversarial behavior, not portable adversarial procedure.*
