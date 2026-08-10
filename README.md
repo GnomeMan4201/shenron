@@ -3,6 +3,7 @@
 # SHENRON
 
 [![CI](https://github.com/GnomeMan4201/shenron/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/GnomeMan4201/shenron/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/GnomeMan4201/shenron)](https://github.com/GnomeMan4201/shenron/releases/latest)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)](pyproject.toml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Status: Beta](https://img.shields.io/badge/Status-Beta-orange.svg)](pyproject.toml)
