@@ -25,16 +25,14 @@ jobs:
         run: |
           set -euo pipefail
 
-          resolved_sha="$(
-            gh api "repos/${GITHUB_REPOSITORY}/commits/${RELEASE_SHA}" --jq '.sha'
-          )"
+          resolved_sha="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${RELEASE_SHA}" --jq '.sha')"
           if [[ "${resolved_sha}" != "${RELEASE_SHA}" ]]; then
             echo "Release commit did not resolve exactly: ${resolved_sha}" >&2
             exit 1
           fi
 
           package_version="$(
-            gh api --method GET               "repos/${GITHUB_REPOSITORY}/contents/pyproject.toml"               -f "ref=${RELEASE_SHA}"               --jq '.content' |
+            gh api --method GET "repos/${GITHUB_REPOSITORY}/contents/pyproject.toml" -f "ref=${RELEASE_SHA}" --jq '.content' |
               base64 --decode |
               sed -nE 's/^version = "([^"]+)"/\1/p' |
               head -n 1
@@ -44,9 +42,10 @@ jobs:
             exit 1
           fi
 
-          existing_sha="$(
-            gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}"               --jq '.object.sha' 2>/dev/null || true
-          )"
+          existing_sha=""
+          if ! existing_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}" --jq '.object.sha' 2>/dev/null)"; then
+            existing_sha=""
+          fi
           if [[ -n "${existing_sha}" ]]; then
             if [[ "${existing_sha}" == "${RELEASE_SHA}" ]]; then
               echo "${RELEASE_TAG} already points to the verified release commit."
@@ -56,6 +55,6 @@ jobs:
             exit 1
           fi
 
-          gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs"             -f "ref=refs/tags/${RELEASE_TAG}"             -f "sha=${RELEASE_SHA}"
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" -f "ref=refs/tags/${RELEASE_TAG}" -f "sha=${RELEASE_SHA}"
 
           echo "Created ${RELEASE_TAG} at ${RELEASE_SHA}."
