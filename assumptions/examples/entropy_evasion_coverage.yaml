@@ -24,7 +24,7 @@ claims:
   - id: timing_anomaly_evidence
     type: positive_evidence
     severity: medium
-    description: Entropy layers emit burst-timing and sleep-jitter telemetry
+    description: Entropy layers emit deterministic burst-timing and interval telemetry
     requires_signals:
       - high_entropy_output_regular_intervals_sim
       - timing_fingerprint_entropy_burst_sim
