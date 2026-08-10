@@ -9,14 +9,15 @@ NOT_TRIGGERED or UNSUPPORTED, this test catches it immediately.
 Run: pytest tests/test_sigma_integration.py -v
 """
 import json
+import os
+import subprocess
+import sys
 import pytest
 from pathlib import Path
 from core.sigma.evaluator import evaluate_sigma_rule
 from core.sigma.model import RuleVerdict
-from core.config import artifact_log_path
 
-RULES_DIR   = Path("sigma/rules")
-ARTIFACT_LOG = artifact_log_path()
+RULES_DIR = Path("sigma/rules")
 
 # Rules expected to TRIGGER against a full layer artifact log.
 # Update this list when you intentionally add/change rules.
@@ -69,14 +70,29 @@ def _load_all_rules():
 
 
 @pytest.fixture(scope="module")
-def artifact_log():
-    """Ensure artifact log exists."""
-    if not ARTIFACT_LOG.exists():
-        pytest.skip(
-            f"Artifact log not found: {ARTIFACT_LOG}. "
-            "Run: python3 shenron.py run all"
-        )
-    return str(ARTIFACT_LOG)
+def artifact_log(tmp_path_factory):
+    """Generate an isolated full-corpus artifact for deterministic rule checks."""
+    repo_root = Path(__file__).resolve().parents[1]
+    artifact = tmp_path_factory.mktemp("sigma-integration") / "all-layers.jsonl"
+    env = os.environ.copy()
+    env["SHENRON_SCOPED_LOG"] = str(artifact)
+
+    result = subprocess.run(
+        [sys.executable, "shenron.py", "run", "all"],
+        cwd=repo_root,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=180,
+    )
+    assert result.returncode == 0, (
+        "Full-corpus generation failed before Sigma evaluation:\n"
+        f"{result.stdout[-2000:]}\n{result.stderr[-2000:]}"
+    )
+    assert artifact.exists() and artifact.stat().st_size > 0, (
+        "Full-corpus generation produced no artifact"
+    )
+    return str(artifact)
 
 
 @pytest.fixture(scope="module")
