@@ -1,165 +1,97 @@
 # Contributing to SHENRON
 
-Thank you for your interest in SHENRON. This document explains how to contribute effectively.
+Thank you for improving SHENRON. Contributions should strengthen its defensive evidence discipline without expanding it into an operational adversary tool.
 
----
-
-## What SHENRON is
-
-A defensive evidence discipline tool. The core question it answers:
-
-> Does this artifact support the validation claim being made about it?
-
-Before contributing, read `docs/LIMITATIONS.md` and `docs/SAFETY_MODEL.md`.
-Every contribution must respect the safety boundary.
-
----
-
-## Safety boundary — non-negotiable
-
-Every canonical layer must:
-
-- Emit synthetic telemetry only — no real subprocess execution, no real filesystem writes, no real network calls
-- Carry flat safety fields: `simulation_only: true`, `executable: false`, `no_payload_present: true`
-- Return a list of event dicts from `main()`
-- Be decorated with `@register_payload(name="layer_name")`
-
-If your layer calls `subprocess`, `shutil`, `socket`, `os.system`, `eval`, or `exec` — it will not be merged.
-
----
-
-## How to add a canonical layer
-
-1. Create `core/layers/your_layer_name.py`
-2. Follow this structure:
-
-```python
-from core.engine.payload_registry import register_payload
-from datetime import datetime, timezone
-
-MITRE_TECHNIQUES = ["T1XXX"]
-
-@register_payload(name="your_layer_name")
-def main():
-    ts = datetime.now(timezone.utc).isoformat()
-    events = []
-    events.append({
-        "timestamp":          ts,
-        "layer":              "your_layer_name",
-        "phase":              "EXECUTE",
-        "mitre_techniques":   MITRE_TECHNIQUES,
-        "behavior_class":     "your_behavior_sim",
-        "detection_opportunities": ["your_signal_sim"],
-        "simulation_only":    True,
-        "executable":         False,
-        "no_payload_present": True,
-        "subprocess_spawned": False,
-        "subprocess_called":  False,
-    })
-    print(f"  [SHENRON]     your_layer_name")
-    print(f"  [SAFE]        simulation_only: true — telemetry only")
-    return events
-```
-
-3. Verify it loads and runs:
-
-```bash
-python3 shenron.py run your_layer_name
-python3 shenron.py run all --dry-run
-```
-
-4. Run the full test suite — all 347 tests must pass:
-
-```bash
-python3 -m pytest tests/ -q
-```
-
-5. Verify schema validation passes on any artifact it generates.
-
----
-
-## How to add an assumption YAML
-
-Assumption YAMLs live in `assumptions/examples/`. Follow this structure:
-
-```yaml
-id: your_coverage_claim
-description: What this claim validates
-
-claims:
-  - id: evidence_of_x
-    type: positive_evidence
-    severity: high
-    requires_techniques:
-      - T1053
-    requires_signals:
-      - your_signal_sim
-
-  - id: no_y_overclaim
-    type: out_of_scope_claim
-    severity: high
-    description: Do not use this artifact to claim Y coverage
-    requires_techniques:
-      - T1566
-```
-
-Valid `type` values: `positive_evidence`, `negative_evidence`, `out_of_scope_claim`
-Valid `severity` values: `high`, `medium`, `low`
-
----
-
-## How to add a Sigma rule
-
-Sigma rules live in `sigma/rules/<category>/`. Follow the existing rule structure.
-SHENRON-native fields: `behavior_class`, `detection_opp`, `mitre_technique`, `layer`, `phase`.
-Unsupported fields: `EventID`, `Hashes`, `Channel`, `Provider_Name`.
-
-Test your rule:
-
-```bash
-python3 shenron.py sigma validate sigma/rules/your_category/your_rule.yml \
-  --events artifacts/demo/shenron_demo_run.jsonl \
-  --match-mode explain
-```
-
----
+Before contributing, read [the limitations](docs/LIMITATIONS.md), [the safety model](docs/SAFETY_MODEL.md), and [the security policy](SECURITY.md).
 
 ## Development setup
 
+SHENRON supports Python 3.10–3.12.
+
 ```bash
-git clone https://github.com/GnomeMan4201/shenron
+git clone https://github.com/GnomeMan4201/shenron.git
 cd shenron
-pip install pyyaml pytest
+
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install --upgrade pip
+python3 -m pip install -e '.[dev]'
+
 python3 -m pytest tests/ -q
-python3 shenron.py quickstart
+python3 shenron.py run all --dry-run
 ```
 
-No other dependencies required. SHENRON is stdlib-first by design.
+Use `requirements.txt` for runtime-only installation. The editable `.[dev]` installation is the contributor path because it follows the dependencies declared in `pyproject.toml`.
 
----
+## Safety boundary
+
+Every canonical simulation layer must:
+
+- emit synthetic telemetry only;
+- make no real network connections, subprocess calls, shell invocations, payload execution, or writes outside SHENRON-controlled artifact paths;
+- identify itself with `simulation_only: true` and `executable: false`;
+- state payload absence using the current safety contract;
+- register under its canonical layer name;
+- expose defender-observable signals through fields such as `mitre_techniques`, `behavior_class`, and `detection_opportunities`.
+
+The static safety gate rejects forbidden imports and calls. Do not work around that gate. If a defensive utility needs a capability near the boundary, explain the requirement and add an invariant test before implementation.
+
+## Adding or changing a layer
+
+1. Place the canonical implementation in `core/layers/`.
+2. Register it with `@register_payload(name="layer_name")`.
+3. Add it to the correct category in `core/engine/layer_loader.py`.
+4. Emit telemetry through the configured artifact path.
+5. Add regression coverage for its schema, safety contract, category, and expected signals.
+6. Verify:
+
+```bash
+python3 shenron.py run layer_name
+python3 shenron.py run all --dry-run
+python3 -m pytest tests/ -q
+```
+
+## Assumption YAMLs
+
+Assumptions live in `assumptions/examples/`. Positive claims must reference signals that are deterministically emitted by the scoped category run. A mandatory CI claim must not depend on random vector selection.
+
+Valid claim types are `positive_evidence`, `negative_evidence`, and `out_of_scope_claim`. Valid severities are `high`, `medium`, and `low`.
+
+Run the complete contract gate after modifying assumptions or category mappings:
+
+```bash
+python3 shenron.py --validate-all-assumptions
+```
+
+## Sigma rules
+
+Sigma rules live under `sigma/rules/<category>/`. SHENRON-native mappings include `behavior_class`, `detection_opp`, `mitre_technique`, `layer`, `phase`, and `signal`. The pySigma bridge also maps supported Windows Event Log fields including `EventID`, `Channel`, and `Provider_Name`.
+
+Test rules against an artifact that actually emits the referenced telemetry:
+
+```bash
+python3 shenron.py sigma \
+  --validate-dir sigma/rules/ \
+  --events artifacts/demo/shenron_demo_run.jsonl
+```
+
+When a rule is expected to trigger against the full canonical corpus, update the deterministic integration gate in `tests/test_sigma_integration.py`.
 
 ## Pull request checklist
 
-- [ ] All 347 existing tests pass
-- [ ] New layer follows safety contract (no subprocess, no filesystem writes, no network)
-- [ ] New layer carries all required safety fields
-- [ ] `python3 shenron.py run all --dry-run` shows 0 failed
-- [ ] `python3 shenron.py schema validate --events <artifact>` passes
-- [ ] New assumption YAML validates correctly against demo artifact
-- [ ] New Sigma rule tested with `--match-mode explain`
+- [ ] The change is bounded and its user-facing contract is explained.
+- [ ] New behavior has regression coverage.
+- [ ] `python3 -m pytest tests/ -q` passes.
+- [ ] `python3 shenron.py run all --dry-run` reports no failed canonical layers.
+- [ ] `python3 shenron.py --validate-all-assumptions` passes when assumptions or category mappings change.
+- [ ] Package and documentation versions agree when preparing a release.
+- [ ] README and examples contain no frozen counts unless they are generated automatically.
+- [ ] No real adversarial capability or unreviewed third-party rule content is introduced.
 
----
+Dependency additions are allowed only when they are necessary, declared in `pyproject.toml`, compatible with supported Python versions, and justified in the pull request.
 
-## What not to contribute
+## Reporting vulnerabilities
 
-- Layers that perform real execution of any kind
-- External Sigma rules pulled from third-party repositories without review
-- LLM integrations or AI-generated content in layer logic
-- Hardcoded personal paths or system-specific assumptions
-- New dependencies beyond `pyyaml`
+Do not open a public issue for a suspected security or safety-boundary vulnerability. Follow [SECURITY.md](SECURITY.md).
 
----
-
-*gnomeman4201 / badBANANA Research Collective*
-
-> Observable adversarial behavior, not portable adversarial procedure.
+*Observable adversarial behavior, not portable adversarial procedure.*
