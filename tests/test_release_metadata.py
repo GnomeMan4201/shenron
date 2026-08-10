@@ -13,8 +13,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 def test_project_and_changelog_versions_match():
     project = version_from_pyproject(REPO_ROOT / "pyproject.toml")
     changelog = latest_changelog_version(REPO_ROOT / "CHANGELOG.md")
-    assert project == changelog == "0.4.4"
-    assert check_release_version("v0.4.4") == "0.4.4"
+    assert project == changelog == get_version()
+    assert check_release_version(f"v{project}") == project
 
 
 def test_version_command_uses_project_metadata():
