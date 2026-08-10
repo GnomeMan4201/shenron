@@ -14,8 +14,13 @@ detection:
     timestamp:
         mitre_technique: T1070
         detection_opp:
-            - recursive_mtime_modification_across_tool_directory
-            - batch_timestamp_modification_many_files_single_window
-            - utime_called_across_dirs_by_non_filesystem_process
+            - bulk_timestamp_modification_outside_window
+            - mtime_atime_ctime_identical_bulk_operation
+            - log_file_modified_older_than_creation
+            - filesystem_metadata_inconsistency
+            - timestamp_set_to_future_date
+            - epoch_timestamp_injection_sim
+            - selective_file_timestamp_alteration
+            - anti_forensics_mtime_sim
     condition: timestamp
 level: medium

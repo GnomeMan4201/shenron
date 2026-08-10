@@ -33,8 +33,8 @@ CATEGORIES = {
     "evasion":     ["anti_forensics_molt","sandbox_evasion_sim","decoy_artifact_sim","traffic_reflection_sim","rootkit_evasion_sim","signature_mutation_sim",],
     "payload":     ["payload_skinwalker","obfuscated_skinwalker_dropper","deadzone_payload","process_injection_symbiote_sim","payload_revival_sim","payload_seedbank_sim","transient_exfil_sim","covert_tunnel_sim","dependency_confusion_sim","lotl_execution_sim"],
     "persistence": ["dormant_persistence_sim","memory_persistence_sim","memory_hijack_inheritor","system_rebuild_sim","self_sealing_nano_sandbox","file_infector_sim"],
-    "entropy":     ["entropy_injection_sim","entropy_flux_disruptor","entropy_anchor_sim","entropy_seeder_sim","payload_hash_shuffler","timestamp_spoof_sim","covert_socket_relay","synthetic_splinter_seed"],
-    "c2":          ["beacon_emitter_cloak","signal_replication_sim","lateral_webcrawler","parasitic_mesh_crawler","packet_covert_channel_sim","payload_timing_sim","timestamp_decoy_sim","memory_overlay_sim"],
+    "entropy":     ["entropy_injection_sim","entropy_flux_disruptor","entropy_anchor_sim","entropy_seeder_sim","payload_hash_shuffler","timestamp_spoof_sim","synthetic_splinter_seed"],
+    "c2":          ["beacon_emitter_cloak","signal_replication_sim","lateral_webcrawler","parasitic_mesh_crawler","packet_covert_channel_sim","covert_socket_relay","payload_timing_sim","timestamp_decoy_sim","memory_overlay_sim"],
     "llm":         ["llm_echo_chamber","llm_shroud_writer","antiforensic_wipe_sim","encrypted_echo_chamber"],
     "meta":        ["mutation_history","polymorph_chain_stats","manifest_hijack_sim","thread_injection_sim","adaptive_layer_selector","process_masquerade_sim"],
 }

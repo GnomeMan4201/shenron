@@ -3,7 +3,7 @@
 # SHENRON
 
 [![CI](https://github.com/GnomeMan4201/shenron/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/GnomeMan4201/shenron/actions/workflows/ci.yml)
-[![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB.svg)](pyproject.toml)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)](pyproject.toml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Status: Beta](https://img.shields.io/badge/Status-Beta-orange.svg)](pyproject.toml)
 
@@ -184,7 +184,7 @@ Role override injection: ResultType ContentFilter (Azure) / errorCode Validation
 
 | Surface | Repository evidence |
 |---|---|
-| CI | [Python 3.9–3.12 test matrix plus safety, package, ATT&CK drift, and assumption jobs](.github/workflows/ci.yml) |
+| CI | [Python 3.10–3.12 test matrix plus safety, package, ATT&CK drift, and assumption jobs](.github/workflows/ci.yml) |
 | Safety contract | [Static forbidden-call and forbidden-import gate](tests/test_all_layers_safety_static.py) |
 | Simulation corpus | [Canonical layer implementations](core/layers) and [committed demonstration telemetry](artifacts/demo/shenron_demo_run.jsonl) |
 | Sigma evaluation | [Rule-count and verdict regression gate](tests/test_sigma_integration.py) |

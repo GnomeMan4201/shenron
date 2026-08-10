@@ -6,25 +6,28 @@ claims:
   - id: high_entropy_output_evidence
     type: positive_evidence
     severity: medium
+    description: Entropy layers emit high-entropy logging and source-mismatch telemetry
     requires_techniques:
       - T1027
     requires_signals:
-      - log_file_high_entropy_content_non_logging_source
-      - synthetic_entropy_pattern_not_matching_system_sources
+      - log_files_high_entropy_non_logging_process
+      - synthetic_entropy_mismatch_real_sources_sim
 
-  - id: noise_file_evidence
+  - id: hash_staging_evidence
     type: positive_evidence
     severity: medium
+    description: Entropy layers emit hash-based staging and filename telemetry
     requires_signals:
-      - temp_file_create_delete_under_5s_hidden_dir
-      - noise_files_in_hidden_dotdir_shenron_noise
+      - hash_renamed_binaries_temp_hidden_dir
+      - high_entropy_filename_no_source_sim
 
   - id: timing_anomaly_evidence
     type: positive_evidence
     severity: medium
+    description: Entropy layers emit deterministic burst-timing and interval telemetry
     requires_signals:
-      - artificial_timing_delay_fixed_random_range_fingerprint
-      - sleep_jitter_from_non_timer_process
+      - high_entropy_output_regular_intervals_sim
+      - timing_fingerprint_entropy_burst_sim
 
-  # no_c2_overclaim removed: entropy layers legitimately overlap with C2
-  # evasion patterns (T1071/T1095) — obfuscation is used in both contexts
+  # Entropy and command-and-control techniques can legitimately overlap.
+  # Scope boundaries are enforced through category-scoped artifacts.

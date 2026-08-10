@@ -1,7 +1,7 @@
 # SHENRON Dashboard — Setup
 
 ## Prerequisites
-- Python 3.9+ with SHENRON dependencies installed
+- Python 3.10+ with SHENRON dependencies installed
 - Node.js 18+ and npm
 
 ## Installation
