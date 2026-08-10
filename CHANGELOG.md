@@ -6,7 +6,10 @@ All notable changes to SHENRON are documented here.
 
 ## [Unreleased] — current main
 
-*(nothing yet)*
+### Fixed
+- Restored the assumption-coverage CI gate by classifying `covert_socket_relay` under command-and-control and aligning entropy claims with current emitted signal names
+- Raised the supported Python floor from 3.9 to 3.10 to match `pysigma>=1.3.0`; CI now tests Python 3.10–3.12 without matrix fail-fast cancellation
+- Removed the stale fixed layer count from the safety-job label
 
 ## [v0.4.3] — 2026-06-02
 
