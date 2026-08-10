@@ -11,6 +11,7 @@ All notable changes to SHENRON are documented here.
 - Raised the supported Python floor from 3.9 to 3.10 to match `pysigma>=1.3.0`; CI now tests Python 3.10–3.12 without matrix fail-fast cancellation
 - Removed the stale fixed layer count from the safety-job label
 - Made Sigma integration tests generate an isolated full-corpus artifact instead of depending on test-order side effects, and aligned the timestamp rule with current layer telemetry
+- Removed a random-vector dependency from the mandatory entropy coverage gate
 
 ## [v0.4.3] — 2026-06-02
 
