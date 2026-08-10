@@ -6,6 +6,20 @@ All notable changes to SHENRON are documented here.
 
 ## [Unreleased] — current main
 
+*(nothing yet)*
+
+## [v0.4.4] — 2026-08-10
+
+### Added
+- Tag-driven GitHub release workflow with version/changelog validation and wheel/source-distribution artifacts
+- Release consistency checker and regression tests
+- Security policy, release process, and automated dependency-update configuration
+- Live release badge in the README
+
+### Changed
+- Contributor setup now uses the supported Python floor and the package's declared development dependencies
+- Navigator exports now report the package version dynamically instead of a frozen v0.2.0 label
+
 ### Fixed
 - Restored the assumption-coverage CI gate by classifying `covert_socket_relay` under command-and-control and aligning entropy claims with current emitted signal names
 - Raised the supported Python floor from 3.9 to 3.10 to match `pysigma>=1.3.0`; CI now tests Python 3.10–3.12 without matrix fail-fast cancellation
