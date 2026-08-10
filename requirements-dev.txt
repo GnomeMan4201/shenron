@@ -1,4 +1,4 @@
 # SHENRON development dependencies
 -r requirements.txt
-pytest>=7.0
+pytest>=9.1.1
 Faker>=18.0
