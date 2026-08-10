@@ -1,0 +1,61 @@
+name: Publish v0.4.4 tag (temporary)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/publish-v0.4.4.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-tag:
+    name: Create verified v0.4.4 tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify release commit and create tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: 4f05a4994f882fcab9ba0d467ba9bc6aed467ee7
+          RELEASE_TAG: v0.4.4
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          resolved_sha="$(
+            gh api "repos/${GITHUB_REPOSITORY}/commits/${RELEASE_SHA}" --jq '.sha'
+          )"
+          if [[ "${resolved_sha}" != "${RELEASE_SHA}" ]]; then
+            echo "Release commit did not resolve exactly: ${resolved_sha}" >&2
+            exit 1
+          fi
+
+          package_version="$(
+            gh api --method GET               "repos/${GITHUB_REPOSITORY}/contents/pyproject.toml"               -f "ref=${RELEASE_SHA}"               --jq '.content' |
+              base64 --decode |
+              sed -nE 's/^version = "([^"]+)"/\1/p' |
+              head -n 1
+          )"
+          if [[ "${package_version}" != "${RELEASE_TAG#v}" ]]; then
+            echo "Package version ${package_version} does not match ${RELEASE_TAG}" >&2
+            exit 1
+          fi
+
+          existing_sha="$(
+            gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}"               --jq '.object.sha' 2>/dev/null || true
+          )"
+          if [[ -n "${existing_sha}" ]]; then
+            if [[ "${existing_sha}" == "${RELEASE_SHA}" ]]; then
+              echo "${RELEASE_TAG} already points to the verified release commit."
+              exit 0
+            fi
+            echo "${RELEASE_TAG} already exists at unexpected SHA ${existing_sha}" >&2
+            exit 1
+          fi
+
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs"             -f "ref=refs/tags/${RELEASE_TAG}"             -f "sha=${RELEASE_SHA}"
+
+          echo "Created ${RELEASE_TAG} at ${RELEASE_SHA}."
