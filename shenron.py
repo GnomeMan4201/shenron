@@ -20,6 +20,10 @@ _SUBCOMMANDS = frozenset({
 
 def main():
     from core.cli import print_banner, build_parser
+    if len(sys.argv) == 2 and sys.argv[1] in ("-V", "--version"):
+        from core.version import get_version
+        print(f"shenron {get_version()}")
+        return
     print_banner()
     if "--check-mitre-drift" in sys.argv:
         from pathlib import Path as _Path
