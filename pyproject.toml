@@ -40,7 +40,7 @@ dev = [
     "Faker>=18.0",
 ]
 export = [
-    "jinja2>=3.0",
+    "jinja2>=3.1.6",
 ]
 
 [project.scripts]
