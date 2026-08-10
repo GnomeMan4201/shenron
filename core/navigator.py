@@ -8,6 +8,8 @@ import json
 from datetime import datetime, timezone
 from typing import List, Optional
 
+from core.version import get_version
+
 
 # Tactic ordering matches ATT&CK Enterprise matrix left-to-right
 TACTIC_ORDER = [
@@ -149,7 +151,7 @@ def build_navigator_layer(
             {"label": "Partial descriptor match (synthetic)", "color": _SCORE_COLOR_MED},
         ],
         "metadata": [
-            {"name": "generated_by",    "value": "SHENRON v0.2.0"},
+            {"name": "generated_by",    "value": f"SHENRON v{get_version()}"},
             {"name": "run_id",          "value": run_id},
             {"name": "campaign",        "value": campaign_name},
             {"name": "simulation_only", "value": "true"},
