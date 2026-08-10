@@ -26,8 +26,8 @@ claims:
     severity: medium
     description: Entropy layers emit burst-timing and sleep-jitter telemetry
     requires_signals:
+      - high_entropy_output_regular_intervals_sim
       - timing_fingerprint_entropy_burst_sim
-      - sleep_jitter_from_non_timer_process
 
   # Entropy and command-and-control techniques can legitimately overlap.
   # Scope boundaries are enforced through category-scoped artifacts.
