@@ -1,5 +1,12 @@
 ![SHENRON](assets/shenron_banner.png)
 
+# SHENRON
+
+[![CI](https://github.com/GnomeMan4201/shenron/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/GnomeMan4201/shenron/actions/workflows/ci.yml)
+[![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-3776AB.svg)](pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Status: Beta](https://img.shields.io/badge/Status-Beta-orange.svg)](pyproject.toml)
+
 SHENRON is a safe synthetic telemetry and detection engineering research tool.
 
 It does not prove that a detection stack is effective.
@@ -15,7 +22,7 @@ Rule coverage is table stakes. Rule durability is the harder problem.
 
 **Observable adversarial behavior, not portable adversarial procedure.**
 
-SHENRON generates structured synthetic JSONL telemetry representing adversarial behavior across 66 simulation layers. It does not contain payloads, exploit code, real network calls, subprocess execution, or operational malware logic. Every artifact is synthetic. Every layer carries an explicit safety contract.
+SHENRON generates structured synthetic JSONL telemetry representing adversarial behavior across its [canonical simulation layers](core/layers). It does not contain payloads, exploit code, real network calls, subprocess execution, or operational malware logic. Every artifact is synthetic. Every layer carries an explicit safety contract.
 
 ---
 
@@ -29,15 +36,20 @@ SHENRON does not contain:
 - Real file writes outside its own log directory
 - Exploit code of any kind
 
-This is not a disclaimer. It is an architectural constraint. Every layer is statically checked by tests/test_all_layers_safety_static.py.
+This is not a disclaimer. It is an architectural constraint enforced by the [canonical-layer static safety gate](tests/test_all_layers_safety_static.py).
 
 ---
 
 ## Quickstart
 
 ~~~bash
-# Install
-python3 -m pip install pyyaml pytest pysigma
+git clone https://github.com/GnomeMan4201/shenron.git
+cd shenron
+
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install --upgrade pip
+python3 -m pip install -r requirements.txt
 
 # Run a campaign
 python3 shenron.py campaign --scenario apt29-style --stress-test
@@ -58,7 +70,7 @@ python3 -m core.ci.drift_gate
 
 ## What it does
 
-SHENRON generates structured synthetic telemetry across 66 simulation layers and scores detection brittleness across three dimensions:
+SHENRON generates structured synthetic telemetry across its canonical layer corpus and scores detection brittleness across three dimensions:
 
 **Artifact-level brittleness** -- does a mutation on a single event cause a Sigma rule to stop firing? Six mutation strategies targeting fields your rules actually reference: value_swap, field_omit, case_flip, unicode_substitute, whitespace_inject, combined_evasion. Strategies are weighted by adversary accessibility -- case_flip requires zero sophistication, value_swap requires knowledge of the detection stack.
 
@@ -128,9 +140,9 @@ SHENRON includes a structured, multi-layer LLM manipulation scenario for detecti
 - 5-phase kill chain: RECONNAISSANCE -> INJECT -> MANIPULATE -> OBFUSCATE -> EXFILTRATE
 - 9 MITRE techniques: T1059.007, T1190, T1027, T1565.001, T1036, T1048, T1590, T1565, T1027.002
 - 25 detection opportunities per scenario run
-- Sigma rule: sigma/rules/llm/shenron_llm_manipulation.yml -- 5 detection blocks, all TRIGGERED
+- Detection coverage: [LLM manipulation Sigma rule](sigma/rules/llm/shenron_llm_manipulation.yml) with [scenario regression tests](tests/test_llm_manipulation.py)
 
-Platform log schema mappers (core/formats/llm_platform_logs.py):
+[Platform log schema mappers](core/formats/llm_platform_logs.py):
 
 | Platform | Schema | Key fields |
 |---|---|---|
@@ -168,23 +180,20 @@ Role override injection: ResultType ContentFilter (Azure) / errorCode Validation
 
 ---
 
-## Verified state
+## Verification surfaces
 
-| Check | Result |
+| Surface | Repository evidence |
 |---|---|
-| Test suite | 885 passed (Python 3.12) |
-| Simulation layers | 66 |
-| Sigma rules | 28 |
-| Adversary scenarios | 6 |
-| Artifact mutation strategies | 11 (6 standard + 5 sigma-aware) |
-| Correlation mutation strategies | 4 |
-| Safety failures | 0 |
-| pySigma integration | default evaluator path |
-| Windows EventID support | windows_event_log_sim + pySigma bridge |
-| LLM platform log schemas | Azure OpenAI, AWS Bedrock, Anthropic |
-| CEF output | ArcSight/QRadar compatible |
-| Feedback-driven adaptation | field-coverage strategy scoring |
-| MITRE drift CI gate | exit codes 0/1/2 |
+| CI | [Python 3.9–3.12 test matrix plus safety, package, ATT&CK drift, and assumption jobs](.github/workflows/ci.yml) |
+| Safety contract | [Static forbidden-call and forbidden-import gate](tests/test_all_layers_safety_static.py) |
+| Simulation corpus | [Canonical layer implementations](core/layers) and [committed demonstration telemetry](artifacts/demo/shenron_demo_run.jsonl) |
+| Sigma evaluation | [Rule-count and verdict regression gate](tests/test_sigma_integration.py) |
+| LLM scenario | [Scenario regression suite](tests/test_llm_manipulation.py) and [Sigma rule](sigma/rules/llm/shenron_llm_manipulation.yml) |
+| Golden demo | [Pinned artifact regression checks](tests/test_golden_demo.py) |
+| pySigma bridge | [Bridge implementation](core/sigma/pysigma_bridge.py) and [integration tests](tests/test_sigma_integration.py) |
+| MITRE ATT&CK drift | [Drift implementation](core/ci/drift_gate.py) and [regression tests](tests/test_mitre_drift.py) |
+| Output adapters | [ECS/Splunk implementation](core/formats/adapter.py), [CEF implementation](core/formats/cef_adapter.py), and [platform-log tests](tests/test_llm_platform_logs.py) |
+| Feedback adaptation | [Strategy-selection implementation](core/campaign/adaptation.py) and [Sigma-aware regression tests](tests/test_sigma_aware.py) |
 
 ---
 
@@ -195,26 +204,26 @@ core/campaign        -- CampaignBuilder, AdaptationEngine, DiffTool
 core/brittleness     -- BrittlenessScorer, ArtifactBrittleness, weighted scoring
 core/mutation        -- SigmaAwareMutator, combined evasion, deterministic seeding
 core/sigma           -- pySigma default evaluator, bridge, generator, loader
-core/layers          -- 66 canonical simulation layers, including Windows and LLM
+core/layers          -- canonical simulation layers, including Windows and LLM
 core/noise           -- BenignEventGenerator with 6 categories and 28 templates
 core/assumptions     -- validator, fuzzer, and evidence-discipline layer
 core/formats         -- ECS, Splunk HEC, CEF, and LLM platform adapters
 core/ingest          -- journald normalizer
 core/ci              -- GitHub Actions-compatible MITRE ATT&CK drift gate
 core/engine          -- layer loader and payload registry
-sigma/rules          -- 28 Sigma rules across simulation and live telemetry
+sigma/rules          -- Sigma rules across simulation and live telemetry
 artifacts            -- committed demonstration and validation artifacts
 docs                 -- field mappings and layer rename documentation
-tests                -- 885 tests across more than 40 files
+tests                -- regression, safety, integration, and evidence-contract checks
 ~~~
 
 ---
 
 ## Live telemetry integration
 
-SHENRON accepts live telemetry from bpf-watch (https://github.com/GnomeMan4201/bpf-watch), an eBPF rootkit detection daemon that emits SHENRON-compatible JSONL.
+SHENRON accepts compatible JSONL telemetry from [bpf-watch](https://github.com/GnomeMan4201/bpf-watch), an eBPF telemetry collector.
 
-5 live Sigma rules in sigma/rules/live/ fire against real kernel telemetry. The kprobe sentinel rule has been confirmed TRIGGERED against real kernel execve hooks on kernel 6.18.7.
+The [five live-only Sigma rules](sigma/rules/live) are explicitly separated from simulated-artifact trigger expectations in the [Sigma integration gate](tests/test_sigma_integration.py). This keeps live-telemetry claims distinct from results produced by SHENRON's committed synthetic artifacts.
 
 ---
 
