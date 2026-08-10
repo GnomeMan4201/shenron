@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Validate, build, and publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install project and release tooling
+        run: python3 -m pip install -e '.[dev]' build
+
+      - name: Validate tag, package, and changelog versions
+        run: python3 scripts/check_release_version.py --tag "${GITHUB_REF_NAME}"
+
+      - name: Run test suite
+        run: python3 -m pytest tests/ -q
+
+      - name: Run static safety audit
+        run: python3 shenron.py run all --dry-run
+
+      - name: Build distributions
+        run: python3 -m build
+
+      - name: Create release or upload verified artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            gh release upload "${GITHUB_REF_NAME}" dist/* --clobber
+          else
+            gh release create "${GITHUB_REF_NAME}" dist/* \
+              --verify-tag \
+              --title "SHENRON ${GITHUB_REF_NAME}" \
+              --generate-notes
+          fi
