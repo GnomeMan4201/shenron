@@ -235,15 +235,6 @@ The [five live-only Sigma rules](sigma/rules/live) are explicitly separated from
 
 ---
 
-## Part of the BANANA_TREE Research Ecosystem
-
-| Project | Role |
-|---|---|
-| [r4b1t](https://gnomeman4201.github.io/r4b1t) | Browser-based discovery across 53,869 verified OSINT and security URLs |
-| [drift_orchestrator](https://github.com/GnomeMan4201/drift_orchestrator) | LLM safety-monitor and policy-drift research |
-| [LANimals](https://github.com/GnomeMan4201/LANimals) | Local network intelligence and change detection |
-| [bpf-watch](https://github.com/GnomeMan4201/bpf-watch) | Live eBPF telemetry source for SHENRON |
-
 gnomeman4201 / badBANANA Research Collective
 
 *Observable adversarial behavior, not portable adversarial procedure.*
