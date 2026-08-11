@@ -179,6 +179,8 @@ Role override injection: ResultType ContentFilter (Azure) / errorCode Validation
 | supply-chain | 4 | Dependency confusion as initial access vector |
 | living-off-the-land | 4 | Pure LOtL, native tools throughout |
 
+The named `*-style` scenarios are synthetic shorthand for experiment shapes. They do not claim behavioral fidelity to, emulation of, or attribution involving the named real-world actors.
+
 ---
 
 ## Verification surfaces
@@ -222,7 +224,9 @@ tests                -- regression, safety, integration, and evidence-contract c
 
 ## Live telemetry integration
 
-SHENRON accepts compatible JSONL telemetry from [bpf-watch](https://github.com/GnomeMan4201/bpf-watch), an eBPF telemetry collector.
+SHENRON can evaluate compatible JSONL telemetry produced outside the synthetic layer corpus. The public repository includes five live-only Sigma rules and the schema/assumption material used to keep that live path distinct from simulated-artifact expectations.
+
+The current live-rule examples were developed against `bpf-watch` telemetry. That collector is not part of this public repository, so public users should treat the documented JSONL fields and committed live-rule tests as the available interface rather than expecting an external collector link to be reproducible from this checkout.
 
 The [five live-only Sigma rules](sigma/rules/live) are explicitly separated from simulated-artifact trigger expectations in the [Sigma integration gate](tests/test_sigma_integration.py). This keeps live-telemetry claims distinct from results produced by SHENRON's committed synthetic artifacts.
 
