@@ -153,7 +153,8 @@ class TestSourceSafety:
 class TestGeneratedArtifacts:
 
     @pytest.fixture(scope="class")
-    def artifacts(self):
+    @classmethod
+    def artifacts(cls):
         return _run_generator()
 
     def test_minimum_event_count(self, artifacts):
