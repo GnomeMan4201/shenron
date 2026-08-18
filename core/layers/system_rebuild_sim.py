@@ -59,6 +59,15 @@ def simulate_shadow_rebuild():
             "hash_current_sim": _fake_hash() if state["state"] != "match" else None,
         })
 
+    # The persistence validation contract requires at least one restoration-
+    # shaped event (T1543). Preserve randomized file states, but prevent an
+    # all-match draw from making required category coverage probabilistic.
+    if scan_results and all(result["state"] == "match" for result in scan_results):
+        forced = scan_results[0]
+        forced["state"] = "mismatch"
+        forced["label"] = "hash mismatch detected — restoration triggered"
+        forced["hash_current_sim"] = _fake_hash()
+
     scan_event = {
         "artifact_id": str(uuid.uuid4()),
         "session_id": session_id,
