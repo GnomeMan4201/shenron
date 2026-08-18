@@ -39,9 +39,6 @@ dev = [
     "pytest>=7.0",
     "Faker>=18.0",
 ]
-export = [
-    "jinja2>=3.0",
-]
 
 [project.scripts]
 shenron = "shenron:main"
