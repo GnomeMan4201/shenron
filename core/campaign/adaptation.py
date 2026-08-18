@@ -224,23 +224,26 @@ def _evaluate_rules(
     artifact_path: str,
     match_mode: str = "tolerant",
 ) -> List[RuleFireResult]:
-    """Evaluate all rules against an artifact. Returns fire results."""
+    """Evaluate all rules against an artifact, failing closed on evaluator errors."""
     results = []
     for rp in rule_paths:
         try:
             result = evaluate_sigma_rule(str(rp), artifact_path, match_mode=match_mode)
-            rule_id = result.rule_id
-            rule_title = result.rule_title
-            triggered = result.verdict == RuleVerdict.TRIGGERED
-            results.append(RuleFireResult(
-                rule_id=rule_id,
-                rule_title=rule_title,
-                rule_path=str(rp),
-                verdict=result.verdict.value,
-                triggered=triggered,
-            ))
-        except Exception:
-            continue
+        except Exception as exc:
+            raise RuntimeError(
+                f"Sigma evaluation failed for rule {rp}: {exc}"
+            ) from exc
+
+        rule_id = result.rule_id
+        rule_title = result.rule_title
+        triggered = result.verdict == RuleVerdict.TRIGGERED
+        results.append(RuleFireResult(
+            rule_id=rule_id,
+            rule_title=rule_title,
+            rule_path=str(rp),
+            verdict=result.verdict.value,
+            triggered=triggered,
+        ))
     return results
 
 
@@ -335,6 +338,52 @@ def _extract_rule_targets_from_path(rule_path: str) -> Dict[str, List[str]]:
         return {}
 
 
+def _resolve_firing_rule_paths(
+    still_firing: set,
+    rule_paths: List[Path],
+) -> List[str]:
+    """Resolve firing Sigma IDs to exactly one rule path using rule metadata."""
+    if not still_firing:
+        return []
+
+    from core.sigma.loader import load_sigma_rule
+
+    paths_by_id: Dict[str, List[str]] = {}
+    for rp in rule_paths:
+        try:
+            rule = load_sigma_rule(str(rp))
+        except Exception as exc:
+            raise RuntimeError(
+                f"Unable to load Sigma rule metadata for {rp}: {exc}"
+            ) from exc
+
+        rule_id = rule.get("id")
+        if rule_id in still_firing:
+            paths_by_id.setdefault(rule_id, []).append(str(rp))
+
+    missing = [rule_id for rule_id in still_firing if rule_id not in paths_by_id]
+    if missing:
+        missing_text = ", ".join(sorted(str(rule_id) for rule_id in missing))
+        raise ValueError(f"Unable to resolve firing Sigma rule IDs: {missing_text}")
+
+    ambiguous = {
+        rule_id: paths
+        for rule_id, paths in paths_by_id.items()
+        if len(paths) != 1
+    }
+    if ambiguous:
+        detail = "; ".join(
+            f"{rule_id} -> {', '.join(paths)}"
+            for rule_id, paths in sorted(ambiguous.items(), key=lambda item: str(item[0]))
+        )
+        raise ValueError(f"Ambiguous firing Sigma rule IDs: {detail}")
+
+    return [
+        paths_by_id[rule_id][0]
+        for rule_id in sorted(still_firing, key=str)
+    ]
+
+
 def _score_strategy_for_firing_rules(
     strategy: str,
     still_firing: set,
@@ -343,12 +392,8 @@ def _score_strategy_for_firing_rules(
     """Score a strategy by how many fields in still-firing rules it targets."""
     if not still_firing:
         return 0
-    firing_paths = [
-        str(rp) for rp in rule_paths
-        if any(fr_id in str(rp) for fr_id in still_firing)
-    ]
-    if not firing_paths:
-        firing_paths = [str(rp) for rp in rule_paths]
+
+    firing_paths = _resolve_firing_rule_paths(still_firing, rule_paths)
     targeted_fields: set = set()
     for rp in firing_paths:
         targets = _extract_rule_targets_from_path(rp)
