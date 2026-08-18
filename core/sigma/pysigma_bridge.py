@@ -389,8 +389,13 @@ def _resolve_target(target: str, block_names: List[str]) -> List[str]:
 
 import uuid as _uuid_mod
 
+def _parser_uuid(seed: str) -> _uuid_mod.UUID:
+    """Return a deterministic parser-only UUID for pySigma compatibility."""
+    return _uuid_mod.uuid5(_uuid_mod.NAMESPACE_URL, seed)
+
+
 def _ensure_uuid_id(rule_yaml: str) -> str:
-    """Ensure rule has a valid UUID id field for pySigma."""
+    """Give pySigma a UUID without changing the rule's public source identity."""
     lines = rule_yaml.splitlines()
     new_lines = []
     found_id = False
@@ -402,12 +407,18 @@ def _ensure_uuid_id(rule_yaml: str) -> str:
                 _uuid_mod.UUID(val)
                 new_lines.append(line)
             except (ValueError, AttributeError):
-                new_lines.append(f"id: {_uuid_mod.uuid4()}")
+                source_id = val.strip("'\"")
+                new_lines.append(
+                    f"id: {_parser_uuid(f'shenron:sigma-id:{source_id}')}"
+                )
             found_id = True
         else:
             new_lines.append(line)
     if not found_id:
-        new_lines.insert(1, f"id: {_uuid_mod.uuid4()}")
+        new_lines.insert(
+            1,
+            f"id: {_parser_uuid(f'shenron:sigma-yaml:{rule_yaml}')}",
+        )
     return "\n".join(new_lines)
 
 
@@ -435,11 +446,17 @@ def evaluate_with_pysigma(
     rule_id    = rule_path_p.stem
     rule_title = rule_path_p.stem
 
-    # Load and parse rule
+    # Preserve committed source identity while parsing a UUID-compatible copy.
     try:
+        from core.sigma.loader import load_sigma_rule
+
+        source_rule = load_sigma_rule(str(rule_path_p)) or {}
+        rule_id = str(source_rule.get("id") or rule_id)
+        rule_title = str(source_rule.get("title") or rule_title)
+
         rule_text = rule_path_p.read_text(encoding="utf-8")
-        rule_text = _ensure_uuid_id(rule_text)
-        collection = SigmaCollection.from_yaml(rule_text)
+        parser_rule_text = _ensure_uuid_id(rule_text)
+        collection = SigmaCollection.from_yaml(parser_rule_text)
         rules = list(collection)
         if not rules:
             return BridgeResult(
@@ -449,7 +466,6 @@ def evaluate_with_pysigma(
                 errors=["No rules in collection"],
             )
         rule = rules[0]
-        rule_id    = str(rule.id) if rule.id else rule_id
         rule_title = str(rule.title) if rule.title else rule_title
     except Exception as e:
         return BridgeResult(
