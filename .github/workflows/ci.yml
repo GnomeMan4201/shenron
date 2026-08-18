@@ -26,8 +26,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: pip install -e .[dev]
+      - name: Install constrained dependencies
+        run: pip install -c constraints/ci.txt -e .[dev]
+
+      - name: Verify dependency consistency
+        run: python -m pip check
 
       - name: Run test suite
         run: python3 -m pytest tests/ -q
@@ -43,8 +46,11 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
-        run: pip install -e .[dev]
+      - name: Install constrained dependencies
+        run: pip install -c constraints/ci.txt -e .[dev]
+
+      - name: Verify dependency consistency
+        run: python -m pip check
 
       - name: Run dry-run (all canonical layers)
         run: python3 shenron.py run all --dry-run
@@ -77,9 +83,10 @@ jobs:
       - name: Build wheel
         run: python3 -m build --wheel --no-isolation
 
-      - name: Verify wheel installs
+      - name: Verify wheel installs against CI constraints
         run: |
-          pip install dist/*.whl
+          pip install -c constraints/ci.txt dist/*.whl
+          python -m pip check
           shenron --help
 
   drift:
@@ -91,8 +98,10 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - name: Install dependencies
-        run: pip install -e .[dev]
+      - name: Install constrained dependencies
+        run: pip install -c constraints/ci.txt -e .[dev]
+      - name: Verify dependency consistency
+        run: python -m pip check
       - name: Check MITRE ATT&CK drift
         run: |
           mkdir -p .cache
@@ -107,7 +116,9 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - name: Install dependencies
-        run: pip install -e .[dev]
+      - name: Install constrained dependencies
+        run: pip install -c constraints/ci.txt -e .[dev]
+      - name: Verify dependency consistency
+        run: python -m pip check
       - name: Validate all category assumptions
         run: python3 shenron.py --validate-all-assumptions
