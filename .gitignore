@@ -17,6 +17,10 @@ release/
 build/
 dist/
 shenron.egg-info/
+frontend/dist/
+
+# Frontend dependencies
+frontend/node_modules/
 
 # Mutation / generated layer variants — never commit
 core/layers/*_??????_*.py
@@ -35,14 +39,8 @@ github_botnet_discovery_revised.md
 !core/layers/social_botnet_corpus.py
 !core/layers/undead_memory_latch.py
 
-# Cache
+# Cache and local databases
 .cache/
 shenron_core.zip
-tead
-<<<<<<< HEAD
 shenron_runs.db
 *.db
-=======
-frontend/node_modules/
-frontend/dist/
->>>>>>> f76b73332ee6244e7d43862a6c6853d7e80f587a
