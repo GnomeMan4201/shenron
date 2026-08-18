@@ -30,6 +30,13 @@ def _write_rule(path: Path, rule_id: str, field: str, value: str) -> Path:
     return path
 
 
+def test_evaluate_rules_fails_closed_on_metadata_error():
+    missing_rule = Path("definitely-missing-rule.yml")
+
+    with pytest.raises(RuntimeError, match="Unable to load Sigma rule metadata"):
+        adaptation._evaluate_rules([missing_rule], "artifact.jsonl")
+
+
 def test_evaluate_rules_fails_closed_on_evaluator_error(monkeypatch, tmp_path):
     rule_path = _write_rule(
         tmp_path / "broken.yml",
