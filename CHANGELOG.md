@@ -6,7 +6,17 @@ All notable changes to SHENRON are documented here.
 
 ## [Unreleased] — current main
 
-*(nothing yet)*
+### Added
+- Reproducible CI dependency constraints with `pip check` across test, safety, drift, assumption, wheel-install, and release-validation paths
+- A Python 3.10 minimum-dependency compatibility lane that installs the declared dependency floors explicitly and runs the full test suite
+
+### Changed
+- GitHub Actions checkout/setup-python workflows now use the current v7 action majors and release validation uses the same constrained dependency snapshot as CI
+- Raised the PyYAML minimum from 6.0 to 6.0.3 and Requests from 2.28.0 to 2.32.5, the minimum versions required by the declared `pysigma>=1.3.0` floor
+
+### Removed
+- Committed `frontend/node_modules/` dependencies and stale frontend ignore conflicts from the active tree
+- Unused `export` optional dependency surface whose Jinja2 extra was not referenced by SHENRON code or documentation
 
 ## [v0.4.4] — 2026-08-10
 
