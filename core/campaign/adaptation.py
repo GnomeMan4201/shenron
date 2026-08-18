@@ -224,9 +224,21 @@ def _evaluate_rules(
     artifact_path: str,
     match_mode: str = "tolerant",
 ) -> List[RuleFireResult]:
-    """Evaluate all rules against an artifact, failing closed on evaluator errors."""
+    """Evaluate all rules with source-stable identity and fail closed on errors."""
+    from core.sigma.loader import load_sigma_rule
+
     results = []
     for rp in rule_paths:
+        try:
+            source_rule = load_sigma_rule(str(rp))
+        except Exception as exc:
+            raise RuntimeError(
+                f"Unable to load Sigma rule metadata for {rp}: {exc}"
+            ) from exc
+
+        source_rule_id = source_rule.get("id") or Path(str(rp)).stem
+        source_rule_title = source_rule.get("title") or source_rule_id
+
         try:
             result = evaluate_sigma_rule(str(rp), artifact_path, match_mode=match_mode)
         except Exception as exc:
@@ -234,12 +246,10 @@ def _evaluate_rules(
                 f"Sigma evaluation failed for rule {rp}: {exc}"
             ) from exc
 
-        rule_id = result.rule_id
-        rule_title = result.rule_title
         triggered = result.verdict == RuleVerdict.TRIGGERED
         results.append(RuleFireResult(
-            rule_id=rule_id,
-            rule_title=rule_title,
+            rule_id=str(source_rule_id),
+            rule_title=str(source_rule_title),
             rule_path=str(rp),
             verdict=result.verdict.value,
             triggered=triggered,
@@ -357,7 +367,8 @@ def _resolve_firing_rule_paths(
                 f"Unable to load Sigma rule metadata for {rp}: {exc}"
             ) from exc
 
-        rule_id = rule.get("id")
+        rule_id = rule.get("id") or Path(str(rp)).stem
+        rule_id = str(rule_id)
         if rule_id in still_firing:
             paths_by_id.setdefault(rule_id, []).append(str(rp))
 
