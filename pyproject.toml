@@ -37,7 +37,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0",
-    "Faker>=18.0",
+    "Faker>=40.37.0",
 ]
 
 [project.scripts]
