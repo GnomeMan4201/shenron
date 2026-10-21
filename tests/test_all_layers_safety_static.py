@@ -3,14 +3,14 @@
 #
 # AST-based: parses each layer and inspects real imports and calls, so forbidden
 # tokens inside strings, comments, or field names never produce false positives,
-# and the check cannot be evaded by a token the old substring scan missed. This
-# gate is a lint for *accidental* unsafe patterns in first-party layer source. It
-# is NOT a sandbox and does not contain adversarial/malicious code — a layer that
-# deliberately builds a forbidden name dynamically (getattr/__getattribute__ on a
-# runtime string) is out of scope and would need runtime isolation to stop.
+# and the check cannot be evaded by import aliasing (`import os as x; x.system()`).
+# This gate is a lint for *accidental* unsafe patterns in first-party layer
+# source. It is NOT a sandbox: a layer that builds a forbidden name from a runtime
+# string (`getattr(os, "sys"+"tem")`) is out of scope and needs runtime isolation.
 
 import ast
-from pathlib import Path
+
+import pytest
 
 from core.engine.layer_loader import discover_canonical
 
@@ -22,7 +22,8 @@ FORBIDDEN_IMPORT_ROOTS = {
 FORBIDDEN_OS_NAMES = {"system", "popen", "fork", "forkpty"}
 # Bare builtin calls that execute or import dynamically.
 FORBIDDEN_CALL_NAMES = {"eval", "exec", "compile", "__import__"}
-# <root>.<attr>(...) calls that are process / network / fs escapes.
+# <module>.<attr>(...) calls that are process / network / fs escapes. The module
+# is the RESOLVED import name, so aliases are checked against these too.
 FORBIDDEN_ATTR_CALLS = {
     ("os", "system"), ("os", "popen"), ("os", "fork"), ("os", "forkpty"),
     ("subprocess", "run"), ("subprocess", "Popen"), ("subprocess", "call"),
@@ -32,8 +33,8 @@ FORBIDDEN_ATTR_CALLS = {
 }
 
 
-def _root_name(node):
-    """Dotted root of an attribute chain: os.path.join -> 'os'. None if not a plain name."""
+def _base_name(node):
+    """Base name of an attribute chain: os.path.join -> 'os'. None if not a plain name."""
     while isinstance(node, ast.Attribute):
         node = node.value
     return node.id if isinstance(node, ast.Name) else None
@@ -47,11 +48,15 @@ def scan_source(source: str, label: str):
     except SyntaxError as e:
         return [f"{label}: unparseable ({e})"]
 
+    # Pass 1: imports + an alias map {local_name -> real module root}.
+    alias_map = {}
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
-                root = alias.name.split(".")[0]
-                if root in FORBIDDEN_IMPORT_ROOTS:
+                real_root = alias.name.split(".")[0]
+                local = alias.asname or real_root
+                alias_map[local] = real_root
+                if real_root in FORBIDDEN_IMPORT_ROOTS:
                     violations.append(f"{label}:{node.lineno}: forbidden import '{alias.name}'")
         elif isinstance(node, ast.ImportFrom):
             root = (node.module or "").split(".")[0]
@@ -61,18 +66,51 @@ def scan_source(source: str, label: str):
                 for alias in node.names:
                     if alias.name in FORBIDDEN_OS_NAMES or alias.name.startswith(("exec", "spawn")):
                         violations.append(f"{label}:{node.lineno}: forbidden 'from os import {alias.name}'")
-        elif isinstance(node, ast.Call):
-            fn = node.func
-            if isinstance(fn, ast.Name) and fn.id in FORBIDDEN_CALL_NAMES:
-                violations.append(f"{label}:{node.lineno}: forbidden call '{fn.id}(...)'")
-            elif isinstance(fn, ast.Attribute):
-                root = _root_name(fn)
-                attr = fn.attr
-                if root == "os" and attr.startswith(("exec", "spawn")):
-                    violations.append(f"{label}:{node.lineno}: forbidden call 'os.{attr}(...)'")
-                elif (root, attr) in FORBIDDEN_ATTR_CALLS:
-                    violations.append(f"{label}:{node.lineno}: forbidden call '{root}.{attr}(...)'")
+
+    # Pass 2: calls, resolving the base name through the alias map.
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        fn = node.func
+        if isinstance(fn, ast.Name) and fn.id in FORBIDDEN_CALL_NAMES:
+            violations.append(f"{label}:{node.lineno}: forbidden call '{fn.id}(...)'")
+        elif isinstance(fn, ast.Attribute):
+            base = _base_name(fn)
+            real = alias_map.get(base, base)
+            attr = fn.attr
+            if real == "os" and attr.startswith(("exec", "spawn")):
+                violations.append(f"{label}:{node.lineno}: forbidden call 'os.{attr}(...)'")
+            elif (real, attr) in FORBIDDEN_ATTR_CALLS:
+                violations.append(f"{label}:{node.lineno}: forbidden call '{real}.{attr}(...)'")
     return violations
+
+
+# ── Scanner regression cases: lock in what the gate must catch / must ignore ──
+_DETECT_CASES = [
+    ("import subprocess", True),
+    ("import subprocess as sp\nsp.run(['x'])", True),
+    ("import os as operating_system\noperating_system.system('x')", True),   # alias bypass
+    ("import os\nos.system('x')", True),
+    ("import os\nos.execv('/bin/sh', [])", True),
+    ("from os import system\nsystem('x')", True),
+    ("from os import system as s\ns('x')", True),
+    ("m = __import__('subprocess')", True),
+    ("import ctypes", True),
+    ("import importlib", True),
+    ("import marshal", True),
+    ("eval('1')", True),
+    ("exec('x')", True),
+    ("import socket as net\nnet.socket()", True),
+    ("import os\nq = os.path.join('a', 'b')", False),                        # allowed os use
+    ("note = {'k': 'no subprocess or os.system here'}", False),             # word in a string
+    ("import json\njson.dumps({})", False),
+]
+
+
+@pytest.mark.parametrize("src,should_flag", _DETECT_CASES)
+def test_scanner_detection(src, should_flag):
+    flagged = bool(scan_source(src, "case"))
+    assert flagged == should_flag, f"{src!r} -> {scan_source(src, 'case')}"
 
 
 def test_all_canonical_layers_pass_static_safety():

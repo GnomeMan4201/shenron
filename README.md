@@ -38,7 +38,7 @@ So a canonical layer contains no:
 - Subprocess spawning or shell command execution
 - Exploit code of any kind
 
-Layers write their synthetic JSONL artifacts under the SHENRON log/report directory (`SHENRON_HOME`, default `~/SHENRON`; see `core/config.py`). The gate lints source for the escapes above — it is a check for *accidental* unsafe patterns in first-party code, not a sandbox against deliberately obfuscated or malicious code (for example a forbidden name assembled from a runtime string), and it does not itself verify that write paths stay inside the log directory.
+Most layers write their synthetic JSONL artifacts under the SHENRON log directory (`SHENRON_HOME`, default `~/SHENRON`) via `core/config.py`; a few (for example `social_botnet_corpus`) write to the current directory or an explicit `--output` path. The gate does **not** check write paths at all, so "writes stay under the log directory" is a convention, not an enforced property. More broadly the gate lints source for the escapes above — it catches *accidental* unsafe patterns in first-party code; it is not a sandbox against deliberately obfuscated or malicious code (for example a forbidden name assembled from a runtime string).
 
 Two parts of the engine, outside the layer corpus and the gate's scope, intentionally use otherwise-forbidden calls on the repository's **own** code only, never on simulation input: `core/persistence/db.py` runs a fixed, read-only `git rev-parse HEAD` subprocess to stamp each run with its commit, and `core/engine/layer_loader.py` loads first-party layer files via `exec(compile(...))`.
 
