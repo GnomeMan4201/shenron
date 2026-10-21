@@ -23,21 +23,24 @@ Rule coverage is table stakes. Rule durability is the harder problem.
 
 **Observable adversarial behavior, not portable adversarial procedure.**
 
-SHENRON generates structured synthetic JSONL telemetry representing adversarial behavior across its [canonical simulation layers](core/layers). It does not contain payloads, exploit code, real network calls, subprocess execution, or operational malware logic. Every artifact is synthetic. Every layer carries an explicit safety contract.
+SHENRON generates structured synthetic JSONL telemetry representing adversarial behavior across its [canonical simulation layers](core/layers). Those layers contain no payloads, exploit code, real network calls, subprocess execution, or operational malware logic. Every artifact is synthetic. Every layer carries an explicit safety contract.
 
 ---
 
 ## Safety boundary
 
-SHENRON does not contain:
+The **canonical simulation layers** (`core/layers`) are the code that models adversarial behavior, and they are constrained by a static safety gate ([`tests/test_all_layers_safety_static.py`](tests/test_all_layers_safety_static.py)). The gate parses each layer's AST and fails CI if a layer imports or calls a process, network, or filesystem escape — `subprocess`, `socket`, `shutil`, `ctypes`, `importlib`, `marshal`, `pty`, `os.system` / `os.exec*` / `os.popen` / `os.fork`, or `eval` / `exec` / `compile` / `__import__`.
+
+So a canonical layer contains no:
 
 - Executable payloads or shellcode
 - Real network connections or socket bindings
 - Subprocess spawning or shell command execution
-- Real file writes outside its own log directory
 - Exploit code of any kind
 
-This is not a disclaimer. It is an architectural constraint enforced by the [canonical-layer static safety gate](tests/test_all_layers_safety_static.py).
+Layers write their synthetic JSONL artifacts under the SHENRON log/report directory (`SHENRON_HOME`, default `~/SHENRON`; see `core/config.py`). The gate lints source for the escapes above — it is a check for *accidental* unsafe patterns in first-party code, not a sandbox against deliberately obfuscated or malicious code (for example a forbidden name assembled from a runtime string), and it does not itself verify that write paths stay inside the log directory.
+
+Two parts of the engine, outside the layer corpus and the gate's scope, intentionally use otherwise-forbidden calls on the repository's **own** code only, never on simulation input: `core/persistence/db.py` runs a fixed, read-only `git rev-parse HEAD` subprocess to stamp each run with its commit, and `core/engine/layer_loader.py` loads first-party layer files via `exec(compile(...))`.
 
 ---
 
