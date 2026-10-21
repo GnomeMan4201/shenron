@@ -27,6 +27,7 @@ Observable adversarial behavior, not portable adversarial procedure.
 
 from core.engine.payload_registry import register_payload
 
+import json
 import uuid
 import time
 import random
@@ -438,7 +439,7 @@ def run(dry_run=False):
         log_path = _get_artifact_log()
         with open(log_path, "a") as f:
             for ev in events:
-                f.write(__import__("json").dumps(ev) + "\n")
+                f.write(json.dumps(ev) + "\n")
 
         print(f"  [SIMULATION]  dependency_confusion_sim")
         print(f"  [SESSION]     {artifact_id}")
