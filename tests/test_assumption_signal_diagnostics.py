@@ -4,7 +4,7 @@ import json
 from scripts.diagnose_assumption_signals import diagnose
 
 
-def test_payload_diagnostic_does_not_infer_interpreter_spawn(tmp_path):
+def test_payload_diagnostic_requires_exact_inline_interpreter_evidence(tmp_path):
     path = tmp_path / "payload.jsonl"
     path.write_text(json.dumps({
         "mitre_techniques": ["T1059"],
@@ -15,9 +15,9 @@ def test_payload_diagnostic_does_not_infer_interpreter_spawn(tmp_path):
     claim = next(c for c in report["claims"] if c["claim_id"] == "scripting_evidence")
     matches = {s["signal"]: s["exact_match"] for s in claim["required_signals"]}
     assert matches["script_execution_sim"] is True
-    assert matches["interpreter_spawn_sim"] is False
+    assert matches["interpreter_inline_exec_sim"] is False
     assert claim["status"] == "PARTIALLY_SUPPORTED"
-    assert "interpreter_spawn_sim" in claim["unsupported"]
+    assert "interpreter_inline_exec_sim" in claim["unsupported"]
 
 
 def test_identity_diagnostic_does_not_infer_fingerprint_emission(tmp_path):
