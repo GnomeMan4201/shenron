@@ -126,7 +126,7 @@ def cmd_validate_all(args):
             unsupported = result.unsupported_count
             marker = STATUS_MARKERS.get(status, "[ ]")
 
-            if "SUPPORTED" not in status or "PARTIALLY" in status or "OUT" in status:
+            if status != "SUPPORTED":
                 all_supported = False
 
             results.append((category, status, supported, unsupported, assumption_path))
