@@ -20,17 +20,24 @@ def test_payload_diagnostic_requires_exact_inline_interpreter_evidence(tmp_path)
     assert "interpreter_inline_exec_sim" in claim["unsupported"]
 
 
-def test_identity_diagnostic_does_not_infer_fingerprint_emission(tmp_path):
+def test_identity_diagnostic_does_not_conflate_uuid_with_multi_identity(tmp_path):
     path = tmp_path / "identity.jsonl"
     path.write_text(json.dumps({
-        "mitre_techniques": ["T1542"],
-        "phase": "bios_log_forge_sim",
+        "mitre_techniques": ["T1078"],
+        "behavior_class": "uuid_anomaly_sim",
         "detection_opportunities": ["synthetic_device_uuid_rapid_generation_sim"],
     }) + "\n")
     report = diagnose("identity", path)
-    claim = next(c for c in report["claims"] if c["claim_id"] == "token_impersonation_evidence")
+    claim = next(c for c in report["claims"] if c["claim_id"] == "device_identity_pollution_evidence")
     matches = {s["signal"]: s["exact_match"] for s in claim["required_signals"]}
-    assert matches["bios_log_forge_sim"] is True
-    assert matches["synthetic_device_fingerprint_emit_sim"] is False
+    assert matches["multi_identity_emit_sim"] is False
     assert claim["status"] == "PARTIALLY_SUPPORTED"
-    assert "synthetic_device_fingerprint_emit_sim" in claim["unsupported"]
+    assert "multi_identity_emit_sim" in claim["unsupported"]
+
+
+def test_identity_assumption_does_not_claim_token_impersonation(tmp_path):
+    path = tmp_path / "identity.jsonl"
+    path.write_text("{}\\n")
+    report = diagnose("identity", path)
+    assert "token_impersonation_evidence" not in {c["claim_id"] for c in report["claims"]}
+    assert "process_injection_identity_evidence" not in {c["claim_id"] for c in report["claims"]}
