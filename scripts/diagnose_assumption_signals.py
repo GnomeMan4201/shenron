@@ -31,14 +31,15 @@ def diagnose(category, events_path):
         records.append({
             "claim_id": claim.id,
             "claim_type": claim.type.value,
+            "evidence_scope": claim.evidence_scope,
             "status": result.status.value,
             "required_signals": [
                 {"signal": s, "normalized": _normalize(s),
-                 "exact_match": _normalize(s) in observed_signals}
+                 "exact_match": s in result.supported}
                 for s in claim.requires_signals
             ],
             "required_techniques": [
-                {"technique": t, "exact_match": t.upper() in observed_techniques}
+                {"technique": t, "exact_match": t in result.supported}
                 for t in claim.requires_techniques
             ],
             "supported": result.supported,
