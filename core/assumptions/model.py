@@ -34,6 +34,7 @@ class Claim:
     requires_techniques: List[str]     = field(default_factory=list)
     requires_signals:    List[str]     = field(default_factory=list)
     requires_metrics:   List[dict]    = field(default_factory=list)
+    evidence_scope:     str           = "category"  # category (legacy) or same_artifact
 
 @dataclass
 class ClaimResult:
