@@ -21,3 +21,7 @@ Recommended next design decision: split firmware-integrity and device-identity c
 - Category-level signal aggregation does not prove co-occurrence within one event/session.
 - Identity coverage remains unresolved; no reviewer package should describe it as fully supported.
 - Hosted CI status must be recorded for the exact reviewed commit.
+
+## Optional provenance safeguard (draft, unqualified)
+
+Claims can now specify `evidence_scope: same_artifact`. This requires all the claim's positive-evidence requirements to occur in one artifact; absent this setting, the legacy `category` union remains in force. Out-of-scope checks continue to inspect the full category. This does **not** establish same-session, same-host, real-world causality, or source authenticity. Existing YAML assumptions have **not** been silently migrated. No identity claim should be marked resolved solely because this option exists. The new tests and exact CI head must pass before inclusion as verified functionality.
