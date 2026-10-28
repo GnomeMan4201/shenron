@@ -58,11 +58,7 @@ def _check_claim(claim: Claim, artifacts: list, graph: dict = None) -> ClaimResu
 
     for sig in claim.requires_signals:
         norm = _normalize(sig)
-        matched = any(
-            norm == s or norm in s or s in norm or
-            len(set(norm.split("_")) & set(s.split("_"))) / max(len(norm.split("_")), 1) >= 0.5
-            for s in all_signals
-        )
+        matched = norm in all_signals
         (supported if matched else unsupported).append(sig)
 
     result.supported         = supported
