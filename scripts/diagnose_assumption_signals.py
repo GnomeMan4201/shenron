@@ -7,7 +7,10 @@ No category execution, artifact mutation, or fuzzy matching is performed.
 """
 import argparse
 import json
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from core.assumptions.loader import load_assumption, load_artifacts
 from core.assumptions.validator import (
