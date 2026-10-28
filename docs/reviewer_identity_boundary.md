@@ -25,3 +25,9 @@ Recommended next design decision: split firmware-integrity and device-identity c
 ## Optional provenance safeguard (draft, unqualified)
 
 Claims can now specify `evidence_scope: same_artifact`. This requires all the claim's positive-evidence requirements to occur in one artifact; absent this setting, the legacy `category` union remains in force. Out-of-scope checks continue to inspect the full category. This does **not** establish same-session, same-host, real-world causality, or source authenticity. Existing YAML assumptions have **not** been silently migrated. No identity claim should be marked resolved solely because this option exists. The new tests and exact CI head must pass before inclusion as verified functionality.
+
+## Identity scope correction — draft revision
+
+The scoped identity assumption has been split into separately named positive claims: `firmware_log_forgery_evidence`, `firmware_tamper_evidence`, `device_identity_pollution_evidence`, and `trusted_name_masquerade_evidence`. The first three require same-artifact matching; the trusted-name claim currently requires only its exact signal, not a technique mapping. The former `token_impersonation_evidence` and `process_injection_identity_evidence` labels were removed because the observed synthetic firmware/device telemetry did not establish those behaviors.
+
+**Explicit exclusion:** This is a reduction and correction of the validation contract, not proof that token impersonation or process injection are detected. Those capabilities remain unassessed by this assumption. CI results from earlier commits, including the failure at run 223, remain historical evidence and must not be retroactively described as passing under the revised specification. The new claim definitions and tests require fresh exact-head hosted CI before release.
