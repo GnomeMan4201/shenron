@@ -150,4 +150,25 @@ jobs:
       - name: Verify dependency consistency
         run: python -m pip check
       - name: Validate all category assumptions
-        run: python3 shenron.py --validate-all-assumptions
+        run: python3 shenron.py --validate-all-assumptions --scope-dir /tmp/shenron_scoped
+
+      - name: Diagnose exact assumption signals
+        if: always()
+        run: |
+          for category in payload identity; do
+            file="/tmp/shenron_scoped/shenron_${category}.jsonl"
+            if [ -f "$file" ]; then
+              python scripts/diagnose_assumption_signals.py "$category" "$file" > "/tmp/shenron_scoped/${category}_diagnostic.json"
+              cat "/tmp/shenron_scoped/${category}_diagnostic.json"
+            else
+              echo "Missing scoped artifact for $category"
+            fi
+          done
+
+      - name: Upload scoped assumption evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: assumption-evidence
+          path: /tmp/shenron_scoped/
+          if-no-files-found: warn
