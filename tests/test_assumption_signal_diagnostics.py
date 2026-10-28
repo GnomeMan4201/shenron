@@ -37,7 +37,7 @@ def test_identity_diagnostic_does_not_conflate_uuid_with_multi_identity(tmp_path
 
 def test_identity_assumption_does_not_claim_token_impersonation(tmp_path):
     path = tmp_path / "identity.jsonl"
-    path.write_text("{}\\n")
+    path.write_text(json.dumps({}) + "\n")
     report = diagnose("identity", path)
     assert "token_impersonation_evidence" not in {c["claim_id"] for c in report["claims"]}
     assert "process_injection_identity_evidence" not in {c["claim_id"] for c in report["claims"]}
