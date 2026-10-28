@@ -19,3 +19,9 @@ They are not claims about real-world detection coverage.
 ## Open decision
 
 Review whether each assumption is intended to validate *synthetic category output* or *external normalized telemetry*. If the scope is synthetic-only, revise the claim specification only after a human review of its intended semantics; do not rename evidence or fabricate an event to satisfy CI. Keep the coverage failure visible until the source contract is resolved.
+
+## Payload contract correction (proposed in draft PR #47)
+
+The scoped payload generator `core/layers/lotl_execution_sim.py` emits `interpreter_inline_exec_sim` as its synthetic behavior class, and `interpreter_spawn_no_script_arg_sim` as a detection opportunity. The external journald normalizer independently classifies `interpreter_spawn_sim`. Therefore the synthetic payload assumption now requires `interpreter_inline_exec_sim` rather than the external-normalizer-only signal. This is a *change to what is claimed and measured*, not evidence of an additional detector or an actual process spawn. The journald assumption remains unchanged.
+
+The identity gap remains open. The revised payload requirement must be verified in hosted CI before claiming it passes. Historical CI run 208 is the baseline and must not be reinterpreted as a pass under the new requirement.
