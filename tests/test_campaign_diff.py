@@ -287,20 +287,20 @@ def test_to_dict_roundtrip():
 
 # -- Scenario seed diff --------------------------------------------------------
 
-def test_diff_scenario_seeds_returns_report():
+def test_diff_scenario_seeds_returns_report(tmp_path):
     report = diff_scenario_seeds("apt29-style", seed_a=42, seed_b=99,
-                                  output_dir="/tmp/shenron_diff_test", verbose=False)
+                                  output_dir=str(tmp_path / "shenron_diff_test"), verbose=False)
     assert isinstance(report, CampaignDiffReport)
 
-def test_diff_scenario_seeds_same_scenario_stable():
+def test_diff_scenario_seeds_same_scenario_stable(tmp_path):
     report = diff_scenario_seeds("apt29-style", seed_a=42, seed_b=99,
-                                  output_dir="/tmp/shenron_diff_test", verbose=False)
+                                  output_dir=str(tmp_path / "shenron_diff_test"), verbose=False)
     # apt29-style with different seeds should have identical technique coverage
     assert report.technique_stability == 1.0
 
-def test_diff_scenario_seeds_artifacts_created():
+def test_diff_scenario_seeds_artifacts_created(tmp_path):
     import os
-    out_dir = "/tmp/shenron_diff_test2"
+    out_dir = str(tmp_path / "shenron_diff_test2")
     diff_scenario_seeds("apt29-style", seed_a=1, seed_b=2,
                         output_dir=out_dir, verbose=False)
     assert Path(out_dir).exists()

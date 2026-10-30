@@ -126,6 +126,8 @@ def _safe_conclusion(assumption_id: str, results: list) -> str:
         base = f"This artifact does not support {assumption_id} validation claims."
 
     caveat = "This artifact should not be used to claim broad detection coverage beyond what is explicitly supported above."
+    if any(r.claim.type == ClaimType.POSITIVE_EVIDENCE and r.status == ClaimStatus.SUPPORTED for r in results):
+        caveat += " Signal matching uses supplied artifact metadata, which may contain declared simulation expectations; this check does not independently verify observed telemetry."
     if oos:
         warn = f"WARNING: {len(oos)} out-of-scope claim(s) detected."
         return f"{base} {warn} {caveat}"
