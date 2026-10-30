@@ -51,6 +51,27 @@ def _check_claim(claim: Claim, artifacts: list, graph: dict = None) -> ClaimResu
         all_techniques |= _artifact_techniques(art)
         all_signals    |= _artifact_signals(art)
 
+    # A positive claim may opt in to requiring all its evidence in ONE
+    # artifact. Preserve category-wide aggregation for legacy claims and
+    # out-of-scope checks (which must inspect every artifact).
+    if claim.type == ClaimType.POSITIVE_EVIDENCE and claim.evidence_scope == "same_artifact":
+        required_techs = {t.upper() for t in claim.requires_techniques}
+        required_signals = {_normalize(s) for s in claim.requires_signals}
+        candidates = [
+            (_artifact_techniques(art), _artifact_signals(art))
+            for art in artifacts
+        ]
+        if candidates:
+            all_techniques, all_signals = max(
+                candidates,
+                key=lambda pair: (
+                    len(required_techs & pair[0]) + len(required_signals & pair[1]),
+                    len(required_techs & pair[0]),
+                ),
+            )
+        else:
+            all_techniques, all_signals = set(), set()
+
     supported, unsupported = [], []
 
     for tech in claim.requires_techniques:
@@ -58,11 +79,7 @@ def _check_claim(claim: Claim, artifacts: list, graph: dict = None) -> ClaimResu
 
     for sig in claim.requires_signals:
         norm = _normalize(sig)
-        matched = any(
-            norm == s or norm in s or s in norm or
-            len(set(norm.split("_")) & set(s.split("_"))) / max(len(norm.split("_")), 1) >= 0.5
-            for s in all_signals
-        )
+        matched = norm in all_signals
         (supported if matched else unsupported).append(sig)
 
     result.supported         = supported
@@ -109,6 +126,8 @@ def _safe_conclusion(assumption_id: str, results: list) -> str:
         base = f"This artifact does not support {assumption_id} validation claims."
 
     caveat = "This artifact should not be used to claim broad detection coverage beyond what is explicitly supported above."
+    if any(r.claim.type == ClaimType.POSITIVE_EVIDENCE and r.status == ClaimStatus.SUPPORTED for r in results):
+        caveat += " Signal matching uses supplied artifact metadata, which may contain declared simulation expectations; this check does not independently verify observed telemetry."
     if oos:
         warn = f"WARNING: {len(oos)} out-of-scope claim(s) detected."
         return f"{base} {warn} {caveat}"
