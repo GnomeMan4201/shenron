@@ -73,16 +73,16 @@ def run_audit_bundle(
         return {"ok": False, "error": "schema_validation_failed", "failures": schema_result["failures"]}
     _p(f"  OK — {schema_result['events']} events pass schema validation")
 
-    # Safety contract check
-    events = _load_events(events_path)
-    safety_violations = []
-    for i, e in enumerate(events, 1):
-        if e.get("simulation_only") is not True:
-            safety_violations.append(f"line {i}: simulation_only is not true")
-        if e.get("executable") is True:
-            safety_violations.append(f"line {i}: executable is true")
+    # Enforce the entire canonical nested safety contract, not just two top-level flags.
+    from core.safety.contract import verify_records
 
-    safety_verdict = "PASS" if not safety_violations else "FAIL"
+    events = _load_events(events_path)
+    contract_check = verify_records(events)
+    safety_violations = [
+        f"record {violation['index'] + 1}: {violation['fields']}"
+        for violation in contract_check["violations"]
+    ]
+    safety_verdict = contract_check["verdict"]
     safety_data = {
         "verdict":       safety_verdict,
         "events_checked": len(events),
@@ -95,6 +95,14 @@ def run_audit_bundle(
     _p(f"  Safety: {safety_verdict} ({len(safety_violations)} violations)")
     _p(f"   -> {safety_path}")
     _p("")
+    if safety_verdict != "PASS":
+        _p("  Audit bundle aborted: safety contract is incomplete or invalid.")
+        return {
+            "ok": False,
+            "error": "safety_validation_failed",
+            "failures": safety_violations,
+            "safety": safety_data,
+        }
 
     # ── Step 2: Sigma validation ─────────────────────────────────────────────
     _p("[ 2/6 ] Sigma rule validation...")
@@ -245,9 +253,11 @@ def run_audit_bundle(
 
     # ── Step 6: Reproducibility manifest ─────────────────────────────────────
     _p("[ 6/6 ] Reproducibility manifest...")
+    from core.version import get_version
+    shenron_version = get_version()
     repro_data = {
         "generated_at":     ts,
-        "shenron_version":  "0.4.0",
+        "shenron_version":  shenron_version,
         "inputs": {
             "events_path":      events_path,
             "events_sha256":    _sha256(events_path),
@@ -284,7 +294,7 @@ def run_audit_bundle(
         "# Reproducibility Statement",
         "",
         f"Generated: {ts} UTC",
-        f"SHENRON version: 0.4.0",
+        f"SHENRON version: {shenron_version}",
         "",
         "## Inputs",
         "",
