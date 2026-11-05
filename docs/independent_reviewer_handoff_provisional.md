@@ -1,33 +1,36 @@
 # Shenron independent reviewer handoff — provisional
 
-**Status:** NOT READY FOR FINAL SIGN-OFF. This document is a handoff index, not a certification or claim of independent validation.
+**Status:** HOSTED CI VERIFIED AT PINNED HEAD; INDEPENDENT METHODOLOGICAL REVIEW PENDING. This document indexes evidence, not certification.
 
-**Change under review:** draft PR #47, `fix/exact-signal-evidence-negation`.
-**Current candidate head:** `a710096413fc6ef231916c8f03043044c626b120`.
-**CI:** run 220 (`40763739535`), queued at last observation. The results below must be refreshed against the *exact* final head after any further commit.
+## Frozen reviewer target
 
-## Evidence to provide
+- Review change: draft PR #47, `fix/exact-signal-evidence-negation`.
+- **Pinned source commit:** `fb4eedc15d022ec6856f5978d14a07904fdb9220`.
+- Source: https://github.com/GnomeMan4201/shenron/tree/fb4eedc15d022ec6856f5978d14a07904fdb9220
+- PR diff: https://github.com/GnomeMan4201/shenron/pull/47
+- Hosted CI: https://github.com/GnomeMan4201/shenron/actions/runs/40779695961 — eight jobs concluded success at this exact head (Python 3.10–3.12, minimum dependencies, package, ATT&CK drift, scoped assumptions, schema/safety/audit bundle).
+- CI scoped evidence artifact: `assumption-evidence`, artifact ID `12856303527`, SHA-256 of ZIP `6ff7d2752fed1c8d2802611d8cebaaf1b229715f4547a09c1baca784454020c3`.
+- The original October 28 email handoff ZIP contains instructions and supporting materials. The repository link provides the complete source revision.
 
-1. The precise Git commit and PR diff, plus SHA-256 hashes for any exported reviewer files.
-2. Hosted CI workflow run URL, job conclusions, Python 3.10/3.11/3.12 and minimum-dependency results, safety audit, package build, MITRE drift check.
-3. The scoped assumption-evidence artifact from the same CI run, including JSONL, diagnostics, and artifact checksum.
-4. A reproduction command and expected exit status for each verification step.
-5. The regression tests for exact-signal matching, provenance scopes, and out-of-scope checks.
+## Precisely scoped questions
 
-## Claims that can be evaluated, not presumed
+1. Does exact normalized signal membership eliminate the false-positive substring and negation cases?
+2. Are the positive and out-of-scope statuses justified by the **scoped synthetic artifacts**?
+3. Does optional `evidence_scope: same_artifact` prevent cross-artifact union for opted-in claims? Category-wide union remains the default for legacy claims.
+4. Are the revised synthetic payload and identity claim definitions semantically supported, rather than merely test-satisfying?
 
-- Exact normalized signal matching replaces substring and token-overlap acceptance.
-- Positive claims may opt into `evidence_scope: same_artifact`. Legacy category-wide union remains default; this is not a universal same-artifact guarantee.
-- Out-of-scope technique checks inspect all artifacts in the category.
-- The synthetic payload assumption now requires the observed `interpreter_inline_exec_sim`; the external journald assumption still independently requires `interpreter_spawn_sim`.
+## Explicit limitations and unresolved areas
 
-## Open findings / exclusions
+- Hosted CI validates implementation behavior at the pinned revision, not independent methodological correctness or real-world detection coverage.
+- A broad demo-artifact audit at that revision reports **9 out-of-scope violations and 0/19 assumptions supported**, while the separately scoped assumption CI job reports **7/7 categories supported**. These are different evaluations; successful audit-bundle generation is **not** a claim that the broad demo supports every assumption.
+- Category-level union remains possible for non-opted-in claims; same-artifact is not same-session, same-host, authenticity, or causal proof.
+- Historical claim names implying token impersonation and process injection were removed from the new identity assumption. Those capabilities remain unassessed.
+- At the pinned commit, the audit safety check examines only selected top-level fields, malformed assumption JSONL can be dropped, and brittleness scoring can suppress evaluation errors. A **separate draft hardening branch** addresses those weaknesses without changing the pinned reviewer snapshot.
+- Static forbidden-pattern tests do not establish complete absence of runtime side effects. CLI helper subprocesses and the MITRE drift check lie outside synthetic-layer guarantees.
+- A reviewer may report a counterexample, negative result, or inconclusive findings. No sign-off is claimed.
 
-- **Identity assumption:** `token_impersonation_evidence` includes firmware and device-fingerprint requirements with a missing `synthetic_device_fingerprint_emit_sim` signal. The label and provenance semantics require specification review; do not silently alias related signals.
-- **Category union:** legacy claims can aggregate requirements across unrelated artifacts. Opt-in same-artifact checks reduce this risk but do not prove same-session or causal relationships.
-- **Synthetic vs external:** passing synthetic assumptions cannot establish external detector performance or real-world attribution.
-- **Verification:** CI run 220 has no reported result at preparation time. Do not present this head as qualified.
+## Reproduction boundary
 
-## Final-release gate
+Use the exact source commit and CI run above, not later `main` or unrelated branches. Any subsequent hardening branch must receive its own exact-head test record and independent assessment.
 
-Do not send as a *verified* package until (a) the exact-head test matrix and artifact hashes are recorded, (b) failing jobs are investigated and disclosed, (c) identity scope is resolved or explicitly accepted as an open finding, and (d) reviewer-facing claims match the code and measured artifacts. Independent methodological review remains separate from hosted reproducibility.
+**Kill criterion:** If malformed or incomplete evidence can produce an unqualified supported or robust verdict, the affected evaluator is not reviewer-qualified until a regression test and fix block the counterexample.

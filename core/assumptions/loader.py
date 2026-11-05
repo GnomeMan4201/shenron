@@ -81,12 +81,18 @@ def load_artifacts(path) -> list:
     if not p.exists():
         return []
     records = []
-    with open(p) as f:
-        for line in f:
+    with open(p, encoding="utf-8") as f:
+        for line_number, line in enumerate(f, 1):
             line = line.strip()
-            if line:
-                try:
-                    records.append(json.loads(line))
-                except json.JSONDecodeError:
-                    pass
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(
+                    f"Malformed JSONL in {p} at line {line_number}: {exc}"
+                ) from exc
+            if not isinstance(record, dict):
+                raise ValueError(f"Expected an object in {p} at line {line_number}")
+            records.append(record)
     return records

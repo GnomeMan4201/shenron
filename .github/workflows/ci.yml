@@ -65,7 +65,7 @@ jobs:
         run: python -m pytest tests/ -q
 
   safety:
-    name: Safety audit
+    name: Safety controls and audit-bundle generation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -87,7 +87,7 @@ jobs:
       - name: Schema validation on demo artifact
         run: python3 shenron.py schema validate --events artifacts/demo/shenron_demo_run.jsonl
 
-      - name: Audit bundle
+      - name: Generate audit bundle (overclaim findings remain reported)
         run: |
           python3 shenron.py audit bundle \
             --events artifacts/demo/shenron_demo_run.jsonl \
