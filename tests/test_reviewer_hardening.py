@@ -34,13 +34,15 @@ def test_audit_bundle_rejects_missing_nested_safety_field(tmp_path):
     assert outcome.get("ok") is False
 
 
-def test_brittleness_evaluator_exception_cannot_mean_zero_brittleness(monkeypatch):
+def test_brittleness_evaluator_exception_cannot_mean_zero_brittleness(monkeypatch, tmp_path):
     def failure(*args, **kwargs):
         raise RuntimeError("injected evaluator failure")
 
+    artifact = tmp_path / "artifact.jsonl"
+    artifact.write_text("{}\n", encoding="utf-8")
     monkeypatch.setattr("core.sigma.evaluator.evaluate_sigma_rule", failure)
     with pytest.raises(RuntimeError, match="injected evaluator failure"):
-        validation_cli._score_brittleness("rule.yml", "artifact.jsonl")
+        validation_cli._score_brittleness("rule.yml", str(artifact))
 
 
 def test_mixed_rule_evaluation_error_exits_nonzero(tmp_path, monkeypatch):
@@ -58,3 +60,15 @@ def test_mixed_rule_evaluation_error_exits_nonzero(tmp_path, monkeypatch):
     with pytest.raises(SystemExit) as caught:
         validation_cli.run(args)
     assert caught.value.code != 0
+
+def test_committed_mixed_demo_fails_strict_safety_contract(tmp_path):
+    result = run_audit_bundle(
+        events_path="artifacts/demo/shenron_demo_run.jsonl",
+        rules_dir="sigma/rules",
+        assumptions_dir="assumptions/examples",
+        out_dir=str(tmp_path / "legacy_demo_audit"),
+        verbose=False,
+    )
+    assert result.get("ok") is False
+    assert result.get("error") == "safety_validation_failed"
+    assert len(result.get("failures", [])) == 10

@@ -84,13 +84,18 @@ jobs:
       - name: Run dry-run (all canonical layers)
         run: python3 shenron.py run all --dry-run
 
-      - name: Schema validation on demo artifact
-        run: python3 shenron.py schema validate --events artifacts/demo/shenron_demo_run.jsonl
+      - name: Generate canonical demo artifact for strict safety evaluation
+        run: |
+          mkdir -p /tmp/shenron_ci_demo
+          python3 scripts/generate_demo_artifacts.py --out-dir /tmp/shenron_ci_demo
+
+      - name: Schema validation on canonical generated artifact
+        run: python3 shenron.py schema validate --events /tmp/shenron_ci_demo/shenron_demo_run.jsonl
 
       - name: Generate audit bundle (overclaim findings remain reported)
         run: |
           python3 shenron.py audit bundle \
-            --events artifacts/demo/shenron_demo_run.jsonl \
+            --events /tmp/shenron_ci_demo/shenron_demo_run.jsonl \
             --rules sigma/rules \
             --assumptions assumptions/examples \
             --out /tmp/shenron_audit

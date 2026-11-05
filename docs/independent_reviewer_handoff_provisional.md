@@ -29,6 +29,14 @@
 - Static forbidden-pattern tests do not establish complete absence of runtime side effects. CLI helper subprocesses and the MITRE drift check lie outside synthetic-layer guarantees.
 - A reviewer may report a counterexample, negative result, or inconclusive findings. No sign-off is claimed.
 
+## Hardening investigation (separate from pinned review)
+
+- Red-first negative controls at https://github.com/GnomeMan4201/shenron/actions/runs/42130004663 demonstrated four source-level defects before remediation: malformed JSONL omission, incomplete nested safety fields accepted by the audit bundle, brittleness exceptions interpreted as zero, and a mixed rule-evaluation error exiting zero.
+- Strict safety verification uncovered **10 of 50 committed demo records** without the eight-field nested contract. The original file is retained as negative-control evidence; it must not be represented as a uniformly compliant artifact.
+- The canonical 40-event demo generator emits the nested contract and is used as a distinct positive audit fixture. Generating this fixture does **not** repair or qualify the mixed historical 50-event file.
+- On hardening run https://github.com/GnomeMan4201/shenron/actions/runs/42131036555 the independently scoped identity check reported 3/4 claims supported: `trusted_name_rename_sim` was absent. The producing layer `stealth_mimic` randomly chooses among multiple behavior classes. Do not call the 7/7 result from the pinned run deterministically reproducible; this fluctuation remains an open research finding.
+- CI green/red status represents the individual checked workflow and input, not global assurance. The hardening branch is draft-only, has no merge approval, and is **not** the reviewed revision sent to Brian.
+
 ## Reproduction boundary
 
 Use the exact source commit and CI run above, not later `main` or unrelated branches. Any subsequent hardening branch must receive its own exact-head test record and independent assessment.
