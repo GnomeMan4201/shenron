@@ -1,8 +1,8 @@
-import json
 import warnings
 import yaml
 from pathlib import Path
 from core.assumptions.model import Claim, ClaimType, ClaimSeverity
+from core.ingest.jsonl import load_jsonl_objects
 
 CURRENT_SCHEMA_VERSION = "1.0"
 
@@ -80,19 +80,4 @@ def load_artifacts(path) -> list:
     p = Path(path)
     if not p.exists():
         return []
-    records = []
-    with open(p, encoding="utf-8") as f:
-        for line_number, line in enumerate(f, 1):
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                record = json.loads(line)
-            except json.JSONDecodeError as exc:
-                raise ValueError(
-                    f"Malformed JSONL in {p} at line {line_number}: {exc}"
-                ) from exc
-            if not isinstance(record, dict):
-                raise ValueError(f"Expected an object in {p} at line {line_number}")
-            records.append(record)
-    return records
+    return load_jsonl_objects(p)

@@ -257,9 +257,6 @@ def run(args):
             / "artifacts" / "demo" / "shenron_demo_run.jsonl"
         )
         scenario_name = args.scenario
-        if not Path(artifact_path).exists():
-            print(f"  [ERROR] Demo artifact not found: {artifact_path}")
-            sys.exit(1)
 
     print(f"  [VALIDATE] Scenario     : {scenario_name}")
     print(f"  [VALIDATE] Artifact     : {artifact_path}")
@@ -270,6 +267,8 @@ def run(args):
 
     final = []
     for rp, er in eval_results.items():
+        if er["verdict"] == "ERROR":
+            print(f"  [ERROR] {Path(rp).name}: {er.get('error', 'evaluation failed')}", file=sys.stderr)
         brit = 0.0
         if args.mutations and er["triggered"]:
             print(f"  [SCORING] {Path(rp).name}...")
