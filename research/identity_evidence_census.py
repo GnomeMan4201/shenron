@@ -115,7 +115,7 @@ def run_identity(seed, sequence, root):
         timeout=45,
         check=False,
     )
-    if process.returncode != 0 or re.search(r"\\b4 ok\\s*\\|\\s*0 failed\\b", process.stdout) is None:
+    if process.returncode != 0 or re.search(r"\b4 ok\s*\|\s*0 failed\b", process.stdout) is None:
         raise RuntimeError(
             f"Identity subprocess failed (seed={seed}, code={process.returncode}); "
             f"stdout tail={process.stdout[-800:]!r}; stderr tail={process.stderr[-800:]!r}"
