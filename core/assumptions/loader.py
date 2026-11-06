@@ -40,8 +40,12 @@ def _load_yaml_simple(path: Path) -> dict:
     for claim in data.get("claims", []):
         if not isinstance(claim, dict):
             continue
+        scope = claim.get("evidence_scope", "category")
+        if scope not in ("category", "same_artifact"):
+            raise ValueError(f"Invalid evidence_scope for {claim.get('id', '')}: {scope}")
         result["claims"].append({
             "id":                  str(claim.get("id", "")),
+            "evidence_scope":      scope,
             "type":                str(claim.get("type", "positive_evidence")),
             "severity":            str(claim.get("severity", "medium")),
             "description":         str(claim.get("description", "")),
@@ -67,6 +71,7 @@ def load_assumption(path) -> tuple:
             requires_techniques = c.get("requires_techniques", []),
             requires_signals    = c.get("requires_signals", []),
             requires_metrics    = c.get("requires_metrics", []),
+            evidence_scope      = c.get("evidence_scope", "category"),
         ))
     return data.get("id", p.stem), data.get("description", ""), claims
 
