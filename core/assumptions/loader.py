@@ -1,8 +1,8 @@
-import json
 import warnings
 import yaml
 from pathlib import Path
 from core.assumptions.model import Claim, ClaimType, ClaimSeverity
+from core.ingest.jsonl import load_jsonl_objects
 
 CURRENT_SCHEMA_VERSION = "1.0"
 
@@ -40,8 +40,12 @@ def _load_yaml_simple(path: Path) -> dict:
     for claim in data.get("claims", []):
         if not isinstance(claim, dict):
             continue
+        scope = claim.get("evidence_scope", "category")
+        if scope not in ("category", "same_artifact"):
+            raise ValueError(f"Invalid evidence_scope for {claim.get('id', '')}: {scope}")
         result["claims"].append({
             "id":                  str(claim.get("id", "")),
+            "evidence_scope":      scope,
             "type":                str(claim.get("type", "positive_evidence")),
             "severity":            str(claim.get("severity", "medium")),
             "description":         str(claim.get("description", "")),
@@ -67,6 +71,7 @@ def load_assumption(path) -> tuple:
             requires_techniques = c.get("requires_techniques", []),
             requires_signals    = c.get("requires_signals", []),
             requires_metrics    = c.get("requires_metrics", []),
+            evidence_scope      = c.get("evidence_scope", "category"),
         ))
     return data.get("id", p.stem), data.get("description", ""), claims
 
@@ -75,13 +80,4 @@ def load_artifacts(path) -> list:
     p = Path(path)
     if not p.exists():
         return []
-    records = []
-    with open(p) as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                try:
-                    records.append(json.loads(line))
-                except json.JSONDecodeError:
-                    pass
-    return records
+    return load_jsonl_objects(p)

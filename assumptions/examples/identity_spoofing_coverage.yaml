@@ -1,24 +1,45 @@
 id: identity_spoofing_coverage
 schema_version: "1.0"
-description: Validates artifact contains identity and token spoofing telemetry
+description: >
+  Scoped synthetic firmware-integrity, device-identity, and masquerading
+  telemetry. Does not validate token impersonation or process injection.
 
 claims:
-  - id: token_impersonation_evidence
+  - id: firmware_log_forgery_evidence
     type: positive_evidence
     severity: high
+    description: Synthetic firmware log forgery observation
+    evidence_scope: same_artifact
     requires_techniques:
       - T1542
     requires_signals:
       - bios_log_forge_sim
-      - synthetic_device_fingerprint_emit_sim
 
-  - id: process_injection_identity_evidence
+  - id: firmware_tamper_evidence
     type: positive_evidence
     severity: high
+    description: Synthetic firmware tamper log write observation
+    evidence_scope: same_artifact
     requires_techniques:
       - T1542
     requires_signals:
       - bios_tamper_log_write_sim
+
+  - id: device_identity_pollution_evidence
+    type: positive_evidence
+    severity: high
+    description: Synthetic multiple-device-identity emission observation, not token impersonation
+    evidence_scope: same_artifact
+    requires_techniques:
+      - T1078
+    requires_signals:
+      - multi_identity_emit_sim
+
+  - id: trusted_name_masquerade_evidence
+    type: positive_evidence
+    severity: medium
+    description: Synthetic trusted-name rename observation, not process injection
+    requires_signals:
       - trusted_name_rename_sim
 
   - id: no_exfil_overclaim
