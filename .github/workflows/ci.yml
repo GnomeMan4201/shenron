@@ -154,8 +154,71 @@ jobs:
         run: pip install -c constraints/ci.txt -e .[dev]
       - name: Verify dependency consistency
         run: python -m pip check
-      - name: Validate all category assumptions
-        run: python3 shenron.py --validate-all-assumptions --scope-dir /tmp/shenron_scoped
+      - name: Generate scoped assumption evidence (unseeded diagnostic)
+        run: |
+          set +e
+          python3 shenron.py --validate-all-assumptions --scope-dir /tmp/shenron_scoped
+          result=$?
+          set -e
+          if [ "$result" -gt 1 ]; then
+            echo "::error::Unexpected survey exit status: $result"
+            exit "$result"
+          fi
+          echo "Unseeded survey exit=$result; evidence-contract check follows."
+
+      - name: Enforce non-identity coverage and honest identity diagnostics
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from core.assumptions.loader import load_artifacts
+          from core.assumptions.validator import _artifact_signals, validate_assumption
+          from core.cli.commands.validate_all import CATEGORY_ASSUMPTIONS
+          from research.identity_fixed_evidence_gate import (
+              CLAIM_ID, EXPECTED_OTHER_CLAIMS, TARGET_SIGNAL,
+          )
+
+          for category, assumption_path in CATEGORY_ASSUMPTIONS.items():
+              evidence = Path("/tmp/shenron_scoped") / f"shenron_{category}.jsonl"
+              if not evidence.is_file() or evidence.stat().st_size == 0:
+                  raise SystemExit(f"FAIL {category}: absent or empty scoped evidence")
+              records = load_artifacts(evidence)
+              if not records:
+                  raise SystemExit(f"FAIL {category}: zero scoped records")
+              result = validate_assumption(assumption_path, evidence)
+              if category != "identity":
+                  if result.status.value != "SUPPORTED":
+                      raise SystemExit(f"FAIL {category}: {result.status.value}")
+                  print(f"PASS {category}: SUPPORTED")
+                  continue
+
+              claims = {item.claim.id: item.status.value for item in result.claim_results}
+              required = set(EXPECTED_OTHER_CLAIMS) | {CLAIM_ID}
+              if len(result.claim_results) != len(required) or set(claims) != required:
+                  raise SystemExit(f"FAIL identity: changed/missing claims: {claims}")
+              if any(claims[name] != expected for name, expected in EXPECTED_OTHER_CLAIMS.items()):
+                  raise SystemExit(f"FAIL identity: non-target claim regression: {claims}")
+              present = any(TARGET_SIGNAL in _artifact_signals(row) for row in records)
+              expected_target = "SUPPORTED" if present else "UNSUPPORTED"
+              expected_category = "SUPPORTED" if present else "PARTIALLY_SUPPORTED"
+              expected_supported = 4 if present else 3
+              expected_unsupported = 0 if present else 1
+              if (
+                  claims[CLAIM_ID] != expected_target
+                  or result.status.value != expected_category
+                  or result.supported_count != expected_supported
+                  or result.unsupported_count != expected_unsupported
+                  or result.out_of_scope_violations
+              ):
+                  raise SystemExit(
+                      "FAIL identity: inconsistent evidence/status "
+                      f"signal_present={present}, claims={claims}, status={result.status.value}"
+                  )
+              print(
+                  f"PASS identity diagnostic: {result.status.value} "
+                  f"(trusted_name_rename_sim_present={present}); "
+                  "deterministic positive and negative controls run separately"
+              )
+          PY
 
       - name: Diagnose exact assumption signals
         if: always()
@@ -176,4 +239,52 @@ jobs:
         with:
           name: assumption-evidence
           path: /tmp/shenron_scoped/
+          if-no-files-found: warn
+
+  fixed-identity:
+    name: Deterministic identity evidence (positive, negative, near-miss)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Enforce frozen identity generator, validator and claim inputs
+        run: |
+          PIN=fb4eedc15d022ec6856f5978d14a07904fdb9220
+          git cat-file -e "${PIN}^{commit}"
+          git diff --exit-code "$PIN" HEAD -- \
+            core/layers/ core/assumptions/validator.py \
+            assumptions/examples/identity_spoofing_coverage.yaml \
+            shenron.py pyproject.toml constraints/ci.txt
+          echo "SHENRON_SOURCE_REVISION=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install constrained dependencies
+        run: |
+          python -m pip install -c constraints/ci.txt -e '.[dev]'
+          python -m pip check
+
+      - name: Verify passive default
+        run: |
+          python research/identity_fixed_evidence_gate.py \
+            --repeats 3 --output /tmp/shenron-fixed-evidence
+
+      - name: Verify known positive, negative and near-miss controls
+        run: |
+          python research/identity_fixed_evidence_gate.py \
+            --execute --repeats 3 --output /tmp/shenron-fixed-evidence
+
+      - name: Preserve deterministic evidence and verdicts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: identity-fixed-evidence-pr52
+          path: /tmp/shenron-fixed-evidence/
+          retention-days: 90
           if-no-files-found: warn
