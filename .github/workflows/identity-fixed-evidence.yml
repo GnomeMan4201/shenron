@@ -1,0 +1,64 @@
+name: Fixed identity evidence contract
+
+on:
+  pull_request:
+    branches:
+      - fix/exact-signal-evidence-negation
+    paths:
+      - research/identity_fixed_evidence_gate.py
+      - .github/workflows/identity-fixed-evidence.yml
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-identity:
+    if: github.head_ref == 'experiment/identity-fixed-ci-20261105'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Enforce unchanged pinned generator, validator, and claims
+        run: |
+          PIN=fb4eedc15d022ec6856f5978d14a07904fdb9220
+          test "$(git merge-base HEAD "$PIN")" = "$PIN"
+          git diff --exit-code "$PIN" HEAD -- \
+            core/ assumptions/ shenron.py pyproject.toml constraints/ scripts/
+          echo "SHENRON_SOURCE_REVISION=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          git diff --name-only "$PIN" HEAD
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned SHENRON dependencies
+        run: |
+          python -m pip install -c constraints/ci.txt -e '.[dev]'
+          python -m pip check
+
+      - name: Demonstrate passive default
+        run: |
+          python research/identity_fixed_evidence_gate.py \
+            --repeats 3 \
+            --output /tmp/shenron-fixed-evidence
+
+      - name: Run known positive, known negative, and near-miss negative controls
+        run: |
+          python research/identity_fixed_evidence_gate.py \
+            --execute \
+            --repeats 3 \
+            --output /tmp/shenron-fixed-evidence
+
+      - name: Preserve exact inputs and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frozen-identity-evidence
+          path: /tmp/shenron-fixed-evidence/
+          retention-days: 90
+          if-no-files-found: warn
