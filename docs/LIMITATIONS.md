@@ -55,7 +55,7 @@ SHENRON is not a replacement for:
 | Tool type | SHENRON | BAS tools | Adversary emulation |
 |---|---|---|---|
 | Real execution | No | Yes | Yes |
-| Safe in production | Yes | No | No |
+| Safe in production | Not established (synthetic only) | No | No |
 | Tests detection logic | Yes | Yes | Yes |
 | Tests runtime bypass | No | Partial | Yes |
 | Evidence discipline | Yes | No | No |
