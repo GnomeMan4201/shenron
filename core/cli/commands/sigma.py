@@ -1,5 +1,16 @@
 """core/cli/commands/sigma.py"""
 import sys
+from core.ingest.jsonl import ArtifactInputError
+
+
+def _evaluate_or_exit(rule, events, mode):
+    from core.sigma.evaluator import evaluate_sigma_rule
+
+    try:
+        return evaluate_sigma_rule(rule, events, match_mode=mode)
+    except (ArtifactInputError, OSError) as exc:
+        print(f"  [ERROR] {exc}", file=sys.stderr)
+        sys.exit(3)
 
 
 def register(subparsers):
@@ -29,18 +40,17 @@ def register(subparsers):
 
 
 def _handle_validate(args):
-    from core.sigma.evaluator import evaluate_sigma_rule, print_result as print_sigma_result
+    from core.sigma.evaluator import print_result as print_sigma_result
     from core.validation.history import record_validation
 
     mode = getattr(args, "match_mode", "tolerant")
-    result = evaluate_sigma_rule(args.rule, args.events, match_mode=mode)
+    result = _evaluate_or_exit(args.rule, args.events, mode)
     print_sigma_result(result, match_mode=mode)
     record_validation(result, "sigma")
 
 
 def _handle_validate_dir(args):
     from pathlib import Path
-    from core.sigma.evaluator import evaluate_sigma_rule
 
     rules = sorted(Path(args.dir).rglob("*.yml"))
     if not rules:
@@ -51,7 +61,7 @@ def _handle_validate_dir(args):
     counts: dict = {}
     mode = getattr(args, "match_mode", "tolerant")
     for rp in rules:
-        r = evaluate_sigma_rule(str(rp), args.events, match_mode=mode)
+        r = _evaluate_or_exit(str(rp), args.events, mode)
         v = r.verdict.value
         counts[v] = counts.get(v, 0) + 1
         mark = {

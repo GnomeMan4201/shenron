@@ -27,11 +27,11 @@ Design constraints:
 """
 
 import re
-import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Set
 from dataclasses import dataclass, field
 from enum import Enum
+from core.ingest.jsonl import load_jsonl_objects as load_artifacts
 
 
 # ── Availability check ─────────────────────────────────────────────────────────
@@ -67,6 +67,7 @@ class BridgeResult:
     errors:          List[str]  = field(default_factory=list)
     coverage_note:   str = ""
     parse_method:    str = "pysigma"  # pysigma | fallback
+    artifact_error:  bool = False
 
 
 # ── Extended field map ─────────────────────────────────────────────────────────
@@ -476,22 +477,15 @@ def evaluate_with_pysigma(
         )
 
     # Load events
-    events = []
     try:
-        with open(artifact_path, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line:
-                    try:
-                        events.append(json.loads(line))
-                    except json.JSONDecodeError:
-                        pass
+        events = load_artifacts(artifact_path)
     except Exception as e:
         return BridgeResult(
             rule_id=rule_id, rule_title=rule_title,
             rule_file=rule_path, artifact_file=artifact_path,
             verdict=BridgeVerdict.ERROR,
             errors=[f"Artifact load error: {e}"],
+            artifact_error=True,
         )
 
     if not events:

@@ -24,6 +24,7 @@ from core.sigma.model import (
     MatchStatus, RuleVerdict,
 )
 from core.sigma.loader import load_sigma_rule, load_artifacts
+from core.ingest.jsonl import ArtifactInputError
 
 
 FIELD_MAP = {
@@ -389,6 +390,8 @@ def evaluate_sigma_rule(rule_path, artifact_path,
     The pySigma bridge returns a BridgeResult; this function converts it
     to a SigmaResult for drop-in compatibility with all existing callers.
     """
+    # Validate the entire evidence stream before any backend can qualify a rule.
+    artifacts = load_artifacts(artifact_path)
     if prefer_pysigma:
         try:
             from core.sigma.pysigma_bridge import (
@@ -398,6 +401,8 @@ def evaluate_sigma_rule(rule_path, artifact_path,
                 bridge_result = evaluate_with_pysigma(
                     str(rule_path), str(artifact_path), match_mode=match_mode
                 )
+                if bridge_result.artifact_error:
+                    raise ArtifactInputError("; ".join(bridge_result.errors))
                 if bridge_result.verdict != BridgeVerdict.ERROR:
                     # Convert BridgeResult -> SigmaResult for compatibility
                     # (FieldMatch, DetectionMatch, MatchStatus already imported at module level)
@@ -425,11 +430,12 @@ def evaluate_sigma_rule(rule_path, artifact_path,
                         coverage_note=f"[pySigma] {bridge_result.coverage_note}",
                         timestamp=datetime.now(timezone.utc).isoformat(),
                     )
+        except ArtifactInputError:
+            raise  # Ingestion failure must never become successful fallback matching.
         except Exception:
             pass  # Fall through to custom evaluator
 
     rule      = load_sigma_rule(rule_path)
-    artifacts = load_artifacts(artifact_path)
 
     rule_id    = rule.get("id", Path(str(rule_path)).stem)
     rule_title = rule.get("title", rule_id)
