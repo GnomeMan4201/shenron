@@ -1,6 +1,7 @@
 """Red-first: device identity emission is not evidence of valid-account abuse."""
 
 import json
+import random
 from pathlib import Path
 
 from core.assumptions.loader import load_assumption
@@ -25,7 +26,11 @@ def test_declared_device_fingerprint_techniques_do_not_include_valid_accounts():
 def test_generated_device_identity_records_do_not_claim_valid_accounts(tmp_path, monkeypatch):
     artifact = tmp_path / "scoped_identity.jsonl"
     monkeypatch.setattr(device_fingerprint_spoof, "_get_artifact_log", lambda: artifact)
-    _, events = device_fingerprint_spoof.simulate_device_fingerprint_spoof(seed=23)
+    rng_state = random.getstate()
+    try:
+        _, events = device_fingerprint_spoof.simulate_device_fingerprint_spoof(seed=23)
+    finally:
+        random.setstate(rng_state)
     assert len(events) == 4
     recorded = [json.loads(row) for row in artifact.read_text().splitlines()]
     assert len(recorded) == len(events)
