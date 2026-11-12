@@ -22,7 +22,7 @@ def _legacy_exclusion(path: Path, directory: Path):
     if directory.resolve() != builtin.resolve() or path.name not in _KNOWN_LEGACY_BLOBS:
         return None
     data = path.read_bytes()
-    header = f"blob {len(data)}\\0".encode("ascii")
+    header = b"blob " + str(len(data)).encode("ascii") + bytes([0])
     actual = hashlib.sha1(header + data).hexdigest()
     if actual != _KNOWN_LEGACY_BLOBS[path.name]:
         raise ValueError(
@@ -247,7 +247,7 @@ def run_audit_bundle(
         overclaim_lines += [
             "## Unvalidated legacy assumption examples", "",
             "These example files were excluded explicitly and were NOT evaluated as canonical claims:",
-            *[f"- {entry[\'filename\']}" for entry in legacy_exclusions], "",
+            *[f"- {entry['filename']}" for entry in legacy_exclusions], "",
         ]
     if not overclaims:
         overclaim_lines += ["## Result: NO OVERCLAIM VIOLATIONS DETECTED", "",
@@ -368,7 +368,7 @@ def run_audit_bundle(
     if legacy_exclusions:
         repro_md_lines += ["", "## Legacy exclusions: not validated", "",
             "The following pinned legacy examples are deliberately not interpreted as claim evidence:",
-            *[f"- `{entry[\'filename\']}` (Git blob `{entry[\'git_blob_sha1\']}`)"
+            *[f"- `{entry['filename']}` (Git blob `{entry['git_blob_sha1']}`)"
               for entry in legacy_exclusions],
         ]
     repro_md_path = out / "reproducibility.md"
