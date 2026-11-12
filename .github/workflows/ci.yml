@@ -87,54 +87,26 @@ jobs:
       - name: Schema validation on demo artifact
         run: python3 shenron.py schema validate --events artifacts/demo/shenron_demo_run.jsonl
 
-      - name: Stage canonical assumptions; audit legacy exclusions explicitly
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          from shutil import copy2
-          from core.assumptions.loader import load_assumption
-
-          src = Path("assumptions/examples")
-          target = Path("/tmp/shenron_canonical_assumptions")
-          target.mkdir(parents=True, exist_ok=True)
-          legacy = {"c2_lateral_coverage.yaml", "assumption_dependency_confusion.yaml"}
-          all_files = sorted(src.glob("*.yaml"))
-          found = {p.name for p in all_files}
-          if not legacy <= found:
-              raise SystemExit("Expected legacy specimens are missing; review the CI selection")
-
-          selected = 0
-          for path in all_files:
-              if path.name in legacy:
-                  try:
-                      _, _, claims = load_assumption(path)
-                  except (TypeError, ValueError) as exc:
-                      print(f"EXPECTED INVALID LEGACY {path.name}: {exc}")
-                  else:
-                      if claims:
-                          raise SystemExit(f"Legacy file now parses as claims: {path}")
-                      print(f"EXPECTED INERT LEGACY {path.name}: no executable claims")
-                  continue
-
-              _, _, claims = load_assumption(path)
-              if not claims:
-                  raise SystemExit(f"Unexpected zero-claim canonical assumption: {path}")
-              copy2(path, target / path.name)
-              selected += 1
-
-          if selected != len(all_files) - len(legacy) or not selected:
-              raise SystemExit("Canonical assumption selection count mismatch")
-          print(f"EXPLICIT AUDIT SCOPE: {selected} canonical assumptions; "
-                f"{len(legacy)} legacy examples excluded and checked")
-          PY
-
-      - name: Audit bundle (canonical assumptions only)
+      - name: Audit bundle (explicit legacy exclusions)
         run: |
           python3 shenron.py audit bundle \
             --events artifacts/demo/shenron_demo_run.jsonl \
             --rules sigma/rules \
-            --assumptions /tmp/shenron_canonical_assumptions \
+            --assumptions assumptions/examples \
             --out /tmp/shenron_audit
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          out = Path("/tmp/shenron_audit")
+          excluded = json.loads((out / "assumption_exclusions.json").read_text())
+          wanted = {"c2_lateral_coverage.yaml", "assumption_dependency_confusion.yaml"}
+          assert {entry["filename"] for entry in excluded} == wanted
+          assert all(entry["reason"] == "legacy_format_not_validated" for entry in excluded)
+          report = json.loads((out / "reproducibility.json").read_text())
+          assert report["inputs"]["assumptions_count"] == 17
+          assert report["inputs"]["assumptions_excluded_count"] == 2
+          print("AUDIT SCOPE: 17 canonical; 2 legacy excluded, NOT validated")
+          PY
 
   package:
     name: Package build
