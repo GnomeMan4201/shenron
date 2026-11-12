@@ -88,3 +88,12 @@ def test_empty_metric_requirements_rejected(tmp_path):
     assumption.write_text('schema_version: "1.0"\nid: metric\nclaims:\n  - id: empty_metric\n    type: metric_threshold\n    requires_metrics: []\n', encoding="utf-8")
     with pytest.raises(ValueError, match="empty_metric"):
         load_assumption(assumption)
+
+
+def test_non_object_claim_is_not_silently_ignored(tmp_path):
+    doc = yaml.safe_load(IDENTITY.read_text(encoding="utf-8"))
+    doc["claims"].append("NOT_A_CLAIM")
+    assumption = tmp_path / "invalid_claim.yaml"
+    assumption.write_text(yaml.safe_dump(doc), encoding="utf-8")
+    with pytest.raises(ValueError, match="claim.*object"):
+        load_assumption(assumption)
