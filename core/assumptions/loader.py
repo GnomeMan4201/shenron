@@ -46,6 +46,19 @@ def _load_yaml_simple(path: Path) -> dict:
     for index, claim in enumerate(data.get("claims", []), 1):
         if not isinstance(claim, dict):
             raise ValueError(f"{path}: claim {index} must be a JSON-style object")
+        for field in ("requires_techniques", "requires_signals"):
+            values = claim.get(field, [])
+            if not isinstance(values, list) or any(
+                not isinstance(item, str) or not item.strip() for item in values
+            ):
+                raise ValueError(
+                    f"{path}: claim {index} {field} must be a list of nonblank strings"
+                )
+        metrics = claim.get("requires_metrics", [])
+        if not isinstance(metrics, list) or any(
+            not isinstance(item, dict) for item in metrics
+        ):
+            raise ValueError(f"{path}: claim {index} requires_metrics must be a list of objects")
         scope = claim.get("evidence_scope", "category")
         if scope not in ("category", "same_artifact"):
             raise ValueError(f"Invalid evidence_scope for {claim.get('id', '')}: {scope}")
@@ -55,9 +68,9 @@ def _load_yaml_simple(path: Path) -> dict:
             "type":                str(claim.get("type", "positive_evidence")),
             "severity":            str(claim.get("severity", "medium")),
             "description":         str(claim.get("description", "")),
-            "requires_techniques": [str(t) for t in claim.get("requires_techniques", [])],
-            "requires_signals":    [str(s) for s in claim.get("requires_signals", [])],
-            "requires_metrics":    list(claim.get("requires_metrics", [])),
+            "requires_techniques": claim.get("requires_techniques", []),
+            "requires_signals":    claim.get("requires_signals", []),
+            "requires_metrics":    metrics,
         })
     return result
 
