@@ -9,6 +9,31 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Pinned legacy examples are descriptive documents, not runnable claim contracts.
+# Match both their repository location and exact Git blob hash before excluding.
+_KNOWN_LEGACY_BLOBS = {
+    "c2_lateral_coverage.yaml": "7c871a14916a50a2fa9eb2a87e982e35251a2105",
+    "assumption_dependency_confusion.yaml": "fd3ce211a53b98f5e7c33eef6868fa63c375861a",
+}
+
+
+def _legacy_exclusion(path: Path, directory: Path):
+    builtin = Path(__file__).resolve().parents[2] / "assumptions" / "examples"
+    if directory.resolve() != builtin.resolve() or path.name not in _KNOWN_LEGACY_BLOBS:
+        return None
+    data = path.read_bytes()
+    header = f"blob {len(data)}\\0".encode("ascii")
+    actual = hashlib.sha1(header + data).hexdigest()
+    if actual != _KNOWN_LEGACY_BLOBS[path.name]:
+        raise ValueError(
+            f"{path}: pinned legacy example changed; review and classify it before auditing"
+        )
+    return {
+        "filename": path.name,
+        "reason": "legacy_format_not_validated",
+        "git_blob_sha1": actual,
+    }
+
 
 def _ts():
     return datetime.now(timezone.utc).isoformat()[:19]
@@ -118,11 +143,19 @@ def run_audit_bundle(
     # ── Step 3: Assumption validation ────────────────────────────────────────
     _p("[ 3/6 ] Assumption validation...")
     assumption_results = []
+    legacy_exclusions = []
     assumptions_path = Path(assumptions_dir)
     overclaims = []
     if assumptions_path.exists():
         for ap in sorted(assumptions_path.glob("*.yaml")):
+            excluded = _legacy_exclusion(ap, assumptions_path)
+            if excluded is not None:
+                legacy_exclusions.append(excluded)
+                _p(f"   [!] EXCLUDED {ap.name}: frozen legacy format, NOT VALIDATED")
+                continue
             r = validate_assumption(str(ap), events_path)
+            if not r.claim_results:
+                raise ValueError(f"{ap}: no canonical claims; audit cannot validate this file")
             assumption_results.append(r.to_dict())
             oos = f" OOS:{r.out_of_scope_violations}" if r.out_of_scope_violations else ""
             _p(f"   {r.assumption_id:<40} {r.status.value}{oos}")
@@ -134,12 +167,15 @@ def run_audit_bundle(
                     "conclusion":    r.safe_conclusion,
                 })
 
+    exclusions_path = out / "assumption_exclusions.json"
+    exclusions_path.write_text(json.dumps(legacy_exclusions, indent=2))
     assumption_path = out / "assumption_results.json"
     assumption_path.write_text(json.dumps(assumption_results, indent=2))
     supported = sum(1 for r in assumption_results if r.get("status") == "SUPPORTED")
     _p(f"   -> {assumption_path} ({supported}/{len(assumption_results)} SUPPORTED)")
     _p("")
     results["assumptions"] = assumption_results
+    results["assumption_exclusions"] = legacy_exclusions
 
     # ── Step 4: ATT&CK Navigator layer ───────────────────────────────────────
     _p("[ 4/6 ] ATT&CK Navigator layer...")
@@ -207,6 +243,12 @@ def run_audit_bundle(
     _p("[ 5/6 ] Overclaim risk report...")
     overclaim_lines = ["# Overclaim Risk Report", "", f"Generated: {ts} UTC", f"Artifact: {events_path}", ""]
 
+    if legacy_exclusions:
+        overclaim_lines += [
+            "## Unvalidated legacy assumption examples", "",
+            "These example files were excluded explicitly and were NOT evaluated as canonical claims:",
+            *[f"- {entry[\'filename\']}" for entry in legacy_exclusions], "",
+        ]
     if not overclaims:
         overclaim_lines += ["## Result: NO OVERCLAIM VIOLATIONS DETECTED", "",
                            "All assumption claims are within the supported scope of this artifact."]
@@ -256,11 +298,13 @@ def run_audit_bundle(
             "rules_count":      len(sigma_results),
             "assumptions_dir":  assumptions_dir,
             "assumptions_count":len(assumption_results),
+            "assumptions_excluded_count": len(legacy_exclusions),
         },
         "outputs": {
             "safety_verification": str(safety_path),
             "sigma_results":       str(sigma_path),
             "assumption_results":  str(assumption_path),
+            "assumption_exclusions": str(exclusions_path),
             "navigator_layer":     str(navigator_path),
             "overclaim_risk":      str(overclaim_path),
         },
@@ -272,6 +316,7 @@ def run_audit_bundle(
             "sigma_unsupported":    len(unsupported_sigma),
             "assumptions_supported":supported,
             "assumptions_total":    len(assumption_results),
+            "assumptions_excluded": len(legacy_exclusions),
             "overclaim_violations": len(overclaims),
             "mitre_techniques":     len(navigator_techniques),
         },
@@ -294,7 +339,8 @@ def run_audit_bundle(
         f"| Events SHA-256 | `{repro_data['inputs']['events_sha256'][:16]}...` |",
         f"| Events count | {len(events)} |",
         f"| Sigma rules | {len(sigma_results)} rules from `{rules_dir}` |",
-        f"| Assumptions | {len(assumption_results)} YAMLs from `{assumptions_dir}` |",
+        f"| Assumptions | {len(assumption_results)} canonical YAMLs from `{assumptions_dir}` |",
+        f"| Unvalidated legacy examples | {len(legacy_exclusions)} explicitly excluded |",
         "",
         "## To reproduce this bundle",
         "",
@@ -319,6 +365,12 @@ def run_audit_bundle(
         f"| MITRE techniques | {len(navigator_techniques)} |",
     ]
 
+    if legacy_exclusions:
+        repro_md_lines += ["", "## Legacy exclusions: not validated", "",
+            "The following pinned legacy examples are deliberately not interpreted as claim evidence:",
+            *[f"- `{entry[\'filename\']}` (Git blob `{entry[\'git_blob_sha1\']}`)"
+              for entry in legacy_exclusions],
+        ]
     repro_md_path = out / "reproducibility.md"
     repro_md_path.write_text("\n".join(repro_md_lines))
     _p(f"   -> {repro_path}")
@@ -354,6 +406,7 @@ def run_audit_bundle(
     _p(f"  Safety verdict        : {safety_verdict}")
     _p(f"  Sigma TRIGGERED       : {triggered}/{len(sigma_results)}")
     _p(f"  Assumptions SUPPORTED : {supported}/{len(assumption_results)}")
+    _p(f"  Legacy exclusions     : {len(legacy_exclusions)} (not validated)")
     _p(f"  Overclaim violations  : {len(overclaims)}")
     _p(f"  MITRE techniques      : {len(navigator_techniques)}")
     _p("")
