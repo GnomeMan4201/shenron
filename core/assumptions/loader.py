@@ -6,6 +6,12 @@ from core.assumptions.model import Claim, ClaimType, ClaimSeverity
 
 CURRENT_SCHEMA_VERSION = "1.0"
 
+# Fields used by assumption matching must have interpretable types.
+_EVIDENCE_FIELDS = frozenset({
+    "mitre_techniques", "technique", "techniques", "behavior_class", "phase",
+    "detection_opportunities", "expected_events", "alert_signatures",
+})
+
 
 def _load_yaml_simple(path: Path) -> dict:
     """Load assumption YAML using PyYAML. Normalizes to expected structure."""
@@ -63,7 +69,7 @@ def load_assumption(path) -> tuple:
     data = _load_yaml_simple(p)
     claims = []
     for c in data.get("claims", []):
-        claims.append(Claim(
+        claim = Claim(
             id                  = c.get("id", ""),
             type                = ClaimType(c.get("type", "positive_evidence")),
             severity            = ClaimSeverity(c.get("severity", "medium")),
@@ -72,7 +78,14 @@ def load_assumption(path) -> tuple:
             requires_signals    = c.get("requires_signals", []),
             requires_metrics    = c.get("requires_metrics", []),
             evidence_scope      = c.get("evidence_scope", "category"),
-        ))
+        )
+        if claim.type == ClaimType.POSITIVE_EVIDENCE and not (
+            claim.requires_techniques or claim.requires_signals
+        ):
+            raise ValueError(f"{p}: positive claim {claim.id!r} has no requirements")
+        if claim.type == ClaimType.METRIC_THRESHOLD and not claim.requires_metrics:
+            raise ValueError(f"{p}: metric claim {claim.id!r} has no requirements")
+        claims.append(claim)
     return data.get("id", p.stem), data.get("description", ""), claims
 
 
@@ -81,12 +94,24 @@ def load_artifacts(path) -> list:
     if not p.exists():
         return []
     records = []
-    with open(p) as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                try:
-                    records.append(json.loads(line))
-                except json.JSONDecodeError:
-                    pass
+    with open(p, encoding="utf-8") as f:
+        for line_number, line in enumerate(f, 1):
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"{p}: line {line_number}: invalid JSON: {exc.msg}") from exc
+            if not isinstance(record, dict):
+                raise ValueError(f"{p}: line {line_number}: expected JSON object")
+            for field in _EVIDENCE_FIELDS.intersection(record):
+                value = record[field]
+                if isinstance(value, str) or (
+                    isinstance(value, list) and all(isinstance(v, str) for v in value)
+                ):
+                    continue
+                raise ValueError(
+                    f"{p}: line {line_number}: {field} must be a string or list of strings"
+                )
+            records.append(record)
     return records
