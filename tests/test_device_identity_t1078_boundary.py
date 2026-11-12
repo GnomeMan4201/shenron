@@ -20,7 +20,7 @@ def _identity_claim():
 
 
 def test_declared_device_fingerprint_techniques_do_not_include_valid_accounts():
-    assert "T1078" not in device_fingerprint_spoof.MITRE_TECHNIQUES
+    assert set(device_fingerprint_spoof.MITRE_TECHNIQUES) == {"T1036", "T1027"}
 
 
 def test_generated_device_identity_records_do_not_claim_valid_accounts(tmp_path, monkeypatch):
@@ -46,15 +46,12 @@ def test_device_identity_assumption_does_not_require_valid_accounts():
     claim = _identity_claim()
     assert claim.evidence_scope == "same_artifact"
     assert claim.requires_signals == ["multi_identity_emit_sim"]
-    assert "T1078" not in claim.requires_techniques
+    assert claim.requires_techniques == []  # Do not substitute a new ATT&CK requirement.
 
 
 def test_device_identity_signal_does_not_need_valid_account_label():
     claim = _identity_claim()
-    record = {
-        "mitre_techniques": ["T1036"],
-        "behavior_class": "multi_identity_emit_sim",
-    }
+    record = {"behavior_class": "multi_identity_emit_sim"}
     result = _check_claim(claim, [record])
     assert result.status == ClaimStatus.SUPPORTED
 
