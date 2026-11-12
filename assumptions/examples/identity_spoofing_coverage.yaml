@@ -28,10 +28,8 @@ claims:
   - id: device_identity_pollution_evidence
     type: positive_evidence
     severity: high
-    description: Synthetic multiple-device-identity emission observation, not token impersonation
+    description: Synthetic multiple-device-identity emission only; not evidence of account or credential use
     evidence_scope: same_artifact
-    requires_techniques:
-      - T1078
     requires_signals:
       - multi_identity_emit_sim
 
