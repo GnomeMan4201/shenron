@@ -9,30 +9,7 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Pinned legacy examples are descriptive documents, not runnable claim contracts.
-# Match both their repository location and exact Git blob hash before excluding.
-_KNOWN_LEGACY_BLOBS = {
-    "c2_lateral_coverage.yaml": "7c871a14916a50a2fa9eb2a87e982e35251a2105",
-    "assumption_dependency_confusion.yaml": "fd3ce211a53b98f5e7c33eef6868fa63c375861a",
-}
-
-
-def _legacy_exclusion(path: Path, directory: Path):
-    builtin = Path(__file__).resolve().parents[2] / "assumptions" / "examples"
-    if directory.resolve() != builtin.resolve() or path.name not in _KNOWN_LEGACY_BLOBS:
-        return None
-    data = path.read_bytes()
-    header = b"blob " + str(len(data)).encode("ascii") + bytes([0])
-    actual = hashlib.sha1(header + data).hexdigest()
-    if actual != _KNOWN_LEGACY_BLOBS[path.name]:
-        raise ValueError(
-            f"{path}: pinned legacy example changed; review and classify it before auditing"
-        )
-    return {
-        "filename": path.name,
-        "reason": "legacy_format_not_validated",
-        "git_blob_sha1": actual,
-    }
+from core.assumptions.legacy import documented_builtin_legacy_exclusion
 
 
 def _ts():
@@ -148,7 +125,7 @@ def run_audit_bundle(
     overclaims = []
     if assumptions_path.exists():
         for ap in sorted(assumptions_path.glob("*.yaml")):
-            excluded = _legacy_exclusion(ap, assumptions_path)
+            excluded = documented_builtin_legacy_exclusion(ap, assumptions_path)
             if excluded is not None:
                 legacy_exclusions.append(excluded)
                 _p(f"   [!] EXCLUDED {ap.name}: frozen legacy format, NOT VALIDATED")
