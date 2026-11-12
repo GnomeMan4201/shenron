@@ -92,10 +92,10 @@ def load_assumption(path) -> tuple:
             requires_metrics    = c.get("requires_metrics", []),
             evidence_scope      = c.get("evidence_scope", "category"),
         )
-        if claim.type == ClaimType.POSITIVE_EVIDENCE and not (
+        if claim.type in (ClaimType.POSITIVE_EVIDENCE, ClaimType.OUT_OF_SCOPE) and not (
             claim.requires_techniques or claim.requires_signals
         ):
-            raise ValueError(f"{p}: positive claim {claim.id!r} has no requirements")
+            raise ValueError(f"{p}: claim {claim.id!r} has no requirements")
         if claim.type == ClaimType.METRIC_THRESHOLD and not claim.requires_metrics:
             raise ValueError(f"{p}: metric claim {claim.id!r} has no requirements")
         claims.append(claim)
