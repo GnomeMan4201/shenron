@@ -31,3 +31,31 @@ Claims can now specify `evidence_scope: same_artifact`. This requires all the cl
 The scoped identity assumption has been split into separately named positive claims: `firmware_log_forgery_evidence`, `firmware_tamper_evidence`, `device_identity_pollution_evidence`, and `trusted_name_masquerade_evidence`. The first three require same-artifact matching; the trusted-name claim currently requires only its exact signal, not a technique mapping. The former `token_impersonation_evidence` and `process_injection_identity_evidence` labels were removed because the observed synthetic firmware/device telemetry did not establish those behaviors.
 
 **Explicit exclusion:** This is a reduction and correction of the validation contract, not proof that token impersonation or process injection are detected. Those capabilities remain unassessed by this assumption. CI results from earlier commits, including the failure at run 223, remain historical evidence and must not be retroactively described as passing under the revised specification. The new claim definitions and tests require fresh exact-head hosted CI before release.
+
+
+## Valid Accounts (T1078) mapping correction — separate draft follow-up
+
+**Reviewed baseline:** PR #47 at `fb4eedc15d022ec6856f5978d14a07904fdb9220`
+continues to serve as the frozen external review target. On that revision,
+`device_fingerprint_spoof.py` emitted `T1078` with
+`multi_identity_emit_sim`, and the assumption required both tokens.
+
+**Narrow correction proposed:** remove `T1078` from the generator's declared
+and emitted device-identity technique lists and from the specific
+`device_identity_pollution_evidence` assumption. Retain exact
+`multi_identity_emit_sim` matching, with `same_artifact` scope. The
+repository's existing taxonomy and manifest already omitted `T1078` for
+`device_fingerprint_spoof`; these are positive consistency controls.
+
+**Reason:** ATT&CK T1078 is Valid Accounts — misuse of existing account
+credentials. These synthetic device identity records do not demonstrate
+use of an account or authentication credentials.
+Reference: https://attack.mitre.org/techniques/T1078/
+
+**Important limits:** this narrows a claim; it is not independent evidence
+for T1036, T1027 or account abuse, and does not change mappings in other
+Shenron layers. It deliberately leaves the device-emission requirement as a
+synthetic signal label, not a proven ATT&CK technique. The historical
+seven-category outcome on the reviewed baseline must not be relabeled as
+evidence of credential misuse. Full CI at the separate correction head is
+required before integration.
