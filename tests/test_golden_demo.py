@@ -59,3 +59,18 @@ def test_golden_demo_html_contains_html_tag():
         assert html_path.exists(), "HTML report file not found"
         content = html_path.read_text(encoding="utf-8", errors="replace")
         assert "<html" in content, "HTML report does not contain <html tag"
+
+
+def test_quickstart_reports_exact_unvalidated_legacy_examples():
+    with tempfile.TemporaryDirectory() as tmp:
+        results = run_quickstart(out_dir=tmp, verbose=False)
+        excluded = results.get("assumption_exclusions")
+        assert {r["filename"] for r in excluded} == {
+            "c2_lateral_coverage.yaml", "assumption_dependency_confusion.yaml",
+        }
+        assert all(r["reason"] == "legacy_format_not_validated" for r in excluded)
+        text = (Path(tmp) / "assumption_validation.txt").read_text()
+        for entry in excluded:
+            assert entry["filename"] in text
+        manifest = json.loads((Path(tmp) / "assumption_exclusions.json").read_text())
+        assert manifest == excluded
