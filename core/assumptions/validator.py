@@ -10,9 +10,13 @@ from core.assumptions.loader import load_assumption, load_artifacts as _load
 
 
 def _normalize(s: str) -> str:
+    """Normalize case, spaces and hyphens without deleting punctuation.
+
+    Dropping punctuation would turn !signal or ~signal into positive signal.
+    Other punctuation remains significant: only exact canonical tokens match.
+    """
     s = s.lower().strip()
     s = re.sub(r"-", "_", s)
-    s = re.sub(r"[^a-z0-9_\s]", "", s)
     s = re.sub(r"[\s_]+", "_", s)
     return s
 
