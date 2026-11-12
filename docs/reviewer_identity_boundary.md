@@ -52,7 +52,12 @@ credentials. These synthetic device identity records do not demonstrate
 use of an account or authentication credentials.
 Reference: https://attack.mitre.org/techniques/T1078/
 
-**Important limits:** this narrows a claim; it is not independent evidence
+**Important limits:** this narrows the *semantic assertion* (no account-abuse
+attribution), but **relaxes the mechanical matching requirement** from
+`T1078` plus `multi_identity_emit_sim` to the synthetic signal alone.
+Consequently a new SUPPORTED outcome cannot be compared to the original
+two-requirement outcome without explaining that changed contract. It is not
+independent evidence
 for T1036, T1027 or account abuse, and does not change mappings in other
 Shenron layers. It deliberately leaves the device-emission requirement as a
 synthetic signal label, not a proven ATT&CK technique. The historical
