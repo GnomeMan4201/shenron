@@ -97,3 +97,19 @@ def test_non_object_claim_is_not_silently_ignored(tmp_path):
     assumption.write_text(yaml.safe_dump(doc), encoding="utf-8")
     with pytest.raises(ValueError, match="claim.*object"):
         load_assumption(assumption)
+
+
+@pytest.mark.parametrize("requirements", [
+    {"requires_signals": "x"},
+    {"requires_techniques": {"T1542": True}},
+    {"requires_signals": [None]},
+    {"requires_signals": [""]},
+])
+def test_malformed_requirement_types_are_rejected(tmp_path, requirements):
+    assumption = tmp_path / "bad_requirements.yaml"
+    doc = {"id": "probe", "schema_version": "1.0", "claims": [
+        {"id": "must_not_pass", "type": "positive_evidence", **requirements},
+    ]}
+    assumption.write_text(yaml.safe_dump(doc), encoding="utf-8")
+    with pytest.raises(ValueError, match="requires_"):
+        load_assumption(assumption)
