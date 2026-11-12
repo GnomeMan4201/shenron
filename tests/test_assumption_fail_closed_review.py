@@ -113,3 +113,12 @@ def test_malformed_requirement_types_are_rejected(tmp_path, requirements):
     assumption.write_text(yaml.safe_dump(doc), encoding="utf-8")
     with pytest.raises(ValueError, match="requires_"):
         load_assumption(assumption)
+
+
+def test_empty_out_of_scope_requirements_rejected(tmp_path):
+    doc = yaml.safe_load(IDENTITY.read_text(encoding="utf-8"))
+    doc["claims"].append({"id": "empty_safety_claim", "type": "out_of_scope_claim"})
+    assumption = tmp_path / "empty_oos.yaml"
+    assumption.write_text(yaml.safe_dump(doc), encoding="utf-8")
+    with pytest.raises(ValueError, match="empty_safety_claim"):
+        load_assumption(assumption)
