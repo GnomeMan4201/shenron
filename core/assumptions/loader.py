@@ -43,9 +43,9 @@ def _load_yaml_simple(path: Path) -> dict:
         "schema_version": schema_version,
         "claims":         [],
     }
-    for claim in data.get("claims", []):
+    for index, claim in enumerate(data.get("claims", []), 1):
         if not isinstance(claim, dict):
-            continue
+            raise ValueError(f"{path}: claim {index} must be a JSON-style object")
         scope = claim.get("evidence_scope", "category")
         if scope not in ("category", "same_artifact"):
             raise ValueError(f"Invalid evidence_scope for {claim.get('id', '')}: {scope}")
