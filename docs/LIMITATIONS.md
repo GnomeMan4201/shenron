@@ -60,3 +60,28 @@ SHENRON is not a replacement for:
 | Tests runtime bypass | No | Partial | Yes |
 | Evidence discipline | Yes | No | No |
 | Assumption validation | Yes | No | No |
+
+
+## Single-assumption CLI qualification (Issue #59)
+
+`python3 shenron.py assumption validate ASSUMPTION.yaml --events EVIDENCE.jsonl`
+has a deliberately strict input/version contract:
+
+- **Exit 0:** the aggregate assumption verdict is `SUPPORTED`, using a
+  `schema_version: "1.0"` YAML and a readable evidence file.
+- **Exit 1:** the YAML and evidence are interpretable but the aggregate
+  verdict is `UNSUPPORTED`, `PARTIALLY_SUPPORTED`, or
+  `OUT_OF_SCOPE_VIOLATION`. The verdict is printed and still recorded in
+  the validation history/index as useful negative evidence. `--scope-report`
+  still reports its bounded conclusion when requested.
+- **Exit 3:** YAML/evidence is absent, malformed, inaccessible, or
+  `schema_version` is missing or not exactly compatible with `1.0`.
+  This case does not write a new validation history/index entry.
+
+The **strict schema requirement applies only to the individual
+`assumption validate` command**. Other legacy validation routes and direct
+library calls retain compatibility warnings for missing/mismatched versions;
+do not interpret those warnings as version qualification. This change does
+not establish the meaning or integrity of external evidence or real-world
+detection effectiveness.
+
