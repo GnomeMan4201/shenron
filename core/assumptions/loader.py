@@ -6,6 +6,13 @@ from core.assumptions.model import Claim, ClaimType, ClaimSeverity
 
 CURRENT_SCHEMA_VERSION = "1.0"
 
+# Every key a claim may carry. Anything else is rejected rather than ignored:
+# a misspelled requirement or scope key would otherwise silently weaken the claim.
+_CLAIM_KEYS = frozenset({
+    "id", "type", "severity", "description", "requires_techniques",
+    "requires_signals", "requires_metrics", "evidence_scope",
+})
+
 # Fields used by assumption matching must have interpretable types.
 _EVIDENCE_FIELDS = frozenset({
     "mitre_techniques", "technique", "techniques", "behavior_class", "phase",
@@ -53,6 +60,12 @@ def _load_yaml_simple(path: Path, *, require_current_schema: bool = False) -> di
     for index, claim in enumerate(data.get("claims", []), 1):
         if not isinstance(claim, dict):
             raise ValueError(f"{path}: claim {index} must be a JSON-style object")
+        unknown = sorted(str(k) for k in claim if k not in _CLAIM_KEYS)
+        if unknown:
+            raise ValueError(
+                f"{path}: claim {index} has unknown claim key(s) {unknown}; "
+                f"allowed: {sorted(_CLAIM_KEYS)}"
+            )
         for field in ("requires_techniques", "requires_signals"):
             values = claim.get(field, [])
             if not isinstance(values, list) or any(
