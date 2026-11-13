@@ -126,3 +126,20 @@ def _committed_conditions():
 def test_every_committed_rule_condition_is_strictly_valid(cond, names):
     from core.sigma.evaluator import parse_condition_strict
     parse_condition_strict(cond, names)
+
+
+@pytest.mark.parametrize("prefer_pysigma", [True, False], ids=["pysigma", "custom"])
+@pytest.mark.parametrize("line", ["condition: ''", ""], ids=["empty", "absent"])
+def test_missing_or_empty_condition_must_not_or_all_blocks(tmp_path, line, prefer_pysigma):
+    # Both the selection and exclusion filter match. The previous no-condition
+    # fallback ORs blocks, which turns an incomplete rule into TRIGGERED.
+    rule, events = _write(tmp_path, "selection and not filter")
+    source = rule.read_text(encoding="utf-8")
+    marker = "condition: selection and not filter"
+    assert source.count(marker) == 1
+    rule.write_text(source.replace(marker, line), encoding="utf-8")
+    result = evaluate_sigma_rule(rule, events, prefer_pysigma=prefer_pysigma)
+    assert result.verdict == RuleVerdict.ERROR, (
+        line, prefer_pysigma, result.verdict, result.coverage_note
+    )
+    assert result.triggered_count == 0
