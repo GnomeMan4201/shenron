@@ -423,6 +423,8 @@ def evaluate_with_pysigma(
     conditions   = detection.condition
     try:
         from core.sigma.evaluator import parse_condition_strict
+        if not conditions:
+            raise ValueError("Sigma detection.condition is absent or empty")
         for cond_str in conditions:
             parse_condition_strict(cond_str, block_names)
     except ValueError as e:

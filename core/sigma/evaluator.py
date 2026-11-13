@@ -537,12 +537,9 @@ def evaluate_sigma_rule(rule_path, artifact_path,
         except Exception as exc:
             condition_parse_error = str(exc)
     else:
-        # Preserve the historical absent-condition OR behavior, but count
-        # matching artifacts once regardless of how many blocks they match.
-        matching_artifacts = [
-            art for art in artifacts
-            if any(id(art) in matched for matched in matching_ids.values())
-        ]
+        # Missing or blank condition is invalid Sigma input. Never OR blocks:
+        # that can silently erase an exclusion filter and return TRIGGERED.
+        condition_parse_error = "Sigma detection.condition is absent or empty"
 
     # Derive verdict from condition result
     triggered = [d for d in detections if d.status == MatchStatus.TRIGGERED]
