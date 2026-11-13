@@ -307,83 +307,12 @@ def _eval_condition(condition_str: str, block_results: Dict[str, bool],
     """
     Evaluate a Sigma condition string against block match results.
     Supports: and, or, not, 1 of, all of, N of, wildcards in names.
+    Uses the evaluator's strict parser so both backends reject the same
+    malformed conditions (raises SigmaConditionError, a ValueError).
     """
-    cond = condition_str.strip()
-
-    # Tokenize and parse
-    tokens = _tokenize(cond)
-    result, _ = _parse_or(tokens, 0, block_results, block_names)
-    return result
-
-
-def _tokenize(s: str) -> List[str]:
-    s = s.replace("(", " ( ").replace(")", " ) ")
-    return s.split()
-
-
-def _parse_or(tokens, pos, block_results, block_names):
-    left, pos = _parse_and(tokens, pos, block_results, block_names)
-    while pos < len(tokens) and tokens[pos].lower() == "or":
-        pos += 1
-        right, pos = _parse_and(tokens, pos, block_results, block_names)
-        left = left or right
-    return left, pos
-
-
-def _parse_and(tokens, pos, block_results, block_names):
-    left, pos = _parse_not(tokens, pos, block_results, block_names)
-    while pos < len(tokens) and tokens[pos].lower() == "and":
-        pos += 1
-        right, pos = _parse_not(tokens, pos, block_results, block_names)
-        left = left and right
-    return left, pos
-
-
-def _parse_not(tokens, pos, block_results, block_names):
-    if pos < len(tokens) and tokens[pos].lower() == "not":
-        pos += 1
-        val, pos = _parse_not(tokens, pos, block_results, block_names)
-        return not val, pos
-    return _parse_atom(tokens, pos, block_results, block_names)
-
-
-def _parse_atom(tokens, pos, block_results, block_names):
-    if pos >= len(tokens):
-        return False, pos
-    tok = tokens[pos]
-    if tok == "(":
-        pos += 1
-        val, pos = _parse_or(tokens, pos, block_results, block_names)
-        if pos < len(tokens) and tokens[pos] == ")":
-            pos += 1
-        return val, pos
-    if tok.lower() == "all" and pos + 2 < len(tokens) and tokens[pos+1].lower() == "of":
-        target = tokens[pos+2]
-        pos += 3
-        matches = _resolve_target(target, block_names)
-        return bool(matches) and all(block_results.get(n, False) for n in matches), pos
-    if tok == "1" and pos + 2 < len(tokens) and tokens[pos+1].lower() == "of":
-        target = tokens[pos+2]
-        pos += 3
-        matches = _resolve_target(target, block_names)
-        return any(block_results.get(n, False) for n in matches), pos
-    if tok.isdigit() and pos + 2 < len(tokens) and tokens[pos+1].lower() == "of":
-        n = int(tok)
-        target = tokens[pos+2]
-        pos += 3
-        matches = _resolve_target(target, block_names)
-        return sum(1 for m in matches if block_results.get(m, False)) >= n, pos
-    val = block_results.get(tok, False)
-    return val, pos + 1
-
-
-def _resolve_target(target: str, block_names: List[str]) -> List[str]:
-    if target == "them":
-        return list(block_names)
-    if "*" in target:
-        pattern = re.compile("^" + re.escape(target).replace(r"\*", ".*") + "$")
-        return [n for n in block_names if pattern.match(n)]
-    return [target] if target in block_names else []
+    from core.sigma.evaluator import parse_condition_strict, _eval_ast
+    node = parse_condition_strict(condition_str, block_names)
+    return _eval_ast(node, block_results, block_names)
 
 
 # ── UUID fixer ─────────────────────────────────────────────────────────────────
@@ -488,6 +417,24 @@ def evaluate_with_pysigma(
             artifact_error=True,
         )
 
+    # Reject malformed conditions before any event can be matched.
+    detection    = rule.detection
+    block_names  = [k for k in detection.detections.keys()]
+    conditions   = detection.condition
+    try:
+        from core.sigma.evaluator import parse_condition_strict
+        if not conditions:
+            raise ValueError("Sigma detection.condition is absent or empty")
+        for cond_str in conditions:
+            parse_condition_strict(cond_str, block_names)
+    except ValueError as e:
+        return BridgeResult(
+            rule_id=rule_id, rule_title=rule_title,
+            rule_file=rule_path, artifact_file=artifact_path,
+            verdict=BridgeVerdict.ERROR,
+            errors=[f"Condition error: {e}"],
+        )
+
     if not events:
         return BridgeResult(
             rule_id=rule_id, rule_title=rule_title,
@@ -497,9 +444,6 @@ def evaluate_with_pysigma(
         )
 
     # Evaluate detection blocks against each event
-    detection    = rule.detection
-    block_names  = [k for k in detection.detections.keys()]
-    conditions   = detection.condition
 
     matched_events = []
 
@@ -516,10 +460,13 @@ def evaluate_with_pysigma(
                     event_matches = True
                     break
             except Exception as e:
-                # fallback: OR all blocks
-                if any(block_results.values()):
-                    event_matches = True
-                break
+                # Never fall back to OR-ing blocks: that ignores filters.
+                return BridgeResult(
+                    rule_id=rule_id, rule_title=rule_title,
+                    rule_file=rule_path, artifact_file=artifact_path,
+                    verdict=BridgeVerdict.ERROR,
+                    errors=[f"Condition evaluation error: {e}"],
+                )
 
         if event_matches:
             matched_events.append(event)
