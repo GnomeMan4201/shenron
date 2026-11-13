@@ -23,21 +23,21 @@ Rule coverage is table stakes. Rule durability is the harder problem.
 
 **Observable adversarial behavior, not portable adversarial procedure.**
 
-SHENRON generates structured synthetic JSONL telemetry representing adversarial behavior across its [canonical simulation layers](core/layers). It does not contain payloads, exploit code, real network calls, subprocess execution, or operational malware logic. Every artifact is synthetic. Every layer carries an explicit safety contract.
+SHENRON generates structured synthetic JSONL telemetry representing adversarial behavior across its [canonical simulation layers](core/layers). Its canonical simulation layers are intended to avoid payloads, exploit code, live network calls, subprocess execution, and operational malware logic. The CLI and tooling are separate: the CLI may invoke helper subprocesses, and the MITRE ATT&CK drift check makes an HTTPS request. Synthetic telemetry does not establish real-world detector effectiveness. Every layer carries an explicit safety contract.
 
 ---
 
 ## Safety boundary
 
-SHENRON does not contain:
+The **canonical simulation layers** are designed to avoid:
 
 - Executable payloads or shellcode
-- Real network connections or socket bindings
+- Live network connections or socket bindings
 - Subprocess spawning or shell command execution
-- Real file writes outside its own log directory
-- Exploit code of any kind
+- Real file writes outside controlled artifact paths
+- Exploit code
 
-This is not a disclaimer. It is an architectural constraint enforced by the [canonical-layer static safety gate](tests/test_all_layers_safety_static.py).
+The [canonical-layer static safety gate](tests/test_all_layers_safety_static.py) checks selected forbidden patterns. It is a partial safeguard, **not a proof of complete runtime safety**. CLI helper subprocesses and MITRE drift-check network requests are outside the synthetic-layer guarantee.
 
 ---
 

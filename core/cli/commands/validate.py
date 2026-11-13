@@ -17,6 +17,7 @@ Exit codes:
   0  All triggered rules are robust (brittleness below threshold)
   1  No rules triggered (coverage gap)
   2  One or more brittle rules detected
+  3  Evaluation failure (verdict unqualified)
 """
 
 import sys
@@ -89,59 +90,62 @@ def _evaluate_rules(rule_paths, artifact_path):
 
 
 def _score_brittleness(rule_path, artifact_path):
+    from core.sigma.evaluator import evaluate_sigma_rule
+    from core.sigma.model import RuleVerdict
+    from core.mutation.engine import (
+        mutate_field_drop, mutate_timing_jitter,
+        mutate_label_ambiguity, mutate_signal_density_low,
+    )
+    from core.mutation.sigma_aware import SigmaAwareMutator
+
+    with open(artifact_path, encoding="utf-8") as f:
+        events = [json.loads(line) for line in f if line.strip()]
+    if not events:
+        raise RuntimeError(f"No events available for brittleness scoring: {artifact_path}")
+    baseline = evaluate_sigma_rule(rule_path, artifact_path, match_mode="tolerant")
+    if baseline.verdict != RuleVerdict.TRIGGERED:
+        raise RuntimeError(f"Cannot score non-triggered baseline: {baseline.verdict.value}")
+
     try:
-        from core.sigma.evaluator import evaluate_sigma_rule
-        from core.sigma.model import RuleVerdict
-        from core.mutation.engine import (
-            mutate_field_drop, mutate_timing_jitter,
-            mutate_label_ambiguity, mutate_signal_density_low,
+        mutator = SigmaAwareMutator(str(Path(rule_path).parent))
+    except Exception as exc:
+        raise RuntimeError(f"Sigma-aware mutator initialization failed: {exc}") from exc
+
+    strategies = [
+        lambda e: mutate_field_drop(e, run_id="v", seed=42).records,
+        lambda e: mutate_timing_jitter(e, run_id="v", seed=42).records,
+        lambda e: mutate_label_ambiguity(e, run_id="v", seed=42).records,
+        lambda e: mutate_signal_density_low(e, run_id="v", seed=42).records,
+    ]
+    for name in ("case_flip", "value_swap", "field_omit"):
+        strategies.append(
+            lambda e, name=name: [mutator.mutate_targeted(ev, name, seed=42) for ev in e]
         )
-        from core.mutation.sigma_aware import SigmaAwareMutator
 
-        with open(artifact_path) as f:
-            events = [json.loads(l) for l in f if l.strip()]
-
-        baseline = evaluate_sigma_rule(rule_path, artifact_path, match_mode="tolerant")
-        if baseline.verdict != RuleVerdict.TRIGGERED:
-            return 0.0
-
-        rules_dir = str(Path(rule_path).parent)
+    evaded = 0
+    completed = 0
+    for index, strategy in enumerate(strategies, 1):
+        temp_path = None
         try:
-            mutator = SigmaAwareMutator(rules_dir)
-        except Exception:
-            mutator = None
-
-        strategies = [
-            lambda e: mutate_field_drop(e, run_id="v", seed=42).records,
-            lambda e: mutate_timing_jitter(e, run_id="v", seed=42).records,
-            lambda e: mutate_label_ambiguity(e, run_id="v", seed=42).records,
-            lambda e: mutate_signal_density_low(e, run_id="v", seed=42).records,
-        ]
-        if mutator:
-            for strat in ["case_flip", "value_swap", "field_omit"]:
-                s = strat
-                strategies.append(lambda e, s=s: [mutator.mutate_targeted(ev, s, seed=42) for ev in e])
-
-        evaded = 0
-        total = 0
-        for fn in strategies:
-            try:
-                mutated = fn(events)
-                tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False)
-                for ev in mutated:
-                    tmp.write(json.dumps(ev) + "\n")
-                tmp.close()
-                r = evaluate_sigma_rule(rule_path, tmp.name, match_mode="tolerant")
-                os.unlink(tmp.name)
-                total += 1
-                if r.verdict != RuleVerdict.TRIGGERED:
-                    evaded += 1
-            except Exception:
-                pass
-
-        return round(evaded / total, 3) if total > 0 else 0.0
-    except Exception:
-        return 0.0
+            mutated = strategy(events)
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as temp:
+                temp_path = temp.name
+                for event in mutated:
+                    temp.write(json.dumps(event) + "\n")
+            result = evaluate_sigma_rule(rule_path, temp_path, match_mode="tolerant")
+            if result.verdict in (RuleVerdict.UNSUPPORTED, RuleVerdict.ERROR):
+                raise RuntimeError(f"Evaluator returned {result.verdict.value}")
+            completed += 1
+            if result.verdict != RuleVerdict.TRIGGERED:
+                evaded += 1
+        except Exception as exc:
+            raise RuntimeError(f"Mutation strategy {index} failed: {exc}") from exc
+        finally:
+            if temp_path:
+                Path(temp_path).unlink(missing_ok=True)
+    if completed == 0:
+        raise RuntimeError("No mutation strategies completed")
+    return round(evaded / completed, 3)
 
 
 def _format_table(results, threshold):
@@ -152,7 +156,11 @@ def _format_table(results, threshold):
         title = r["rule_title"][:42]
         cov = "TRIGGERED" if r["triggered"] else "no coverage"
         brit = f"{r['brittleness']:.2f}" if r["triggered"] else "  --"
-        if not r["triggered"]:
+        if r["verdict"] == "ERROR":
+            status = "EVALUATION ERROR"
+            cov = "ERROR"
+            brit = "  --"
+        elif not r["triggered"]:
             status = "no coverage"
         elif r["brittleness"] >= threshold:
             status = "!! BRITTLE"
@@ -164,13 +172,15 @@ def _format_table(results, threshold):
     lines.append("  " + "-" * 72)
     triggered = sum(1 for r in results if r["triggered"])
     brittle   = sum(1 for r in results if r["triggered"] and r["brittleness"] >= threshold)
-    no_cov    = sum(1 for r in results if not r["triggered"])
+    no_cov    = sum(1 for r in results if not r["triggered"] and r["verdict"] != "ERROR")
+    errors    = sum(1 for r in results if r["verdict"] == "ERROR")
     lines += [
         f"",
         f"  Rules evaluated : {len(results)}",
         f"  Coverage        : {triggered}/{len(results)} rules triggered",
         f"  Brittle rules   : {brittle} (brittleness >= {threshold})",
         f"  No coverage     : {no_cov} rules never fired on this scenario",
+        f"  Evaluation errors: {errors} (unqualified)",
     ]
     if brittle > 0:
         lines.append(f"")
@@ -189,7 +199,8 @@ def _format_markdown(results, threshold, scenario, artifact):
     triggered = sum(1 for r in results if r["triggered"])
     brittle   = [r for r in results if r["triggered"] and r["brittleness"] >= threshold]
     robust    = [r for r in results if r["triggered"] and r["brittleness"] < threshold]
-    no_cov    = [r for r in results if not r["triggered"]]
+    no_cov    = [r for r in results if not r["triggered"] and r["verdict"] != "ERROR"]
+    errors    = [r for r in results if r["verdict"] == "ERROR"]
     lines = [
         "# SHENRON Rule Validation Report", "",
         f"**Scenario:** {scenario}  ",
@@ -202,7 +213,8 @@ def _format_markdown(results, threshold, scenario, artifact):
         f"| Triggered | {triggered} |",
         f"| Brittle (>= {threshold}) | {len(brittle)} |",
         f"| Robust (< {threshold}) | {len(robust)} |",
-        f"| No coverage | {len(no_cov)} |", "",
+        f"| No coverage | {len(no_cov)} |",
+        f"| Evaluation errors (unqualified) | {len(errors)} |", "",
         "## Brittle Rules (fix these first)", "",
     ]
     if brittle:
@@ -220,7 +232,11 @@ def _format_markdown(results, threshold, scenario, artifact):
     for r in no_cov:
         lines.append(f"- {r['rule_title']}")
     if not no_cov:
-        lines.append("*All rules had coverage.*")
+        lines.append("*No additional no-coverage rules.*")
+    if errors:
+        lines += ["", "## Evaluation errors (unqualified)", ""]
+        for item in errors:
+            lines.append(f"- **{item['rule_title']}**: {item.get('error', 'evaluation failed')}")
     return "\n".join(lines)
 
 
@@ -241,9 +257,6 @@ def run(args):
             / "artifacts" / "demo" / "shenron_demo_run.jsonl"
         )
         scenario_name = args.scenario
-        if not Path(artifact_path).exists():
-            print(f"  [ERROR] Demo artifact not found: {artifact_path}")
-            sys.exit(1)
 
     print(f"  [VALIDATE] Scenario     : {scenario_name}")
     print(f"  [VALIDATE] Artifact     : {artifact_path}")
@@ -254,10 +267,16 @@ def run(args):
 
     final = []
     for rp, er in eval_results.items():
+        if er["verdict"] == "ERROR":
+            print(f"  [ERROR] {Path(rp).name}: {er.get('error', 'evaluation failed')}", file=sys.stderr)
         brit = 0.0
         if args.mutations and er["triggered"]:
             print(f"  [SCORING] {Path(rp).name}...")
-            brit = _score_brittleness(rp, artifact_path)
+            try:
+                brit = _score_brittleness(rp, artifact_path)
+            except Exception as exc:
+                er = {**er, "verdict": "ERROR", "triggered": False, "error": str(exc)}
+                print(f"  [ERROR] {Path(rp).name}: {exc}", file=sys.stderr)
         final.append({
             "rule_path":       rp,
             "rule_id":         er["rule_id"],
@@ -266,6 +285,7 @@ def run(args):
             "triggered_count": er["triggered_count"],
             "brittleness":     brit,
             "verdict":         er["verdict"],
+            "error":           er.get("error"),
         })
 
     if args.format == "json":
@@ -281,7 +301,11 @@ def run(args):
         print(f"  [VALIDATE] Report       : {args.out}")
 
     brittle_count = sum(1 for r in final if r["triggered"] and r["brittleness"] >= args.threshold)
-    no_cov_count  = sum(1 for r in final if not r["triggered"])
+    no_cov_count  = sum(1 for r in final if not r["triggered"] and r["verdict"] != "ERROR")
+    error_count = sum(1 for r in final if r["verdict"] == "ERROR")
+    if error_count:
+        print(f"  [ERROR] {error_count} rule evaluation(s) unqualified.", file=sys.stderr)
+        sys.exit(3)
     if brittle_count > 0:
         sys.exit(2)
     elif no_cov_count == len(final):

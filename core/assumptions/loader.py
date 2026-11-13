@@ -1,10 +1,16 @@
-import json
+from core.ingest.jsonl import load_jsonl_objects, ArtifactInputError
 import warnings
 import yaml
 from pathlib import Path
 from core.assumptions.model import Claim, ClaimType, ClaimSeverity
 
 CURRENT_SCHEMA_VERSION = "1.0"
+
+# Fields used by assumption matching must have interpretable types.
+_EVIDENCE_FIELDS = frozenset({
+    "mitre_techniques", "technique", "techniques", "behavior_class", "phase",
+    "detection_opportunities", "expected_events", "alert_signatures",
+})
 
 
 def _load_yaml_simple(path: Path) -> dict:
@@ -37,17 +43,34 @@ def _load_yaml_simple(path: Path) -> dict:
         "schema_version": schema_version,
         "claims":         [],
     }
-    for claim in data.get("claims", []):
+    for index, claim in enumerate(data.get("claims", []), 1):
         if not isinstance(claim, dict):
-            continue
+            raise ValueError(f"{path}: claim {index} must be a JSON-style object")
+        for field in ("requires_techniques", "requires_signals"):
+            values = claim.get(field, [])
+            if not isinstance(values, list) or any(
+                not isinstance(item, str) or not item.strip() for item in values
+            ):
+                raise ValueError(
+                    f"{path}: claim {index} {field} must be a list of nonblank strings"
+                )
+        metrics = claim.get("requires_metrics", [])
+        if not isinstance(metrics, list) or any(
+            not isinstance(item, dict) for item in metrics
+        ):
+            raise ValueError(f"{path}: claim {index} requires_metrics must be a list of objects")
+        scope = claim.get("evidence_scope", "category")
+        if scope not in ("category", "same_artifact"):
+            raise ValueError(f"Invalid evidence_scope for {claim.get('id', '')}: {scope}")
         result["claims"].append({
             "id":                  str(claim.get("id", "")),
+            "evidence_scope":      scope,
             "type":                str(claim.get("type", "positive_evidence")),
             "severity":            str(claim.get("severity", "medium")),
             "description":         str(claim.get("description", "")),
-            "requires_techniques": [str(t) for t in claim.get("requires_techniques", [])],
-            "requires_signals":    [str(s) for s in claim.get("requires_signals", [])],
-            "requires_metrics":    list(claim.get("requires_metrics", [])),
+            "requires_techniques": claim.get("requires_techniques", []),
+            "requires_signals":    claim.get("requires_signals", []),
+            "requires_metrics":    metrics,
         })
     return result
 
@@ -59,7 +82,7 @@ def load_assumption(path) -> tuple:
     data = _load_yaml_simple(p)
     claims = []
     for c in data.get("claims", []):
-        claims.append(Claim(
+        claim = Claim(
             id                  = c.get("id", ""),
             type                = ClaimType(c.get("type", "positive_evidence")),
             severity            = ClaimSeverity(c.get("severity", "medium")),
@@ -67,7 +90,15 @@ def load_assumption(path) -> tuple:
             requires_techniques = c.get("requires_techniques", []),
             requires_signals    = c.get("requires_signals", []),
             requires_metrics    = c.get("requires_metrics", []),
-        ))
+            evidence_scope      = c.get("evidence_scope", "category"),
+        )
+        if claim.type in (ClaimType.POSITIVE_EVIDENCE, ClaimType.OUT_OF_SCOPE) and not (
+            claim.requires_techniques or claim.requires_signals
+        ):
+            raise ValueError(f"{p}: claim {claim.id!r} has no requirements")
+        if claim.type == ClaimType.METRIC_THRESHOLD and not claim.requires_metrics:
+            raise ValueError(f"{p}: metric claim {claim.id!r} has no requirements")
+        claims.append(claim)
     return data.get("id", p.stem), data.get("description", ""), claims
 
 
@@ -75,13 +106,16 @@ def load_artifacts(path) -> list:
     p = Path(path)
     if not p.exists():
         return []
-    records = []
-    with open(p) as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                try:
-                    records.append(json.loads(line))
-                except json.JSONDecodeError:
-                    pass
-    return records
+
+    def check_evidence_types(record, line_number, source):
+        for field in _EVIDENCE_FIELDS.intersection(record):
+            value = record[field]
+            if isinstance(value, str) or (
+                isinstance(value, list) and all(isinstance(v, str) for v in value)
+            ):
+                continue
+            raise ArtifactInputError(
+                f"{source}: line {line_number}: {field} must be a string or list of strings"
+            )
+
+    return load_jsonl_objects(p, record_validator=check_evidence_types)

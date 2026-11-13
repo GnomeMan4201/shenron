@@ -8,6 +8,7 @@ import hashlib
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
+from core.assumptions.legacy import documented_builtin_legacy_exclusion
 
 
 def _ts():
@@ -73,16 +74,16 @@ def run_audit_bundle(
         return {"ok": False, "error": "schema_validation_failed", "failures": schema_result["failures"]}
     _p(f"  OK — {schema_result['events']} events pass schema validation")
 
-    # Safety contract check
-    events = _load_events(events_path)
-    safety_violations = []
-    for i, e in enumerate(events, 1):
-        if e.get("simulation_only") is not True:
-            safety_violations.append(f"line {i}: simulation_only is not true")
-        if e.get("executable") is True:
-            safety_violations.append(f"line {i}: executable is true")
+    # Enforce the entire canonical nested safety contract, not just two top-level flags.
+    from core.safety.contract import verify_records
 
-    safety_verdict = "PASS" if not safety_violations else "FAIL"
+    events = _load_events(events_path)
+    contract_check = verify_records(events)
+    safety_violations = [
+        f"record {violation['index'] + 1}: {violation['fields']}"
+        for violation in contract_check["violations"]
+    ]
+    safety_verdict = contract_check["verdict"]
     safety_data = {
         "verdict":       safety_verdict,
         "events_checked": len(events),
@@ -95,6 +96,14 @@ def run_audit_bundle(
     _p(f"  Safety: {safety_verdict} ({len(safety_violations)} violations)")
     _p(f"   -> {safety_path}")
     _p("")
+    if safety_verdict != "PASS":
+        _p("  Audit bundle aborted: safety contract is incomplete or invalid.")
+        return {
+            "ok": False,
+            "error": "safety_validation_failed",
+            "failures": safety_violations,
+            "safety": safety_data,
+        }
 
     # ── Step 2: Sigma validation ─────────────────────────────────────────────
     _p("[ 2/6 ] Sigma rule validation...")
@@ -118,11 +127,19 @@ def run_audit_bundle(
     # ── Step 3: Assumption validation ────────────────────────────────────────
     _p("[ 3/6 ] Assumption validation...")
     assumption_results = []
+    legacy_exclusions = []
     assumptions_path = Path(assumptions_dir)
     overclaims = []
     if assumptions_path.exists():
         for ap in sorted(assumptions_path.glob("*.yaml")):
+            excluded = documented_builtin_legacy_exclusion(ap, assumptions_path)
+            if excluded is not None:
+                legacy_exclusions.append(excluded)
+                _p(f"   [!] EXCLUDED {ap.name}: pinned legacy format, NOT VALIDATED")
+                continue
             r = validate_assumption(str(ap), events_path)
+            if not r.claim_results:
+                raise ValueError(f"{ap}: no canonical claims; audit cannot validate this file")
             assumption_results.append(r.to_dict())
             oos = f" OOS:{r.out_of_scope_violations}" if r.out_of_scope_violations else ""
             _p(f"   {r.assumption_id:<40} {r.status.value}{oos}")
@@ -134,12 +151,15 @@ def run_audit_bundle(
                     "conclusion":    r.safe_conclusion,
                 })
 
+    exclusions_path = out / "assumption_exclusions.json"
+    exclusions_path.write_text(json.dumps(legacy_exclusions, indent=2))
     assumption_path = out / "assumption_results.json"
     assumption_path.write_text(json.dumps(assumption_results, indent=2))
     supported = sum(1 for r in assumption_results if r.get("status") == "SUPPORTED")
     _p(f"   -> {assumption_path} ({supported}/{len(assumption_results)} SUPPORTED)")
     _p("")
     results["assumptions"] = assumption_results
+    results["assumption_exclusions"] = legacy_exclusions
 
     # ── Step 4: ATT&CK Navigator layer ───────────────────────────────────────
     _p("[ 4/6 ] ATT&CK Navigator layer...")
@@ -206,6 +226,12 @@ def run_audit_bundle(
     # ── Step 5: Overclaim risk report ────────────────────────────────────────
     _p("[ 5/6 ] Overclaim risk report...")
     overclaim_lines = ["# Overclaim Risk Report", "", f"Generated: {ts} UTC", f"Artifact: {events_path}", ""]
+    if legacy_exclusions:
+        overclaim_lines += [
+            "## Unvalidated legacy assumption examples", "",
+            "These frozen examples were explicitly excluded and not treated as validated claims:",
+            *[f"- {entry['filename']}" for entry in legacy_exclusions], "",
+        ]
 
     if not overclaims:
         overclaim_lines += ["## Result: NO OVERCLAIM VIOLATIONS DETECTED", "",
@@ -245,9 +271,11 @@ def run_audit_bundle(
 
     # ── Step 6: Reproducibility manifest ─────────────────────────────────────
     _p("[ 6/6 ] Reproducibility manifest...")
+    from core.version import get_version
+    shenron_version = get_version()
     repro_data = {
         "generated_at":     ts,
-        "shenron_version":  "0.4.0",
+        "shenron_version":  shenron_version,
         "inputs": {
             "events_path":      events_path,
             "events_sha256":    _sha256(events_path),
@@ -256,11 +284,13 @@ def run_audit_bundle(
             "rules_count":      len(sigma_results),
             "assumptions_dir":  assumptions_dir,
             "assumptions_count":len(assumption_results),
+            "assumptions_excluded_count": len(legacy_exclusions),
         },
         "outputs": {
             "safety_verification": str(safety_path),
             "sigma_results":       str(sigma_path),
             "assumption_results":  str(assumption_path),
+            "assumption_exclusions": str(exclusions_path),
             "navigator_layer":     str(navigator_path),
             "overclaim_risk":      str(overclaim_path),
         },
@@ -272,6 +302,7 @@ def run_audit_bundle(
             "sigma_unsupported":    len(unsupported_sigma),
             "assumptions_supported":supported,
             "assumptions_total":    len(assumption_results),
+            "assumptions_excluded": len(legacy_exclusions),
             "overclaim_violations": len(overclaims),
             "mitre_techniques":     len(navigator_techniques),
         },
@@ -284,7 +315,7 @@ def run_audit_bundle(
         "# Reproducibility Statement",
         "",
         f"Generated: {ts} UTC",
-        f"SHENRON version: 0.4.0",
+        f"SHENRON version: {shenron_version}",
         "",
         "## Inputs",
         "",
@@ -294,7 +325,8 @@ def run_audit_bundle(
         f"| Events SHA-256 | `{repro_data['inputs']['events_sha256'][:16]}...` |",
         f"| Events count | {len(events)} |",
         f"| Sigma rules | {len(sigma_results)} rules from `{rules_dir}` |",
-        f"| Assumptions | {len(assumption_results)} YAMLs from `{assumptions_dir}` |",
+        f"| Assumptions | {len(assumption_results)} canonical YAMLs from `{assumptions_dir}` |",
+        f"| Unvalidated legacy examples | {len(legacy_exclusions)} excluded |",
         "",
         "## To reproduce this bundle",
         "",
@@ -319,6 +351,12 @@ def run_audit_bundle(
         f"| MITRE techniques | {len(navigator_techniques)} |",
     ]
 
+    if legacy_exclusions:
+        repro_md_lines += ["", "## Legacy exclusions: not validated", "",
+            "The following exact pinned legacy examples were not interpreted as claim evidence:",
+            *[f"- `{entry['filename']}` (Git blob `{entry['git_blob_sha1']}`)"
+              for entry in legacy_exclusions],
+        ]
     repro_md_path = out / "reproducibility.md"
     repro_md_path.write_text("\n".join(repro_md_lines))
     _p(f"   -> {repro_path}")
@@ -354,6 +392,7 @@ def run_audit_bundle(
     _p(f"  Safety verdict        : {safety_verdict}")
     _p(f"  Sigma TRIGGERED       : {triggered}/{len(sigma_results)}")
     _p(f"  Assumptions SUPPORTED : {supported}/{len(assumption_results)}")
+    _p(f"  Legacy exclusions     : {len(legacy_exclusions)} (not validated)")
     _p(f"  Overclaim violations  : {len(overclaims)}")
     _p(f"  MITRE techniques      : {len(navigator_techniques)}")
     _p("")

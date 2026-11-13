@@ -4,6 +4,7 @@ import tempfile
 from pathlib import Path
 import pytest
 from core.audit.bundle import run_audit_bundle
+from scripts.generate_demo_artifacts import generate_events, write_jsonl
 
 DEMO     = "artifacts/demo/shenron_demo_run.jsonl"
 RULES    = "sigma/rules"
@@ -11,8 +12,12 @@ ASSUMPTIONS = "assumptions/examples"
 
 
 def _run(tmp):
+    # Use a fresh canonical 40-event generator output. The committed 50-event
+    # legacy demo deliberately fails strict nested-safety validation.
+    canonical = Path(tmp) / "canonical_demo.jsonl"
+    write_jsonl(generate_events("audit-fixture-001"), str(canonical))
     return run_audit_bundle(
-        events_path     = DEMO,
+        events_path     = str(canonical),
         rules_dir       = RULES,
         assumptions_dir = ASSUMPTIONS,
         out_dir         = tmp,
@@ -108,9 +113,11 @@ def test_bundle_reproducibility_counts_match():
     with tempfile.TemporaryDirectory() as tmp:
         _run(tmp)
         repro = json.loads((Path(tmp) / "reproducibility.json").read_text())
-        assert repro["inputs"]["events_count"] == 50
+        assert repro["inputs"]["events_count"] == 40
         assert repro["inputs"]["rules_count"] == 28
-        assert repro["summary"]["mitre_techniques"] == 36
+        assert repro["summary"]["mitre_techniques"] == len({
+        ev["mitre_techniques"][0] for ev in generate_events("audit-fixture-001")
+    })
 
 
 def test_bundle_index_html_contains_html_tag():

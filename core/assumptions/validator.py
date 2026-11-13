@@ -12,7 +12,6 @@ from core.assumptions.loader import load_assumption, load_artifacts as _load
 def _normalize(s: str) -> str:
     s = s.lower().strip()
     s = re.sub(r"-", "_", s)
-    s = re.sub(r"[^a-z0-9_\s]", "", s)
     s = re.sub(r"[\s_]+", "_", s)
     return s
 
@@ -51,6 +50,27 @@ def _check_claim(claim: Claim, artifacts: list, graph: dict = None) -> ClaimResu
         all_techniques |= _artifact_techniques(art)
         all_signals    |= _artifact_signals(art)
 
+    # A positive claim may opt in to requiring all its evidence in ONE
+    # artifact. Preserve category-wide aggregation for legacy claims and
+    # out-of-scope checks (which must inspect every artifact).
+    if claim.type == ClaimType.POSITIVE_EVIDENCE and claim.evidence_scope == "same_artifact":
+        required_techs = {t.upper() for t in claim.requires_techniques}
+        required_signals = {_normalize(s) for s in claim.requires_signals}
+        candidates = [
+            (_artifact_techniques(art), _artifact_signals(art))
+            for art in artifacts
+        ]
+        if candidates:
+            all_techniques, all_signals = max(
+                candidates,
+                key=lambda pair: (
+                    len(required_techs & pair[0]) + len(required_signals & pair[1]),
+                    len(required_techs & pair[0]),
+                ),
+            )
+        else:
+            all_techniques, all_signals = set(), set()
+
     supported, unsupported = [], []
 
     for tech in claim.requires_techniques:
@@ -58,11 +78,7 @@ def _check_claim(claim: Claim, artifacts: list, graph: dict = None) -> ClaimResu
 
     for sig in claim.requires_signals:
         norm = _normalize(sig)
-        matched = any(
-            norm == s or norm in s or s in norm or
-            len(set(norm.split("_")) & set(s.split("_"))) / max(len(norm.split("_")), 1) >= 0.5
-            for s in all_signals
-        )
+        matched = norm in all_signals
         (supported if matched else unsupported).append(sig)
 
     result.supported         = supported
@@ -96,15 +112,14 @@ def _check_claim(claim: Claim, artifacts: list, graph: dict = None) -> ClaimResu
 def _safe_conclusion(assumption_id: str, results: list) -> str:
     pos = [r for r in results if r.claim.type in (ClaimType.POSITIVE_EVIDENCE, ClaimType.METRIC_THRESHOLD)]
     supported   = [r for r in pos if r.status == ClaimStatus.SUPPORTED]
-    unsupported = [r for r in pos if r.status in (ClaimStatus.UNSUPPORTED,
-                                                   ClaimStatus.PARTIALLY_SUPPORTED)]
+    unsupported = [r for r in pos if r.status != ClaimStatus.SUPPORTED]
     oos = [r for r in results if r.status == ClaimStatus.OUT_OF_SCOPE]
 
     if supported and not unsupported:
         base = f"This artifact supports validation claims about {assumption_id}-shaped telemetry."
     elif supported and unsupported:
         base = (f"This artifact partially supports {assumption_id} claims. "
-                f"{len(supported)} supported, {len(unsupported)} unsupported.")
+                f"{len(supported)} supported, {len(unsupported)} not fully supported.")
     else:
         base = f"This artifact does not support {assumption_id} validation claims."
 
@@ -189,15 +204,16 @@ def validate_assumption(assumption_path, artifact_path) -> AssumptionResult:
     supported_count   = sum(1 for r in pos if r.status == ClaimStatus.SUPPORTED)
     unsupported_count = sum(1 for r in pos if r.status in (
         ClaimStatus.UNSUPPORTED, ClaimStatus.PARTIALLY_SUPPORTED))
+    unresolved_count = sum(1 for r in pos if r.status == ClaimStatus.UNRESOLVED)
     oos_violations = [r.claim.id for r in claim_results
                       if r.status == ClaimStatus.OUT_OF_SCOPE]
 
-    total = supported_count + unsupported_count
+    total = supported_count + unsupported_count + unresolved_count
     if oos_violations:
         status = AssumptionStatus.OUT_OF_SCOPE_VIOLATION
     elif total == 0:
         status = AssumptionStatus.UNSUPPORTED
-    elif unsupported_count == 0:
+    elif unsupported_count == 0 and unresolved_count == 0:
         status = AssumptionStatus.SUPPORTED
     elif supported_count > 0:
         status = AssumptionStatus.PARTIALLY_SUPPORTED

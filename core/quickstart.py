@@ -15,6 +15,7 @@ ASSUMPTION_DIR = Path(__file__).resolve().parents[1] / "assumptions" / "examples
 def run_quickstart(out_dir=None, verbose=True):
     from core.sigma.evaluator import evaluate_sigma_rule
     from core.assumptions.validator import validate_assumption
+    from core.assumptions.legacy import documented_builtin_legacy_exclusion
     from core.reports.html_report import generate_html_report
     from core.assumptions.loader import load_artifacts
     from collections import Counter
@@ -65,9 +66,19 @@ def run_quickstart(out_dir=None, verbose=True):
     _p("[ 2/4 ] Assumption validation...")
     assumption_results = []
     assumption_lines   = []
+    legacy_exclusions = []
     if ASSUMPTION_DIR.exists():
         for ap in sorted(ASSUMPTION_DIR.glob("*.yaml")):
+            excluded = documented_builtin_legacy_exclusion(ap, ASSUMPTION_DIR)
+            if excluded is not None:
+                legacy_exclusions.append(excluded)
+                line = f"  EXCLUDED {ap.name}: pinned legacy example, NOT VALIDATED"
+                assumption_lines.append(line)
+                _p(line)
+                continue
             r = validate_assumption(str(ap), events_path)
+            if not r.claim_results:
+                raise ValueError(f"{ap}: no canonical claims; quickstart cannot validate this file")
             assumption_results.append(r.to_dict())
             oos  = f" OOS:{r.out_of_scope_violations}" if r.out_of_scope_violations else ""
             line = f"  {r.assumption_id:<40} {r.status.value}{oos}"
@@ -81,7 +92,11 @@ def run_quickstart(out_dir=None, verbose=True):
         + "\n".join(assumption_lines) + "\n"
     )
     results["assumptions"] = assumption_results
+    results["assumption_exclusions"] = legacy_exclusions
+    exclusions_path = out / "assumption_exclusions.json"
+    exclusions_path.write_text(json.dumps(legacy_exclusions, indent=2))
     _p(f"   -> {assumption_report}")
+    _p(f"   -> {exclusions_path} ({len(legacy_exclusions)} legacy examples NOT VALIDATED)")
     _p("")
 
     # Step 3: Navigator
@@ -174,6 +189,7 @@ def run_quickstart(out_dir=None, verbose=True):
     _p("")
     _p(f"  Sigma rules evaluated : {len(sigma_results)}")
     _p(f"  Assumptions validated : {len(assumption_results)}")
+    _p(f"  Legacy not validated  : {len(legacy_exclusions)}")
     _p(f"  MITRE techniques      : {len(navigator_techniques)}")
     _p("")
     _p("  Output files:")

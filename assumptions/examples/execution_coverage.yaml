@@ -1,6 +1,6 @@
 id: execution_coverage
 schema_version: "1.0"
-description: Validates artifact contains execution telemetry
+description: Validates scoped synthetic payload execution telemetry; external journald interpreter spawns are checked separately
 
 claims:
   - id: scripting_evidence
@@ -10,7 +10,7 @@ claims:
       - T1059
     requires_signals:
       - script_execution_sim
-      - interpreter_spawn_sim
+      - interpreter_inline_exec_sim
 
   - id: scheduled_exec_evidence
     type: positive_evidence
