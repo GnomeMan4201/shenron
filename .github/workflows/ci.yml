@@ -10,6 +10,22 @@ permissions:
   contents: read
 
 jobs:
+  assumption-cli:
+    name: Qualified assumption CLI (exit and schema contract)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install constrained dependencies
+        run: |
+          python -m pip install -c constraints/ci.txt -e '.[dev]'
+          python -m pip check
+      - name: Verify exact CLI exit and schema contracts
+        run: python -m pytest tests/test_assumption_cli_exit_contract.py -q
+
   test:
     name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
