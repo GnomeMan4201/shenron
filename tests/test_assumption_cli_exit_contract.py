@@ -123,3 +123,16 @@ def test_unqualified_schema_never_returns_supported(tmp_path, schema):
     assert "STATUS:     SUPPORTED" not in outcome.stdout
     assert not (home / "validation_history.jsonl").exists()
     assert not (reports / "assumptions/index.md").exists()
+
+
+def test_non_cli_loader_keeps_explicit_version_warnings(tmp_path):
+    # Direct library callers retain the historical warning-only route; the
+    # individual CLI opts into a stricter 1.0 qualification contract.
+    from core.assumptions.loader import load_assumption
+
+    assumption, _ = _inputs(tmp_path, schema_version=None)
+    with pytest.warns(UserWarning, match="missing 'schema_version'"):
+        _, _, claims = load_assumption(assumption)
+    assert len(claims) == 1
+    with pytest.raises(ValueError, match="schema_version"):
+        load_assumption(assumption, require_current_schema=True)
