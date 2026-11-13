@@ -43,7 +43,14 @@ def _inputs(tmp_path, *, status="SUPPORTED", schema_version="1.0"):
     if status == "UNSUPPORTED":
         records = [{"behavior_class": "not_observed"}]
     elif status == "PARTIALLY_SUPPORTED":
+        # Aggregate partial requires one fully supported positive claim.
+        # An incomplete claim by itself aggregates to UNSUPPORTED.
         claims[0]["requires_signals"].append("signal_two")
+        claims.append({
+            "id": "supported_control",
+            "type": "positive_evidence",
+            "requires_signals": ["signal_one"],
+        })
     elif status == "OUT_OF_SCOPE_VIOLATION":
         claims.append({
             "id": "forbidden_signal", "type": "out_of_scope_claim",
