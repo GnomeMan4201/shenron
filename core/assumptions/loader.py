@@ -13,14 +13,21 @@ _EVIDENCE_FIELDS = frozenset({
 })
 
 
-def _load_yaml_simple(path: Path) -> dict:
+def _load_yaml_simple(path: Path, *, require_current_schema: bool = False) -> dict:
     """Load assumption YAML using PyYAML. Normalizes to expected structure."""
     with open(path, encoding="utf-8") as f:
         data = yaml.safe_load(f)
     if not isinstance(data, dict):
+        if require_current_schema:
+            raise ValueError(f"{path}: assumption YAML must contain a mapping")
         return {"id": "", "description": "", "schema_version": None, "claims": []}
 
     schema_version = data.get("schema_version")
+    if require_current_schema and str(schema_version) != CURRENT_SCHEMA_VERSION:
+        raise ValueError(
+            f"{path}: schema_version {schema_version!r} is not qualified; "
+            f"required {CURRENT_SCHEMA_VERSION!r}"
+        )
     if schema_version is None:
         warnings.warn(
             f"[shenron] {path.name}: missing 'schema_version' field. "
@@ -75,11 +82,11 @@ def _load_yaml_simple(path: Path) -> dict:
     return result
 
 
-def load_assumption(path) -> tuple:
+def load_assumption(path, *, require_current_schema: bool = False) -> tuple:
     p = Path(path)
     if not p.exists():
         raise FileNotFoundError(f"Assumption file not found: {path}")
-    data = _load_yaml_simple(p)
+    data = _load_yaml_simple(p, require_current_schema=require_current_schema)
     claims = []
     for c in data.get("claims", []):
         claim = Claim(
