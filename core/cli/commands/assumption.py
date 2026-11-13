@@ -31,6 +31,12 @@ def register(subparsers):
 
 
 def _handle_validate(args):
+    """Qualified CLI contract: 0=fully supported, 1=not supported, 3=input error."""
+    import sys
+    from pathlib import Path
+    import yaml
+
+    from core.assumptions.model import AssumptionStatus
     from core.assumptions.validator import (
         validate_assumption, print_result as print_assumption_result,
     )
@@ -38,15 +44,31 @@ def _handle_validate(args):
     from core.assumptions.loader import load_artifacts as load_artifact_jsonl
     from core.validation.history import record_validation
 
-    result = validate_assumption(args.yaml, args.events)
-    print_assumption_result(result)
-    record_validation(result, "assumption")
-    idx = update_assumption_index(result)
-    print(f"  [+] Index updated: {idx}")
-    if getattr(args, "scope_report", False):
-        arts = load_artifact_jsonl(args.events)
-        scope_path = generate_scope_report(result, arts)
-        print(f"  [+] Scope report: {scope_path}")
+    try:
+        if not Path(args.events).is_file():
+            raise FileNotFoundError(
+                f"Evidence file not found or not a regular file: {args.events}"
+            )
+        result = validate_assumption(
+            args.yaml, args.events, require_current_schema=True
+        )
+        print_assumption_result(result)
+
+        # Negative results are legitimate evidence and remain in the history
+        # and index. Invalid input never reaches these write operations.
+        record_validation(result, "assumption")
+        idx = update_assumption_index(result)
+        print(f"  [+] Index updated: {idx}")
+        if getattr(args, "scope_report", False):
+            arts = load_artifact_jsonl(args.events)
+            scope_path = generate_scope_report(result, arts)
+            print(f"  [+] Scope report: {scope_path}")
+    except (OSError, ValueError, yaml.YAMLError) as exc:
+        print(f"  [ERROR] Assumption validation input: {exc}", file=sys.stderr)
+        raise SystemExit(3) from None
+
+    if result.status != AssumptionStatus.SUPPORTED:
+        raise SystemExit(1)
 
 
 def _handle_compare(args):
