@@ -1,5 +1,5 @@
-import json
 from pathlib import Path
+from core.ingest.jsonl import load_jsonl_objects
 
 
 def load_sigma_rule(path) -> dict:
@@ -37,16 +37,4 @@ def load_sigma_rule(path) -> dict:
 
 
 def load_artifacts(path) -> list:
-    p = Path(path)
-    if not p.exists():
-        return []
-    records = []
-    with open(p, encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                try:
-                    records.append(json.loads(line))
-                except json.JSONDecodeError:
-                    pass
-    return records
+    return load_jsonl_objects(path)

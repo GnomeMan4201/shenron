@@ -1,4 +1,4 @@
-import json
+from core.ingest.jsonl import load_jsonl_objects, ArtifactInputError
 import warnings
 import yaml
 from pathlib import Path
@@ -106,25 +106,16 @@ def load_artifacts(path) -> list:
     p = Path(path)
     if not p.exists():
         return []
-    records = []
-    with open(p, encoding="utf-8") as f:
-        for line_number, line in enumerate(f, 1):
-            if not line.strip():
+
+    def check_evidence_types(record, line_number, source):
+        for field in _EVIDENCE_FIELDS.intersection(record):
+            value = record[field]
+            if isinstance(value, str) or (
+                isinstance(value, list) and all(isinstance(v, str) for v in value)
+            ):
                 continue
-            try:
-                record = json.loads(line)
-            except json.JSONDecodeError as exc:
-                raise ValueError(f"{p}: line {line_number}: invalid JSON: {exc.msg}") from exc
-            if not isinstance(record, dict):
-                raise ValueError(f"{p}: line {line_number}: expected JSON object")
-            for field in _EVIDENCE_FIELDS.intersection(record):
-                value = record[field]
-                if isinstance(value, str) or (
-                    isinstance(value, list) and all(isinstance(v, str) for v in value)
-                ):
-                    continue
-                raise ValueError(
-                    f"{p}: line {line_number}: {field} must be a string or list of strings"
-                )
-            records.append(record)
-    return records
+            raise ArtifactInputError(
+                f"{source}: line {line_number}: {field} must be a string or list of strings"
+            )
+
+    return load_jsonl_objects(p, record_validator=check_evidence_types)

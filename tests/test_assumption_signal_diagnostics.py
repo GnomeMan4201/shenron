@@ -23,7 +23,7 @@ def test_payload_diagnostic_requires_exact_inline_interpreter_evidence(tmp_path)
 def test_identity_diagnostic_does_not_conflate_uuid_with_multi_identity(tmp_path):
     path = tmp_path / "identity.jsonl"
     path.write_text(json.dumps({
-        "mitre_techniques": ["T1078"],
+        "mitre_techniques": ["T1027"],
         "behavior_class": "uuid_anomaly_sim",
         "detection_opportunities": ["synthetic_device_uuid_rapid_generation_sim"],
     }) + "\n")
@@ -31,8 +31,20 @@ def test_identity_diagnostic_does_not_conflate_uuid_with_multi_identity(tmp_path
     claim = next(c for c in report["claims"] if c["claim_id"] == "device_identity_pollution_evidence")
     matches = {s["signal"]: s["exact_match"] for s in claim["required_signals"]}
     assert matches["multi_identity_emit_sim"] is False
-    assert claim["status"] == "PARTIALLY_SUPPORTED"
+    assert claim["required_techniques"] == []  # T1078 removed; signal-only claim.
+    assert claim["status"] == "UNSUPPORTED"
     assert "multi_identity_emit_sim" in claim["unsupported"]
+
+
+def test_identity_diagnostic_signal_support_does_not_need_technique_label(tmp_path):
+    path = tmp_path / "identity.jsonl"
+    path.write_text(json.dumps({"behavior_class": "multi_identity_emit_sim"}) + "\n")
+    report = diagnose("identity", path)
+    claim = next(c for c in report["claims"] if c["claim_id"] == "device_identity_pollution_evidence")
+    assert claim["required_techniques"] == []
+    assert claim["status"] == "SUPPORTED"
+    assert [item["signal"] for item in claim["required_signals"]
+            if item["exact_match"]] == ["multi_identity_emit_sim"]
 
 
 def test_identity_assumption_does_not_claim_token_impersonation(tmp_path):

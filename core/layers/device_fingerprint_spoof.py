@@ -7,7 +7,7 @@ SHENRON: Device identity spoofing and fingerprint pollution.
 PURPOSE: Emit defender-observable telemetry for device identity spoofing and fingerprint pollution patterns.
 PRINCIPLE: Observable adversarial behavior, not portable adversarial procedure.
 TACTIC: defense-evasion
-MITRE: T1036, T1027, T1078
+MITRE: T1036, T1027 (synthetic device identity only; not T1078 Valid Accounts)
 
 DETECTION NOTES:
   - Synthetic device fingerprints logged at regular intervals
@@ -51,7 +51,7 @@ def _safe_fields() -> dict:
     }
 
 
-MITRE_TECHNIQUES = ['T1036', 'T1027', 'T1078']
+MITRE_TECHNIQUES = ['T1036', 'T1027']
 
 DETECTION_OPPORTUNITIES_CATALOG = [
     "mac_address_not_in_hardware_inventory_sim",
@@ -122,7 +122,7 @@ def simulate_device_fingerprint_spoof(seed: int = None) -> tuple:
         "timestamp":               datetime.now(timezone.utc).isoformat(),
         "layer":                   "device_fingerprint_spoof",
         "phase":                   "POLLUTE",
-        "mitre_techniques":        ['T1078', 'T1036'],
+        "mitre_techniques":        ['T1036'],
         "behavior_class":          "multi_identity_emit_sim",
         "signal":                  "multi_identity_emit_sim",
         "detection_opportunities": ['multiple_device_identity_profiles_single_host_sim', 'identity_pollution_burst_sim'],

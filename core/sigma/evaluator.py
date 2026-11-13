@@ -24,6 +24,7 @@ from core.sigma.model import (
     MatchStatus, RuleVerdict,
 )
 from core.sigma.loader import load_sigma_rule, load_artifacts
+from core.ingest.jsonl import ArtifactInputError
 
 
 FIELD_MAP = {
@@ -389,6 +390,8 @@ def evaluate_sigma_rule(rule_path, artifact_path,
     The pySigma bridge returns a BridgeResult; this function converts it
     to a SigmaResult for drop-in compatibility with all existing callers.
     """
+    # Validate the entire evidence stream before either backend can qualify a rule.
+    artifacts = load_artifacts(artifact_path)
     if prefer_pysigma:
         try:
             from core.sigma.pysigma_bridge import (
@@ -398,6 +401,8 @@ def evaluate_sigma_rule(rule_path, artifact_path,
                 bridge_result = evaluate_with_pysigma(
                     str(rule_path), str(artifact_path), match_mode=match_mode
                 )
+                if bridge_result.artifact_error:
+                    raise ArtifactInputError("; ".join(bridge_result.errors))
                 if bridge_result.verdict != BridgeVerdict.ERROR:
                     # Convert BridgeResult -> SigmaResult for compatibility
                     # (FieldMatch, DetectionMatch, MatchStatus already imported at module level)
@@ -425,11 +430,12 @@ def evaluate_sigma_rule(rule_path, artifact_path,
                         coverage_note=f"[pySigma] {bridge_result.coverage_note}",
                         timestamp=datetime.now(timezone.utc).isoformat(),
                     )
+        except ArtifactInputError:
+            raise  # Ingestion failures must not become successful fallback matching.
         except Exception:
             pass  # Fall through to custom evaluator
 
     rule      = load_sigma_rule(rule_path)
-    artifacts = load_artifacts(artifact_path)
 
     rule_id    = rule.get("id", Path(str(rule_path)).stem)
     rule_title = rule.get("title", rule_id)
@@ -456,38 +462,54 @@ def evaluate_sigma_rule(rule_path, artifact_path,
             if not fm.matched and fm.field not in missed_fields:
                 missed_fields.append(fm.field)
 
-    # Apply condition expression to get the final verdict
-    # Each block is "triggered" if any artifact fully satisfied it
-    block_triggered = {
-        dm.detection_name: dm.status == MatchStatus.TRIGGERED
-        for dm in detections
+    # Resolve every condition against one artifact at a time, never against
+    # aggregate booleans from different artifacts. Identity keeps duplicate
+    # JSON records distinct for triggered_count.
+    matching_ids = {
+        dm.detection_name: {id(art) for art in dm.matched_artifacts}
+        for dm in detections if dm.status == MatchStatus.TRIGGERED
     }
-
     condition_met = None  # None means no condition string present
     condition_parse_error = None
+    matching_artifacts = []
 
     if condition_str:
         try:
             tokens = _tokenize_condition(condition_str)
-            ast_node, _ = _parse_condition(tokens)
-            condition_met = _eval_ast(ast_node, block_triggered, block_names)
+            ast_node, consumed = _parse_condition(tokens)
+            if consumed != len(tokens):
+                raise ValueError("Unparsed tokens in Sigma condition")
+            for art in artifacts:
+                block_results = {
+                    name: id(art) in matching_ids.get(name, set())
+                    for name in block_names
+                }
+                if _eval_ast(ast_node, block_results, block_names):
+                    matching_artifacts.append(art)
+            condition_met = bool(matching_artifacts)
         except Exception as exc:
             condition_parse_error = str(exc)
-            # Fallback: OR all blocks (preserves old behaviour on parse failure)
-            condition_met = any(block_triggered.values())
+    else:
+        # Preserve the historical absent-condition OR behavior, but count
+        # matching artifacts once regardless of how many blocks they match.
+        matching_artifacts = [
+            art for art in artifacts
+            if any(id(art) in matched for matched in matching_ids.values())
+        ]
 
     # Derive verdict from condition result
     triggered = [d for d in detections if d.status == MatchStatus.TRIGGERED]
     partial   = [d for d in detections if d.status == MatchStatus.PARTIAL]
     unsup     = [d for d in detections if d.status == MatchStatus.UNSUPPORTED]
 
-    if condition_met is True:
+    if condition_parse_error is not None:
+        verdict = RuleVerdict.ERROR
+    elif condition_met is True:
         verdict = RuleVerdict.TRIGGERED
     elif condition_met is False:
-        # Condition evaluated but was not satisfied
         verdict = RuleVerdict.NOT_TRIGGERED
     else:
-        # No condition string — fall back to block-level aggregation
+        # No condition string — retain existing block-level verdict rules.
         if triggered:
             verdict = RuleVerdict.TRIGGERED
         elif partial:
@@ -497,7 +519,7 @@ def evaluate_sigma_rule(rule_path, artifact_path,
         else:
             verdict = RuleVerdict.NOT_TRIGGERED
 
-    triggered_count = sum(len(d.matched_artifacts) for d in triggered + partial)
+    triggered_count = len(matching_artifacts) if verdict == RuleVerdict.TRIGGERED else 0
 
     if verdict == RuleVerdict.TRIGGERED:
         note = (f"Rule fires on {triggered_count} synthetic artifact(s). "
@@ -516,8 +538,8 @@ def evaluate_sigma_rule(rule_path, artifact_path,
                 "Either the artifact does not contain matching telemetry, "
                 "or the rule targets fields not present in this layer category.")
 
-    if condition_parse_error:
-        note += f" (condition parse warning: {condition_parse_error} — fallback OR applied)"
+    if condition_parse_error is not None:
+        note = f"Sigma condition parse failed; no fallback match applied: {condition_parse_error}"
 
     return SigmaResult(
         rule_id         = rule_id,

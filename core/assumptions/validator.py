@@ -12,7 +12,6 @@ from core.assumptions.loader import load_assumption, load_artifacts as _load
 def _normalize(s: str) -> str:
     s = s.lower().strip()
     s = re.sub(r"-", "_", s)
-    s = re.sub(r"[^a-z0-9_\s]", "", s)
     s = re.sub(r"[\s_]+", "_", s)
     return s
 
