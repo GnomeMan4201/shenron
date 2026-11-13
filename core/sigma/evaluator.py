@@ -291,9 +291,16 @@ def _parse_not(tokens, pos):
     return _parse_atom(tokens, pos)
 
 
+class SigmaConditionError(ValueError):
+    """A Sigma condition that cannot be evaluated exactly as written."""
+
+
+_RESERVED = {"and", "or", "not", "of", "(", ")"}
+
+
 def _parse_atom(tokens, pos):
     if pos >= len(tokens):
-        return {"op": "ref", "name": ""}, pos
+        raise SigmaConditionError("missing operand at end of condition")
 
     tok = tokens[pos]
 
@@ -301,9 +308,12 @@ def _parse_atom(tokens, pos):
     if tok == "(":
         pos += 1
         node, pos = _parse_or(tokens, pos)
-        if pos < len(tokens) and tokens[pos] == ")":
-            pos += 1
-        return node, pos
+        if pos >= len(tokens) or tokens[pos] != ")":
+            raise SigmaConditionError("unclosed '(' in condition")
+        return node, pos + 1
+
+    if tok.lower() in _RESERVED:
+        raise SigmaConditionError(f"unexpected token {tok!r} where an operand was expected")
 
     # Quantifier: "1 of ...", "all of ...", "N of ..."
     if tok.lower() == "all" and pos + 2 < len(tokens) and tokens[pos + 1].lower() == "of":
@@ -336,6 +346,46 @@ def _resolve_target(target: str, block_names: list) -> list:
     if target in block_names:
         return [target]
     return []
+
+
+def _validate_ast(node: dict, block_names: list) -> None:
+    """Every name and quantifier target must resolve to defined detection blocks."""
+    op = node["op"]
+    if op == "ref":
+        if node["name"] not in block_names:
+            raise SigmaConditionError(f"condition references undefined detection {node['name']!r}")
+    elif op == "not":
+        _validate_ast(node["operand"], block_names)
+    elif op in ("and", "or"):
+        for operand in node["operands"]:
+            _validate_ast(operand, block_names)
+    elif op in ("1of", "allof", "Nof"):
+        if not _resolve_target(node["target"], block_names):
+            raise SigmaConditionError(
+                f"quantifier target {node['target']!r} matches no detection block")
+        if op == "Nof" and node["n"] < 1:
+            raise SigmaConditionError("quantifier count must be at least 1")
+    else:
+        raise SigmaConditionError(f"unsupported condition node {op!r}")
+
+
+def parse_condition_strict(condition: str, block_names: list) -> dict:
+    """Parse a Sigma condition, rejecting anything not evaluated exactly as written.
+
+    Shared by the custom evaluator and the pySigma bridge so both backends agree.
+    Raises SigmaConditionError for empty conditions, missing operands, unbalanced
+    parentheses, unconsumed tokens (including pipe aggregations) and references
+    to undefined detection blocks.
+    """
+    tokens = _tokenize_condition(str(condition))
+    if not tokens:
+        raise SigmaConditionError("empty condition")
+    node, consumed = _parse_condition(tokens)
+    if consumed != len(tokens):
+        raise SigmaConditionError(
+            f"unparsed tokens in condition: {' '.join(tokens[consumed:])!r}")
+    _validate_ast(node, list(block_names))
+    return node
 
 
 def _eval_ast(node: dict, block_results: dict, block_names: list) -> bool:
@@ -475,10 +525,7 @@ def evaluate_sigma_rule(rule_path, artifact_path,
 
     if condition_str:
         try:
-            tokens = _tokenize_condition(condition_str)
-            ast_node, consumed = _parse_condition(tokens)
-            if consumed != len(tokens):
-                raise ValueError("Unparsed tokens in Sigma condition")
+            ast_node = parse_condition_strict(condition_str, block_names)
             for art in artifacts:
                 block_results = {
                     name: id(art) in matching_ids.get(name, set())
