@@ -149,8 +149,15 @@ jobs:
         run: pip install -c constraints/ci.txt -e .[dev]
       - name: Verify dependency consistency
         run: python -m pip check
-      - name: Validate all category assumptions
-        run: python3 shenron.py --validate-all-assumptions --scope-dir /tmp/shenron_scoped
+      - name: Verify recorded positive/negative identity seeds and preserve fixtures
+        run: |
+          python3 research/identity_ci_gate.py
+          python3 research/identity_ci_gate.py --execute --output-dir /tmp/shenron_scoped
+
+      # --no-rerun reads the already-proven identity fixture. Other absent
+      # category artifacts are generated normally, and all seven are scored.
+      - name: Validate all categories (seeded identity, fresh other categories)
+        run: python3 shenron.py --validate-all-assumptions --no-rerun --scope-dir /tmp/shenron_scoped
 
       - name: Diagnose exact assumption signals
         if: always()
