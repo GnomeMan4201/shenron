@@ -199,6 +199,12 @@ def validate_assumption(assumption_path, artifact_path, *,
         # Preserve the existing single-argument loader call contract.
         assumption_id, _, claims = load_assumption(assumption_path)
     p = Path(artifact_path)
+    # A missing evidence file is not a valid empty or negative observation.
+    # Keep the optional general-purpose load_artifacts() semantics unchanged.
+    if not p.is_file():
+        raise FileNotFoundError(
+            f"Evidence file not found or not a regular file: {p}"
+        )
     if p.suffix == ".json":
         graph     = load_graph_artifact(artifact_path)
         artifacts = [graph] if graph else []

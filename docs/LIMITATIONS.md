@@ -85,3 +85,29 @@ do not interpret those warnings as version qualification. This change does
 not establish the meaning or integrity of external evidence or real-world
 detection effectiveness.
 
+
+## Canonical assumption document and evidence qualification (Issue #63)
+
+Assumptions using the canonical YAML schema accept only four top-level keys:
+`id`, `schema_version`, `description` and `claims`. Unknown keys are
+rejected on every assumption load route, including library callers, because a
+typo such as `claim` or `schema_versoin` would otherwise remove requirements.
+This does **not** change the existing warning-only treatment of a genuinely
+missing schema version for legacy library callers; strict single-assumption
+CLI qualification still requires version `1.0`.
+
+The two exact-hash-pinned historical noncanonical examples are still explicitly
+**excluded**, not validated, in Audit and Quickstart. They are not a generic
+exception in the canonical loader. Other paths that attempt to validate one of
+these files directly must handle the resulting input error.
+
+`validate_assumption()` requires a real regular evidence file (JSONL or graph
+JSON) and raises `FileNotFoundError` for a missing or directory path. Existing
+readable files containing an empty or nonmatching evidence set still produce
+ordinary negative outcomes such as `UNSUPPORTED`. General-purpose
+`load_artifacts()` remains optional and may return `[]` when its path
+does not exist for reporting/diagnostic uses. **Do not interpret that optional
+loader result as qualified evidence.**
+
+These changes establish input *qualification*, not the provenance, truth,
+or production detection validity of the supplied evidence.

@@ -13,6 +13,9 @@ _CLAIM_KEYS = frozenset({
     "requires_signals", "requires_metrics", "evidence_scope",
 })
 
+# Unknown document fields can silently erase claims or scope requirements.
+_DOCUMENT_KEYS = frozenset({"id", "schema_version", "description", "claims"})
+
 # Fields used by assumption matching must have interpretable types.
 _EVIDENCE_FIELDS = frozenset({
     "mitre_techniques", "technique", "techniques", "behavior_class", "phase",
@@ -28,6 +31,13 @@ def _load_yaml_simple(path: Path, *, require_current_schema: bool = False) -> di
         if require_current_schema:
             raise ValueError(f"{path}: assumption YAML must contain a mapping")
         return {"id": "", "description": "", "schema_version": None, "claims": []}
+
+    unknown = sorted(str(k) for k in data if k not in _DOCUMENT_KEYS)
+    if unknown:
+        raise ValueError(
+            f"{path}: unknown top-level key(s) {unknown}; "
+            f"allowed: {sorted(_DOCUMENT_KEYS)}"
+        )
 
     schema_version = data.get("schema_version")
     if require_current_schema and str(schema_version) != CURRENT_SCHEMA_VERSION:
