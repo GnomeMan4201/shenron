@@ -189,8 +189,15 @@ def _check_metric_claim(claim: Claim, graph: dict) -> ClaimResult:
     return result
 
 
-def validate_assumption(assumption_path, artifact_path) -> AssumptionResult:
-    assumption_id, _, claims = load_assumption(assumption_path)
+def validate_assumption(assumption_path, artifact_path, *,
+                        require_current_schema: bool = False) -> AssumptionResult:
+    if require_current_schema:
+        assumption_id, _, claims = load_assumption(
+            assumption_path, require_current_schema=True
+        )
+    else:
+        # Preserve the existing single-argument loader call contract.
+        assumption_id, _, claims = load_assumption(assumption_path)
     p = Path(artifact_path)
     if p.suffix == ".json":
         graph     = load_graph_artifact(artifact_path)
