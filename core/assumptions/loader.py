@@ -23,10 +23,39 @@ _EVIDENCE_FIELDS = frozenset({
 })
 
 
+class _UniqueKeySafeLoader(yaml.SafeLoader):
+    """SafeLoader that rejects repeated explicit keys in any mapping.
+
+    PyYAML otherwise keeps the last value, so a later duplicate could erase a
+    requirement that is visible in the file. YAML merge keys (<<) are allowed:
+    an explicit key overriding a merged one is defined behaviour, not a duplicate.
+    """
+
+
+def _construct_unique_mapping(loader, node, deep=False):
+    seen = set()
+    for key_node, _ in node.value:
+        if key_node.tag == "tag:yaml.org,2002:merge":
+            continue
+        key = loader.construct_object(key_node, deep=deep)
+        if key in seen:
+            mark = key_node.start_mark
+            raise ValueError(
+                f"{loader.name}: duplicate key {key!r} at line {mark.line + 1}, "
+                f"column {mark.column + 1}"
+            )
+        seen.add(key)
+    return yaml.SafeLoader.construct_mapping(loader, node, deep)
+
+
+_UniqueKeySafeLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _construct_unique_mapping)
+
+
 def _load_yaml_simple(path: Path, *, require_current_schema: bool = False) -> dict:
     """Load assumption YAML using PyYAML. Normalizes to expected structure."""
     with open(path, encoding="utf-8") as f:
-        data = yaml.safe_load(f)
+        data = yaml.load(f, Loader=_UniqueKeySafeLoader)
     if not isinstance(data, dict):
         if require_current_schema:
             raise ValueError(f"{path}: assumption YAML must contain a mapping")
