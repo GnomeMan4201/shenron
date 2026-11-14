@@ -1,4 +1,5 @@
 from core.ingest.jsonl import load_jsonl_objects, ArtifactInputError
+import re
 import warnings
 import yaml
 from pathlib import Path
@@ -17,10 +18,28 @@ _CLAIM_KEYS = frozenset({
 _DOCUMENT_KEYS = frozenset({"id", "schema_version", "description", "claims"})
 
 # Fields used by assumption matching must have interpretable types.
-_EVIDENCE_FIELDS = frozenset({
-    "mitre_techniques", "technique", "techniques", "behavior_class", "phase",
+# `mitre_technique` (singular) is the field used by the committed demo corpus
+# and the Sigma field map; it is interpreted, not ignored.
+_TECHNIQUE_FIELDS = frozenset({
+    "mitre_techniques", "mitre_technique", "technique", "techniques",
+})
+_EVIDENCE_FIELDS = _TECHNIQUE_FIELDS | frozenset({
+    "behavior_class", "phase",
     "detection_opportunities", "expected_events", "alert_signatures",
 })
+
+# Syntax only: this does not establish that an ID exists in ATT&CK or that
+# its mapping to the synthetic behaviour is appropriate.
+_TECHNIQUE_ID = re.compile(r"T\d{4}(?:\.\d{3})?", re.ASCII)
+
+
+def _field_spelling(key: str) -> str:
+    return re.sub(r"[-\s]+", "_", key.casefold())
+
+
+# A key that differs from an evidence field only by case or separators would
+# otherwise be ignored, so a prohibited technique written there looks absent.
+_FIELD_SPELLINGS = {_field_spelling(f): f for f in _EVIDENCE_FIELDS}
 
 
 class _UniqueKeySafeLoader(yaml.SafeLoader):
@@ -167,14 +186,27 @@ def load_artifacts(path) -> list:
         return []
 
     def check_evidence_types(record, line_number, source):
+        for key in record:
+            canonical = _FIELD_SPELLINGS.get(_field_spelling(str(key)))
+            if canonical is not None and key != canonical:
+                raise ArtifactInputError(
+                    f"{source}: line {line_number}: field {key!r} is not a recognized "
+                    f"evidence field name (expected exactly {canonical!r})"
+                )
         for field in _EVIDENCE_FIELDS.intersection(record):
             value = record[field]
-            if isinstance(value, str) or (
+            if not (isinstance(value, str) or (
                 isinstance(value, list) and all(isinstance(v, str) for v in value)
-            ):
-                continue
-            raise ArtifactInputError(
-                f"{source}: line {line_number}: {field} must be a string or list of strings"
-            )
+            )):
+                raise ArtifactInputError(
+                    f"{source}: line {line_number}: {field} must be a string or list of strings"
+                )
+            if field in _TECHNIQUE_FIELDS:
+                for item in [value] if isinstance(value, str) else value:
+                    if not _TECHNIQUE_ID.fullmatch(item.strip().upper()):
+                        raise ArtifactInputError(
+                            f"{source}: line {line_number}: {field} value {item!r} is not "
+                            f"a technique ID of the form T#### or T####.###"
+                        )
 
     return load_jsonl_objects(p, record_validator=check_evidence_types)
