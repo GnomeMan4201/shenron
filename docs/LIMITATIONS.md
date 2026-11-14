@@ -97,7 +97,11 @@ missing schema version for legacy library callers; strict single-assumption
 CLI qualification still requires version `1.0`.
 
 The two exact-hash-pinned historical noncanonical examples are still explicitly
-**excluded**, not validated, in Audit and Quickstart. They are not a generic
+**excluded**, not validated, in Audit, Quickstart, and both HTML report CLI
+routes (`report html` and `--report-html`). HTML reports list them separately
+as **EXCLUDED — NOT VALIDATED**, outside the evaluated canonical assumption
+count and verdicts. Edited pinned files fail closed; unknown noncanonical
+documents still reach strict validation and fail. They are not a generic
 exception in the canonical loader. Other paths that attempt to validate one of
 these files directly must handle the resulting input error.
 

@@ -255,6 +255,7 @@ def _legacy_dispatch():
         print_comparison(id_, entries)
     elif getattr(args, 'report_html', False):
         from pathlib import Path as _Path
+        from core.assumptions.legacy import documented_builtin_legacy_exclusion
         _validate_assumption = validate_assumption  # use already-imported top-level
         from core.config import artifact_log_path, timeline_log_path
         import json as _json
@@ -312,9 +313,14 @@ def _legacy_dispatch():
 
         # Assumption results
         assumption_results = []
+        assumption_exclusions = []
         assumption_dir = _Path("assumptions/examples")
         if assumption_dir.exists() and _Path(events_path).exists():
             for ap in sorted(assumption_dir.glob("*.yaml")):
+                exclusion = documented_builtin_legacy_exclusion(ap, assumption_dir)
+                if exclusion:
+                    assumption_exclusions.append(exclusion)
+                    continue
                 r = _validate_assumption(str(ap), events_path)
                 assumption_results.append(r.to_dict())
 
@@ -322,6 +328,7 @@ def _legacy_dispatch():
             report_data,
             sigma_results=sigma_results,
             assumption_results=assumption_results,
+            assumption_exclusions=assumption_exclusions,
         )
         print(f"  [+] HTML report: {out}")
     elif getattr(args, 'validate_sigma', None):

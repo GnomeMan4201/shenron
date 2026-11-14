@@ -21,6 +21,7 @@ def _handle_html(args):
     from core.reports.html_report import generate_html_report
     from core.sigma.evaluator import evaluate_sigma_rule
     from core.assumptions.validator import validate_assumption
+    from core.assumptions.legacy import documented_builtin_legacy_exclusion
     from core.assumptions.loader import load_artifacts
     from core.config import artifact_log_path, timeline_log_path
 
@@ -70,9 +71,14 @@ def _handle_html(args):
             sigma_results.append(r.to_dict())
 
     assumption_results = []
+    assumption_exclusions = []
     assumption_dir = Path("assumptions/examples")
     if assumption_dir.exists() and Path(events_path).exists():
         for ap in sorted(assumption_dir.glob("*.yaml")):
+            exclusion = documented_builtin_legacy_exclusion(ap, assumption_dir)
+            if exclusion:
+                assumption_exclusions.append(exclusion)
+                continue
             r = validate_assumption(str(ap), events_path)
             assumption_results.append(r.to_dict())
 
@@ -80,5 +86,6 @@ def _handle_html(args):
         report_data,
         sigma_results=sigma_results,
         assumption_results=assumption_results,
+        assumption_exclusions=assumption_exclusions,
     )
     print(f"  [+] HTML report: {out}")
