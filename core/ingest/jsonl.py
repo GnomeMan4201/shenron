@@ -7,6 +7,22 @@ class ArtifactInputError(ValueError):
     """Evidence could not be read as a complete stream of JSON objects."""
 
 
+class DuplicateKeyError(Exception):
+    pass
+
+
+def reject_duplicate_keys(pairs):
+    # json.loads keeps the last value of a repeated key silently, which can
+    # erase evidence (e.g. a technique list) that is visible in the file.
+    # The hook runs for every object, so nested duplicates are rejected too.
+    record = {}
+    for key, value in pairs:
+        if key in record:
+            raise DuplicateKeyError(key)
+        record[key] = value
+    return record
+
+
 def load_jsonl_objects(path, *, record_validator=None) -> list:
     source = Path(path)
     records = []
@@ -27,7 +43,12 @@ def load_jsonl_objects(path, *, record_validator=None) -> list:
                 if not line.strip():
                     continue
                 try:
-                    record = json.loads(line)
+                    record = json.loads(line, object_pairs_hook=reject_duplicate_keys)
+                except DuplicateKeyError as exc:
+                    raise ArtifactInputError(
+                        f"Malformed JSONL: duplicate key {exc.args[0]!r} "
+                        f"in {source} at line {line_number}"
+                    ) from None
                 except json.JSONDecodeError as exc:
                     raise ArtifactInputError(
                         f"Malformed JSONL in {source} at line {line_number}: {exc}"

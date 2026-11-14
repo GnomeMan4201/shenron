@@ -6,7 +6,12 @@ from core.assumptions.model import (
     Claim, ClaimType, ClaimStatus, AssumptionStatus,
     ClaimResult, AssumptionResult,
 )
-from core.assumptions.loader import load_assumption, load_artifacts as _load
+from core.assumptions.loader import (
+    load_assumption, load_artifacts as _load, qualify_evidence_record,
+)
+from core.ingest.jsonl import (
+    ArtifactInputError, DuplicateKeyError, reject_duplicate_keys,
+)
 
 
 def _normalize(s: str) -> str:
@@ -29,16 +34,29 @@ def _artifact_signals(art: dict) -> set:
     return signals
 
 
+def _technique(value) -> str:
+    return str(value).strip().upper()
+
+
 def _artifact_techniques(art: dict) -> set:
     techs = set()
-    for f in ["mitre_techniques", "technique", "techniques"]:
+    for f in ["mitre_techniques", "mitre_technique", "technique", "techniques"]:
         val = art.get(f)
         if isinstance(val, str):
-            techs.add(val.upper())
+            techs.add(_technique(val))
         elif isinstance(val, list):
             for v in val:
-                techs.add(str(v).upper())
+                techs.add(_technique(v))
     return techs
+
+
+def _prohibited_present(tech: str, observed: set) -> bool:
+    # Absence checks only: a prohibited parent (T1048) is also violated by any
+    # of its sub-techniques (T1048.003). The reverse is deliberately not
+    # applied, and positive requirements remain exact.
+    if tech in observed:
+        return True
+    return "." not in tech and any(t.startswith(tech + ".") for t in observed)
 
 
 def _check_claim(claim: Claim, artifacts: list, graph: dict = None) -> ClaimResult:
@@ -54,7 +72,7 @@ def _check_claim(claim: Claim, artifacts: list, graph: dict = None) -> ClaimResu
     # artifact. Preserve category-wide aggregation for legacy claims and
     # out-of-scope checks (which must inspect every artifact).
     if claim.type == ClaimType.POSITIVE_EVIDENCE and claim.evidence_scope == "same_artifact":
-        required_techs = {t.upper() for t in claim.requires_techniques}
+        required_techs = {_technique(t) for t in claim.requires_techniques}
         required_signals = {_normalize(s) for s in claim.requires_signals}
         candidates = [
             (_artifact_techniques(art), _artifact_signals(art))
@@ -74,7 +92,11 @@ def _check_claim(claim: Claim, artifacts: list, graph: dict = None) -> ClaimResu
     supported, unsupported = [], []
 
     for tech in claim.requires_techniques:
-        (supported if tech.upper() in all_techniques else unsupported).append(tech)
+        if claim.type == ClaimType.OUT_OF_SCOPE:
+            present = _prohibited_present(_technique(tech), all_techniques)
+        else:
+            present = _technique(tech) in all_techniques
+        (supported if present else unsupported).append(tech)
 
     for sig in claim.requires_signals:
         norm = _normalize(sig)
@@ -136,8 +158,18 @@ def load_graph_artifact(path) -> dict:
     p = Path(path)
     if not p.exists():
         return {}
-    with open(p) as f:
-        return json.load(f)
+    try:
+        with open(p, encoding="utf-8") as f:
+            graph = json.load(f, object_pairs_hook=reject_duplicate_keys)
+    except DuplicateKeyError as exc:
+        raise ArtifactInputError(
+            f"Malformed JSON: duplicate key {exc.args[0]!r} in {p}"
+        ) from None
+    if isinstance(graph, dict):
+        # The graph object is matched as one evidence record, so it gets the
+        # same qualification as each JSONL record.
+        qualify_evidence_record(graph, str(p))
+    return graph
 
 
 def _evaluate_metric(operator: str, value: float, threshold: float) -> bool:

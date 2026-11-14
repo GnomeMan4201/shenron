@@ -111,3 +111,38 @@ loader result as qualified evidence.**
 
 These changes establish input *qualification*, not the provenance, truth,
 or production detection validity of the supplied evidence.
+
+
+## Evidence field and technique-ID qualification
+
+An out-of-scope claim reports a technique as *absent* only after the evidence
+has been read under these rules. Input that cannot be interpreted is rejected
+as an input error rather than counted as absence.
+
+- **Fields inspected.** Techniques are read only from the top-level fields
+  `mitre_techniques`, `mitre_technique`, `technique` and `techniques` of each
+  JSONL record. **Nested objects are not searched**: a technique placed inside
+  a nested object is not inspected and is not evidence of absence or presence.
+- **Field spelling.** A top-level key that differs from a recognized evidence
+  field only by letter case, Unicode compatibility form (full-width letters or
+  underscores, non-breaking spaces), invisible format characters (zero-width
+  space or joiners), surrounding whitespace, or runs of `-`/`_`/space
+  separators (for example `MITRE_techniques`, `mitre__techniques`,
+  `" mitre_techniques"` or `Phase`) is rejected. Other unknown keys are
+  allowed and ignored; generated records carry many descriptive fields, so a
+  key that is not a near-miss of a recognized field is not inspected.
+- **Both evidence routes.** The same rules apply to JSONL evidence (each
+  record) and to graph evidence passed as a `.json` file (the top-level
+  object), including duplicate-key rejection.
+- **Duplicate keys.** A repeated key in any JSON object, including nested
+  objects, is rejected with the file and line, for every consumer of the shared
+  JSONL loader (assumptions and Sigma ingestion).
+- **Technique IDs.** Values in technique fields must match `T####` or
+  `T####.###` after trimming whitespace and uppercasing. Anything else is
+  rejected. This checks the *form* only: it does not establish that an ID
+  exists in ATT&CK or that it is an appropriate mapping for the behaviour.
+- **Sub-techniques.** For out-of-scope (absence) claims, a prohibited parent
+  such as `T1048` is also violated by any of its sub-techniques, such as
+  `T1048.003`. Positive requirements remain exact: `T1542.001` does not
+  satisfy a requirement for `T1542`, and a prohibited sub-technique is not
+  violated by evidence naming only its parent.
