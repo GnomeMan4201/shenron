@@ -68,6 +68,9 @@ def _run_layer(lt, dry_run=False):
 
 def cmd_run(args):
     """--run <layer|all> [--dry-run]"""
+    if getattr(args, "seed", None) is not None:
+        import random
+        random.seed(args.seed)
     canonical = discover_canonical()
     target = args.run
 
@@ -146,6 +149,9 @@ def _legacy_dispatch():
     p.add_argument("--categories", type=str,             help="run layers by category (legacy)")
     p.add_argument("--run",        type=str, metavar="TARGET",
                    help="run a layer, category, or 'all'")
+    p.add_argument("--seed", type=int, default=None,
+                   help="seed Python random choices for --run or --validate-all-assumptions; "
+                        "UUIDs, timestamps and OS entropy remain variable")
     p.add_argument("--layer",      type=str,             help="run a single layer (legacy)")
     p.add_argument("--dry-run",    action="store_true",  help="validate without executing")
     p.add_argument("--scope-out",  type=str, default=None, metavar="PATH",
@@ -225,6 +231,8 @@ def _legacy_dispatch():
     p.add_argument("--validate-sigma-dir", type=str, metavar="DIR",
                    help="validate all Sigma rules in a directory against artifact JSONL")
     args = p.parse_args()
+    if args.seed is not None and not (args.run or args.validate_all_assumptions):
+        p.error("--seed requires --run or --validate-all-assumptions")
 
     if args.list:           cmd_list(args)
     elif args.cats:         cmd_categories(args)

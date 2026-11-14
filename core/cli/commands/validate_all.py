@@ -9,7 +9,7 @@ summary table. Exits non-zero if any category is not SUPPORTED.
 Usage:
     python3 shenron.py --validate-all-assumptions
     python3 shenron.py --validate-all-assumptions --no-rerun
-    python3 shenron.py --validate-all-assumptions --out-dir /tmp/scoped
+    python3 shenron.py --validate-all-assumptions --seed 2026110500 --scope-dir /tmp/scoped
 """
 
 import os
@@ -40,14 +40,17 @@ STATUS_MARKERS = {
 }
 
 
-def _run_category_scoped(category: str, scoped_path: str) -> bool:
+def _run_category_scoped(category: str, scoped_path: str, seed=None) -> bool:
     """Run a category and write to scoped_path. Returns True on success."""
     import subprocess
     env = os.environ.copy()
     env["SHENRON_SCOPED_LOG"] = scoped_path
 
+    command = [sys.executable, "shenron.py", "--run", category]
+    if seed is not None:
+        command.extend(["--seed", str(seed)])
     result = subprocess.run(
-        [sys.executable, "shenron.py", "--run", category],
+        command,
         env=env,
         capture_output=True,
         text=True,
@@ -71,6 +74,7 @@ def cmd_validate_all(args):
     """--validate-all-assumptions command handler."""
     no_rerun  = getattr(args, "no_rerun", False)
     scope_dir = getattr(args, "scope_dir", None)
+    seed = getattr(args, "seed", None)
 
     # Determine scoped artifact directory
     if scope_dir:
@@ -91,6 +95,7 @@ def cmd_validate_all(args):
     print(f"  checked_at : {datetime.now(timezone.utc).isoformat()}")
     print(f"  categories : {len(CATEGORY_ASSUMPTIONS)}")
     print(f"  rerun      : {'no (using existing scoped artifacts)' if no_rerun else 'yes'}")
+    print(f"  seed       : {seed if seed is not None else 'unseeded'} (per category)")
     print(divider)
     print()
 
@@ -111,7 +116,7 @@ def cmd_validate_all(args):
         if no_rerun and Path(scoped_path).exists():
             print(f"  [~] {category:<15} using existing artifact")
         else:
-            ok = _run_category_scoped(category, scoped_path)
+            ok = _run_category_scoped(category, scoped_path, seed=seed)
             if not ok or not Path(scoped_path).exists():
                 print(f"  [✗] {category:<15} run failed")
                 results.append((category, "RUN_FAILED", 0, 0, assumption_path))
