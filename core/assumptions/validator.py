@@ -6,7 +6,12 @@ from core.assumptions.model import (
     Claim, ClaimType, ClaimStatus, AssumptionStatus,
     ClaimResult, AssumptionResult,
 )
-from core.assumptions.loader import load_assumption, load_artifacts as _load
+from core.assumptions.loader import (
+    load_assumption, load_artifacts as _load, qualify_evidence_record,
+)
+from core.ingest.jsonl import (
+    ArtifactInputError, DuplicateKeyError, reject_duplicate_keys,
+)
 
 
 def _normalize(s: str) -> str:
@@ -153,8 +158,18 @@ def load_graph_artifact(path) -> dict:
     p = Path(path)
     if not p.exists():
         return {}
-    with open(p) as f:
-        return json.load(f)
+    try:
+        with open(p, encoding="utf-8") as f:
+            graph = json.load(f, object_pairs_hook=reject_duplicate_keys)
+    except DuplicateKeyError as exc:
+        raise ArtifactInputError(
+            f"Malformed JSON: duplicate key {exc.args[0]!r} in {p}"
+        ) from None
+    if isinstance(graph, dict):
+        # The graph object is matched as one evidence record, so it gets the
+        # same qualification as each JSONL record.
+        qualify_evidence_record(graph, str(p))
+    return graph
 
 
 def _evaluate_metric(operator: str, value: float, threshold: float) -> bool:

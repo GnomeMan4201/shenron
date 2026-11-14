@@ -8,6 +8,7 @@ All notable changes to SHENRON are documented here.
 
 ### Fixed
 - Out-of-scope (absence) checks no longer pass when a prohibited technique is written as a whitespace-padded ID, a sub-technique of a prohibited parent, or in the demo corpus's `mitre_technique` field; duplicate JSON keys, wrong-case evidence field names and malformed technique IDs are now input errors instead of being ignored
+- Graph evidence passed as `.json` is qualified the same way as JSONL evidence, and evidence field names written with invisible, compatibility-form or repeated separator characters are rejected instead of ignored
 
 ### Added
 - Reproducible CI dependency constraints with `pip check` across test, safety, drift, assumption, wheel-install, and release-validation paths

@@ -124,9 +124,16 @@ as an input error rather than counted as absence.
   JSONL record. **Nested objects are not searched**: a technique placed inside
   a nested object is not inspected and is not evidence of absence or presence.
 - **Field spelling.** A top-level key that differs from a recognized evidence
-  field only by letter case or by `-`/space separators (for example
-  `MITRE_techniques`, `Mitre-Techniques` or `Phase`) is rejected. Other unknown
-  keys are allowed and ignored; generated records carry many descriptive fields.
+  field only by letter case, Unicode compatibility form (full-width letters or
+  underscores, non-breaking spaces), invisible format characters (zero-width
+  space or joiners), surrounding whitespace, or runs of `-`/`_`/space
+  separators (for example `MITRE_techniques`, `mitre__techniques`,
+  `" mitre_techniques"` or `Phase`) is rejected. Other unknown keys are
+  allowed and ignored; generated records carry many descriptive fields, so a
+  key that is not a near-miss of a recognized field is not inspected.
+- **Both evidence routes.** The same rules apply to JSONL evidence (each
+  record) and to graph evidence passed as a `.json` file (the top-level
+  object), including duplicate-key rejection.
 - **Duplicate keys.** A repeated key in any JSON object, including nested
   objects, is rejected with the file and line, for every consumer of the shared
   JSONL loader (assumptions and Sigma ingestion).

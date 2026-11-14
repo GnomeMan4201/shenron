@@ -1,5 +1,6 @@
 from core.ingest.jsonl import load_jsonl_objects, ArtifactInputError
 import re
+import unicodedata
 import warnings
 import yaml
 from pathlib import Path
@@ -34,7 +35,12 @@ _TECHNIQUE_ID = re.compile(r"T\d{4}(?:\.\d{3})?", re.ASCII)
 
 
 def _field_spelling(key: str) -> str:
-    return re.sub(r"[-\s]+", "_", key.casefold())
+    # Compatibility-fold (full-width forms, NBSP), drop invisible format
+    # characters (zero-width space/joiners), then collapse any run of
+    # separators. Used only to *detect* near-misses; matching stays exact.
+    key = unicodedata.normalize("NFKC", key)
+    key = "".join(ch for ch in key if unicodedata.category(ch) != "Cf")
+    return re.sub(r"[-\s_]+", "_", key.strip().casefold())
 
 
 # A key that differs from an evidence field only by case or separators would
@@ -180,33 +186,42 @@ def load_assumption(path, *, require_current_schema: bool = False) -> tuple:
     return data.get("id", p.stem), data.get("description", ""), claims
 
 
+def qualify_evidence_record(record: dict, where: str) -> None:
+    """Reject evidence whose technique/signal fields cannot be interpreted.
+
+    Shared by the JSONL and graph-JSON evidence routes. ``where`` locates the
+    record in diagnostics (file, and line for JSONL).
+    """
+    for key in record:
+        canonical = _FIELD_SPELLINGS.get(_field_spelling(str(key)))
+        if canonical is not None and key != canonical:
+            raise ArtifactInputError(
+                f"{where}: field {key!r} is not a recognized "
+                f"evidence field name (expected exactly {canonical!r})"
+            )
+    for field in _EVIDENCE_FIELDS.intersection(record):
+        value = record[field]
+        if not (isinstance(value, str) or (
+            isinstance(value, list) and all(isinstance(v, str) for v in value)
+        )):
+            raise ArtifactInputError(
+                f"{where}: {field} must be a string or list of strings"
+            )
+        if field in _TECHNIQUE_FIELDS:
+            for item in [value] if isinstance(value, str) else value:
+                if not _TECHNIQUE_ID.fullmatch(item.strip().upper()):
+                    raise ArtifactInputError(
+                        f"{where}: {field} value {item!r} is not "
+                        f"a technique ID of the form T#### or T####.###"
+                    )
+
+
 def load_artifacts(path) -> list:
     p = Path(path)
     if not p.exists():
         return []
 
     def check_evidence_types(record, line_number, source):
-        for key in record:
-            canonical = _FIELD_SPELLINGS.get(_field_spelling(str(key)))
-            if canonical is not None and key != canonical:
-                raise ArtifactInputError(
-                    f"{source}: line {line_number}: field {key!r} is not a recognized "
-                    f"evidence field name (expected exactly {canonical!r})"
-                )
-        for field in _EVIDENCE_FIELDS.intersection(record):
-            value = record[field]
-            if not (isinstance(value, str) or (
-                isinstance(value, list) and all(isinstance(v, str) for v in value)
-            )):
-                raise ArtifactInputError(
-                    f"{source}: line {line_number}: {field} must be a string or list of strings"
-                )
-            if field in _TECHNIQUE_FIELDS:
-                for item in [value] if isinstance(value, str) else value:
-                    if not _TECHNIQUE_ID.fullmatch(item.strip().upper()):
-                        raise ArtifactInputError(
-                            f"{source}: line {line_number}: {field} value {item!r} is not "
-                            f"a technique ID of the form T#### or T####.###"
-                        )
+        qualify_evidence_record(record, f"{source}: line {line_number}")
 
     return load_jsonl_objects(p, record_validator=check_evidence_types)
