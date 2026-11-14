@@ -3,6 +3,7 @@ SHENRON HTML Report Generator
 Produces standalone HTML with inline CSS — no external dependencies.
 """
 from datetime import datetime, timezone
+from html import escape
 from pathlib import Path
 from core.config import get_report_dir
 
@@ -82,6 +83,7 @@ def generate_html_report(
     output_path: str = None,
     sigma_results: list = None,
     assumption_results: list = None,
+    assumption_exclusions: list = None,
 ) -> str:
     """
     report_data: ShenronReport.to_dict() or similar dict with keys:
@@ -89,6 +91,7 @@ def generate_html_report(
         findings, mitre_coverage
     sigma_results: list of SigmaResult.to_dict()
     assumption_results: list of AssumptionResult.to_dict()
+    assumption_exclusions: pinned legacy exclusion records, never validation results
     """
     run_id   = report_data.get("run_id", "unknown")
     campaign = report_data.get("campaign_name", "unknown")
@@ -235,10 +238,35 @@ def generate_html_report(
         sections.append(f"""
         <h2>Assumption Validation ({len(assumption_results)} assumptions)</h2>
         <div class="card">
+            <p>{len(assumption_results)} canonical assumptions evaluated.
+                Excluded documents are not included in this count.</p>
             <table>
                 <tr><th>Assumption</th><th>Status</th>
                     <th>Supported</th><th>Unsupported</th>
                     <th>OOS Violations</th></tr>
+                {rows}
+            </table>
+        </div>
+        """)
+
+    # Exclusions are disclosures, not verdicts or evaluated assumptions.
+    if assumption_exclusions:
+        rows = ""
+        for exclusion in assumption_exclusions:
+            rows += f"""
+            <tr>
+                <td class="mono">{escape(exclusion['filename'])}</td>
+                <td>EXCLUDED — NOT VALIDATED</td>
+                <td class="mono">{escape(exclusion['reason'])}</td>
+                <td class="mono">{escape(exclusion['git_blob_sha1'])}</td>
+            </tr>"""
+        sections.append(f"""
+        <h2>Assumption Exclusions ({len(assumption_exclusions)} documents)</h2>
+        <div class="card">
+            <p>These pinned historical examples were not validated and are
+                excluded from the evaluated canonical assumption count.</p>
+            <table>
+                <tr><th>File</th><th>Handling</th><th>Reason</th><th>Pinned Git Blob</th></tr>
                 {rows}
             </table>
         </div>
