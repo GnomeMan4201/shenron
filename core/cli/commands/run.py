@@ -17,6 +17,8 @@ def register(subparsers):
         action="store_true",
         help="validate without executing",
     )
+    p.add_argument("--seed", type=int, default=None,
+                   help="seed Python random choices; UUIDs, timestamps and OS entropy remain variable")
     p.set_defaults(func=handle)
 
 
@@ -40,6 +42,9 @@ def handle(args):
     from core.engine import payload_registry
     from core.engine.layer_loader import discover_canonical, get_by_category, CATEGORIES
 
+    if getattr(args, "seed", None) is not None:
+        import random
+        random.seed(args.seed)
     canonical = discover_canonical()
     target = args.target
     dry_run = getattr(args, "dry_run", False)

@@ -217,19 +217,12 @@ jobs:
         run: pip install -c constraints/ci.txt -e .[dev]
       - name: Verify dependency consistency
         run: python -m pip check
-      - name: Generate scoped assumption evidence (unseeded diagnostic)
-        run: |
-          set +e
-          python3 shenron.py --validate-all-assumptions --scope-dir /tmp/shenron_scoped
-          result=$?
-          set -e
-          if [ "$result" -gt 1 ]; then
-            echo "::error::Unexpected survey exit status: $result"
-            exit "$result"
-          fi
-          echo "Unseeded survey exit=$result; evidence-contract check follows."
+      # Positive identity seed recorded by PRs #50/#51; the fixed-identity job
+      # below retains the known-negative and near-miss controls.
+      - name: Generate and strictly validate seeded scoped assumption evidence
+        run: python3 shenron.py --validate-all-assumptions --seed 2026110500 --scope-dir /tmp/shenron_scoped
 
-      - name: Enforce non-identity coverage and honest identity diagnostics
+      - name: Verify scoped coverage and identity signal consistency
         run: |
           python3 - <<'PY'
           from pathlib import Path
