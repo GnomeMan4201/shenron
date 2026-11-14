@@ -1,0 +1,58 @@
+name: Identity Evidence Census (100 controlled trials)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "research/identity_evidence_census.py"
+      - ".github/workflows/identity-evidence-census.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  identity-census:
+    if: github.event_name == 'pull_request' && github.head_ref == 'experiment/identity-100-trials-20261105'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify source and assumption contracts match frozen reviewer commit
+        run: |
+          git diff --exit-code fb4eedc15d022ec6856f5978d14a07904fdb9220 HEAD -- \
+            core/ assumptions/ shenron.py pyproject.toml requirements.txt constraints/
+          git rev-parse HEAD
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned source dependencies
+        run: |
+          python -m pip install -c constraints/ci.txt -e '.[dev]'
+          python -m pip check
+
+      - name: Run 100 distinct seeds, repeat each once, and negative controls
+        run: |
+          python research/identity_evidence_census.py \
+            --execute \
+            --trials 100 \
+            --repeats 2 \
+            --seed-start 2026110500 \
+            --output /tmp/shenron-identity-census
+
+      - name: Retain experiment records regardless of outcome
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: identity-100-trial-census
+          path: /tmp/shenron-identity-census/
+          if-no-files-found: warn
+          retention-days: 90
