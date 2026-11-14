@@ -185,3 +185,72 @@ def test_cli_assumption_validate_never_supported(tmp_path, generated, record):
     code, text = _cli("assumption", "validate", str(IDENTITY), "--events", str(events))
     assert code != 0, text[-1500:]
     assert "STATUS:     SUPPORTED" not in text
+
+
+# ── review follow-up (adversarial review of #68) ─────────────────────────────
+# A: the `.json` (graph) evidence route bypassed the qualification above.
+# B: field-name near-misses using invisible or compatibility characters were
+#    still ignored. Both reproduced on 79a4f67 as well as on the first fix.
+
+KEY_NEAR_MISSES = {
+    "leading_space_key": '{" mitre_techniques":["T1041"]}',
+    "nbsp_key": '{"mitre_techniques\\u00a0":["T1041"]}',
+    "zero_width_key": '{"mitre\\u200b_techniques":["T1041"]}',
+    "fullwidth_underscore_key": '{"mitre\\uff3ftechniques":["T1041"]}',
+    "doubled_underscore_key": '{"mitre__techniques":["T1041"]}',
+    "mixed_separator_key": '{"mitre_-techniques":["T1041"]}',
+}
+
+
+@pytest.mark.parametrize("record", KEY_NEAR_MISSES.values(), ids=KEY_NEAR_MISSES.keys())
+def test_invisible_or_compat_key_variant_is_rejected(tmp_path, record):
+    with pytest.raises(ValueError, match="not a recognized evidence field name") as exc:
+        validator.validate_assumption(IDENTITY, _jsonl(tmp_path, json.dumps(GOOD), record))
+    assert "line 2" in str(exc.value)
+
+
+def _graph(tmp_path, text):
+    path = tmp_path / "evidence.json"
+    path.write_text(text, encoding="utf-8")
+    return path
+
+
+def test_control_graph_json_clean_supported(tmp_path):
+    result = validator.validate_assumption(IDENTITY, _graph(tmp_path, json.dumps(GOOD)))
+    assert result.status == AssumptionStatus.SUPPORTED
+
+
+def test_control_graph_json_exact_prohibited_detected(tmp_path):
+    record = dict(GOOD, technique="T1041")
+    result = validator.validate_assumption(IDENTITY, _graph(tmp_path, json.dumps(record)))
+    assert result.status == AssumptionStatus.OUT_OF_SCOPE_VIOLATION
+
+
+_GOOD_BODY = json.dumps(GOOD)[1:-1]
+GRAPH_REJECTED = {
+    "graph_duplicate_key": ('{%s,"technique":"T1041","technique":[]}' % _GOOD_BODY, "duplicate"),
+    "graph_nested_duplicate_key": ('{%s,"meta":{"a":1,"a":2}}' % _GOOD_BODY, "duplicate"),
+    "graph_wrong_case_field": ('{%s,"MITRE_techniques":["T1041"]}' % _GOOD_BODY, "MITRE_techniques"),
+    "graph_malformed_id": ('{%s,"technique":"T1041x"}' % _GOOD_BODY, "T1041x"),
+    "graph_zero_width_key": ('{%s,"mitre\\u200b_techniques":["T1041"]}' % _GOOD_BODY, "not a recognized"),
+}
+
+
+@pytest.mark.parametrize("text,diagnostic", GRAPH_REJECTED.values(), ids=GRAPH_REJECTED.keys())
+def test_graph_json_evidence_is_qualified(tmp_path, text, diagnostic):
+    with pytest.raises(ValueError, match=diagnostic):
+        validator.validate_assumption(IDENTITY, _graph(tmp_path, text))
+
+
+@pytest.mark.parametrize("text", [v[0] for v in GRAPH_REJECTED.values()], ids=GRAPH_REJECTED.keys())
+def test_cli_graph_json_never_supported(tmp_path, text):
+    code, out = _cli("assumption", "validate", str(IDENTITY), "--events", str(_graph(tmp_path, text)))
+    assert code != 0, out[-1500:]
+    assert "STATUS:     SUPPORTED" not in out
+
+
+@pytest.mark.parametrize("record", KEY_NEAR_MISSES.values(), ids=KEY_NEAR_MISSES.keys())
+def test_cli_seven_category_gate_rejects_key_near_miss(tmp_path, generated, record):
+    code, text = _seven_with(tmp_path, generated, record)
+    assert code != 0, text[-1500:]
+    assert "ALL SUPPORTED" not in text
