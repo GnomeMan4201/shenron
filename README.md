@@ -10,12 +10,9 @@
 
 SHENRON is a safe synthetic telemetry and detection engineering research tool.
 
-It does not prove that a detection stack is effective.
+**What it measures.** SHENRON evaluates whether detection rules recognize specified observable patterns in synthetic evidence, how those detections change under controlled mutations, and which benign controls produce the same detections.
 
-It helps answer a harder question:
-> How durable are your detection rules under adversarial pressure?
-
-Rule coverage is table stakes. Rule durability is the harder problem.
+**What it does not establish.** It does not independently establish malicious intent, authorization status, or real-world detection effectiveness. A rule firing on SHENRON evidence means the rule matched that evidence, nothing more. See [Scope and limits](#scope-and-limits).
 
 ---
 
@@ -23,7 +20,7 @@ Rule coverage is table stakes. Rule durability is the harder problem.
 
 **Observable adversarial behavior, not portable adversarial procedure.**
 
-SHENRON generates structured synthetic JSONL telemetry representing adversarial behavior across its [canonical simulation layers](core/layers). Its canonical simulation layers are intended to avoid payloads, exploit code, live network calls, subprocess execution, and operational malware logic. The CLI and tooling are separate: the CLI may invoke helper subprocesses, and the MITRE ATT&CK drift check makes an HTTPS request. Synthetic telemetry does not establish real-world detector effectiveness. Every layer carries an explicit safety contract.
+SHENRON generates structured synthetic JSONL telemetry representing adversarial behavior across its [canonical simulation layers](core/layers). Its canonical simulation layers are intended to avoid payloads, exploit code, live network calls, subprocess execution, and operational malware logic. The CLI and tooling are separate: the CLI may invoke helper subprocesses, and the MITRE ATT&CK drift check makes an HTTPS request. Synthetic telemetry does not establish real-world detector effectiveness. Layers write safety flags (for example `simulation_only`) into each record; those flags describe the simulated event and are not an audit of what the tool did at runtime. The [static safety gate](tests/test_all_layers_safety_static.py) checks the layer code itself.
 
 ---
 
@@ -71,7 +68,7 @@ python3 -m core.ci.drift_gate
 
 ## What it does
 
-SHENRON generates structured synthetic telemetry across its canonical layer corpus and scores detection brittleness across three dimensions:
+SHENRON generates structured synthetic telemetry across its canonical layer corpus and measures how detections change under mutation, across three dimensions. A brittleness score describes one rule, one set of synthetic events and one set of mutations. It is only informative when the mutations change fields the rule actually compares, and it is never a durability rating on its own (see [Scope and limits](#scope-and-limits)).
 
 **Artifact-level brittleness** -- does a mutation on a single event cause a Sigma rule to stop firing? Six mutation strategies targeting fields your rules actually reference: value_swap, field_omit, case_flip, unicode_substitute, whitespace_inject, combined_evasion. Strategies are weighted by adversary accessibility -- case_flip requires zero sophistication, value_swap requires knowledge of the detection stack.
 
@@ -180,6 +177,19 @@ Role override injection: ResultType ContentFilter (Azure) / errorCode Validation
 | living-off-the-land | 4 | Pure LOtL, native tools throughout |
 
 The named `*-style` scenarios are synthetic shorthand for experiment shapes. They do not claim behavioral fidelity to, emulation of, or attribution involving the named real-world actors.
+
+---
+
+## Scope and limits
+
+What SHENRON's own experiments have established, so its results are read at the right strength:
+
+- **Label dependence.** Rules that match simulator-assigned labels (`layer`, `mitre_technique`, `behavior_class`) measure whether the simulator labelled its own output. In converted rule folders, rules must match simulated observables, and tests strip every label to confirm the same events still match ([docs/OBSERVABLE_FIELDS.md](docs/OBSERVABLE_FIELDS.md)).
+- **Behavior specificity.** Removing label dependence is not enough. Matched benign twins (same fields, ordinary values) still trigger 10 of 12 checks against the converted rules, because most of their selections only test that fields exist. Those rules are label-independent but not behavior-specific ([`tests/test_observable_specificity.py`](tests/test_observable_specificity.py)).
+- **Malicious vs authorized.** Two event histories can be identical while one is an attack and the other authorized work. A detector that sees only the events gives both the same output, so when a binary malicious/benign verdict is required it can't classify both correctly. Flagging suspicious activity without asserting intent remains possible. SHENRON's generators don't model authorization context, so SHENRON can't test whether a rule separates them. The exfiltration experiments reach this through three rejected approaches: [single-event context](docs/EXFIL_CONTEXT_EXPERIMENT.md), [port-and-timing correlation](docs/EXFIL_SEQUENCE_EXPERIMENT.md), and [process lineage with data provenance](docs/EXFIL_PROVENANCE_EXPERIMENT.md).
+- **Real-world effectiveness.** Everything here is synthetic.
+
+**Publishing rule:** a score is only reported as an evaluation result if it can be traced to the exact synthetic evidence, rule, mutations and benign controls that produced it. The report's [verification document](docs/report/VERIFICATION.md) and `reproduce.py` are the model for this.
 
 ---
 

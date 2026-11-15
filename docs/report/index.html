@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SHENRON rule durability</title>
+<title>SHENRON rule evaluation</title>
 <meta property="og:type" content="website">
-<meta property="og:title" content="SHENRON rule durability">
-<meta property="og:description" content="4 of 28 Sigma rules fired on SHENRON's demo events. What mutation changed, and which durability claims were withdrawn.">
+<meta property="og:title" content="SHENRON rule evaluation">
+<meta property="og:description" content="Historical snapshot (commit 6810866): 4 of 28 Sigma rules fired on SHENRON's demo events. What mutation changed, and which durability claims were withdrawn.">
 <meta property="og:url" content="https://gnomeman4201.github.io/shenron/report/">
 <meta property="og:image" content="https://gnomeman4201.github.io/shenron/report/preview.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -171,14 +171,15 @@ pre,.notes{border:0;background:var(--bg);box-shadow:inset 4px 4px 8px #C4C2BF,in
 <noscript><p class="wrap">This page needs JavaScript to render its data.</p></noscript>
 <div class="wrap top"><span class="brand">SHENRON</span><nav class="toplinks" aria-label="Sections"><a href="#rack">Rules</a><a href="#adapt">Rounds</a><a href="#scenarios">Scenarios</a><a href="#coverage">ATT&amp;CK</a><a href="#telemetry">Events</a></nav></div>
 <header class="wrap hero">
-  <div><p class="kick">Demo run · v<span id="ver"></span></p><h1 id="headline"></h1><p class="lede" id="lede"></p>
+  <div><p class="kick">Historical snapshot · commit 6810866 · v<span id="ver"></span></p><h1 id="headline"></h1><p class="lede" id="lede"></p>
+    <p class="lede"><strong>Historical result.</strong> This page records SHENRON at commit 6810866, before the rule conversions in <a href="https://github.com/GnomeMan4201/shenron/pull/72">PR #72</a>. With current rules, 3 of 28 rules fire on these demo events: C2 beacon (3), covert channel (4) and exfil shell (3). None of them depends on simulator labels. The LLM rule's 4 hits shown here were label-only matches. See <a href="https://github.com/GnomeMan4201/shenron/blob/main/docs/OBSERVABLE_FIELDS.md">OBSERVABLE_FIELDS.md</a>.</p>
     <div class="ctas"><a class="btn primary" href="#rack">See the rules</a><a class="btn ghost" href="https://github.com/GnomeMan4201/shenron/pull/71">Read PR #71</a></div></div>
   <div class="panel" aria-label="Rule control panel"><div class="dial" id="dial"><div class="knob"><span><b id="dn"></b>RULES FIRED</span></div></div>
     <div class="toggles" id="toggles" aria-hidden="true"></div>
     <p class="tkey">One switch per rule. On: kept firing. Warning lamp: broke when mutated. Off: never fired.</p></div>
   <div class="stats" id="stats"></div>
 </header>
-<div class="wrap"><aside class="card caveat" aria-labelledby="cav-h" style="margin-top:28px"><h2 id="cav-h">Read this before the durability numbers</h2><ul>
+<div class="wrap"><aside class="card caveat" aria-labelledby="cav-h" style="margin-top:28px"><h2 id="cav-h">Read this before the numbers</h2><ul>
         <li>The rule hit counts on the 50 demo events are solid. Two independent reviews reproduced them.</li>
         <li>The scenario scores come from SHENRON's campaign brittleness scorer, and the reviews found four defects in it. The biggest: it checked every event in a stage before mutation but only the single mutated event after, so a rule still firing on a sibling event counted as evaded. Fixing that alone takes all six scenarios to 0.00. It also counted stages no rule detected as evasion, only mutated the <code>layer</code> field, and drew seeds that changed between runs. With all four fixed in <a href="https://github.com/GnomeMan4201/shenron/pull/71">PR #71</a>, all six scenarios score 0.00 in three runs, so the scenario ranking is withdrawn.</li>
         <li>The mutation rounds and per-rule scores come from a different code path, and they reproduce exactly with and without PR #71. They are accurate but narrow: the only detection field any round changed was <code>layer</code>. They show which rules depend on that one label, not how rules hold up against real attacker variation.</li>
