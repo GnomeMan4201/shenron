@@ -56,27 +56,35 @@ def test_correlation_scorer_accepts_unscored_artifact_brittleness():
     assert report.gap_vs_artifact_brittleness is None
 
 
-def _seeds_for_fresh_campaign(scorer):
-    seeds = []
-    original = scorer.mutator.mutate_all_strategies
+def _seed_inputs_for_fresh_campaign(scorer, monkeypatch):
+    """Record what each stage's mutation seed is derived from.
 
-    def record(artifact, seed=42):
-        seeds.append(seed)
-        return original(artifact, seed=seed)
+    The builder randomizes how many artifacts a stage emits, so the number
+    of mutate calls varies between fresh campaigns; the per-stage seed must
+    not.
+    """
+    import core.brittleness.scorer as scorer_module
 
-    scorer.mutator.mutate_all_strategies = record
-    try:
-        scorer.score_campaign(CampaignBuilder(SCENARIO).build())
-    finally:
-        scorer.mutator.mutate_all_strategies = original
-    return seeds
+    inputs = []
+    original = scorer_module.stable_seed
+
+    def record(*parts):
+        inputs.append(parts)
+        return original(*parts)
+
+    monkeypatch.setattr(scorer_module, "stable_seed", record)
+    scorer.score_campaign(CampaignBuilder(SCENARIO).build())
+    monkeypatch.setattr(scorer_module, "stable_seed", original)
+    return inputs
 
 
-def test_mutation_seeds_identical_across_fresh_campaigns():
+def test_mutation_seeds_identical_across_fresh_campaigns(monkeypatch):
     scorer = BrittlenessScorer("sigma/rules")
-    first = _seeds_for_fresh_campaign(scorer)
-    second = _seeds_for_fresh_campaign(scorer)
+    first = _seed_inputs_for_fresh_campaign(scorer, monkeypatch)
+    second = _seed_inputs_for_fresh_campaign(scorer, monkeypatch)
     assert first and first == second
+    assert all(not any(len(p) == 36 and p.count("-") == 4 for p in parts) for parts in first), \
+        "seed derived from a UUID"
 
 
 def _run_cli_with(report, monkeypatch, tmp_path, capsys):

@@ -190,7 +190,9 @@ def test_evaluate_llm_rule_on_llm_artifact():
         pytest.skip("LLM artifact not present")
     result = evaluate_with_pysigma(str(LLM_RULE), str(LLM_ARTIFACT))
     assert result.verdict == BridgeVerdict.TRIGGERED
-    assert result.triggered_count == 12
+    # 11 of 12: the scenario-summary record only lists technique labels
+    # (techniques_used_sim), which observable-only rules deliberately ignore.
+    assert result.triggered_count == 11
 
 def test_evaluate_nonexistent_rule():
     result = evaluate_with_pysigma("/nonexistent/rule.yml", str(DEMO_ARTIFACT))

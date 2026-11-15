@@ -9,7 +9,8 @@ from pathlib import Path
 from typing import List, Dict
 from core.mutation.engine import MutationResult
 from core.sigma.loader import load_sigma_rule
-from core.sigma.evaluator import FIELD_MAP
+from core.sigma.pysigma_bridge import FIELD_MAP
+from core.sigma.fields import base_field, get_path, has_path, set_path, del_path
 
 
 class SigmaTargetExtractor:
@@ -37,8 +38,11 @@ class SigmaTargetExtractor:
             for block_name, block_def in detection.items():
                 if block_name == "condition" or not isinstance(block_def, dict):
                     continue
-                for sigma_field, expected_value in block_def.items():
-                    shenron_fields = FIELD_MAP.get(sigma_field, [])
+                for raw_field, expected_value in block_def.items():
+                    # Same resolution as the pySigma bridge: mapped Sigma
+                    # fields expand, anything else is an event field by name.
+                    sigma_field = base_field(raw_field)
+                    shenron_fields = FIELD_MAP.get(sigma_field, [sigma_field])
                     if not shenron_fields:
                         continue
                     values = []
@@ -80,7 +84,8 @@ class SigmaAwareMutator:
         Falls back to the first unprotected string field when the artifact carries
         none of the fields the loaded rules reference.
         """
-        fields = [f for f in self.targets if f in artifact and f not in self.PROTECTED_FIELDS]
+        fields = [f for f in self.targets
+                  if has_path(artifact, f) and f.split(".")[0] not in self.PROTECTED_FIELDS]
         if fields:
             return fields
         for k, v in artifact.items():
@@ -106,14 +111,14 @@ class SigmaAwareMutator:
         out = copy.deepcopy(artifact)
         originals, mutated_vals = {}, {}
         for i, field in enumerate(fields):
-            original_val = artifact[field]
+            original_val = get_path(artifact, field)
             mutated_val = self._mutate_value(original_val, field, strategy, seed + i)
             originals[field] = original_val
             if strategy == "field_omit":
-                out.pop(field, None)
+                del_path(out, field)
                 mutated_vals[field] = None
             else:
-                out[field] = mutated_val
+                set_path(out, field, mutated_val)
                 mutated_vals[field] = mutated_val
         out["_mutation_meta"] = {
             "strategy": strategy,

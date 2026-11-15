@@ -19,9 +19,20 @@ logsource:
   category: shenron_simulation
   product: transient_exfil_sim
 detection:
-  selection:
-    layer: transient_exfil_sim
-  condition: selection
+  # Observable-only (see docs/OBSERVABLE_FIELDS.md): a one-shot listener,
+  # an outbound transfer that closes its socket, and a prompt port release.
+  selection_one_shot_listener:
+    lifecycle_sim: one_shot
+    listen_backlog_sim: 1
+    bind_addr_sim|exists: true
+  selection_outbound_transfer:
+    remote_addr_sim|exists: true
+    data_size_bytes_sim|exists: true
+    socket_closed_after_sim|exists: true
+  selection_port_release:
+    port_released_sim|exists: true
+    cleanup_delay_sim|exists: true
+  condition: 1 of selection_*
 falsepositives:
   - Ephemeral service ports in microservice architectures
   - Legitimate data transfer utilities (rsync, scp)

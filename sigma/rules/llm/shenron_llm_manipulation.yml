@@ -24,40 +24,23 @@ logsource:
   product: shenron
   category: simulation
 detection:
-  selection_injection:
-    layer: llm_prompt_injector
-    behavior_class:
-      - role_boundary_violation_sim
-      - indirect_prompt_injection_sim
-      - encoded_jailbreak_attempt_sim
-      - context_window_saturation_sim
-      - prompt_fuzzing_pattern_sim
-      - llm_output_poisoning_sim
-      - multimodal_prompt_injection_sim
-      - llm_target_reconnaissance_sim
-      - llm_output_exfil_validation_sim
-  selection_echo:
-    layer: llm_echo_chamber
-    detection_opp:
-      - llm_format_log_entries_from_non_llm_process
-      - hallucination_tagged_events_fixed_interval_non_inference
-      - llm_hallucination_tag_outside_llm_runtime_paths
-      - token_embedding_metadata_from_non_inference_process
-  selection_shroud:
-    layer: llm_shroud_writer
-    detection_opp:
-      - llm_style_obfuscation_mimicry
-      - multi_layer_encoding_non_crypto_process
-      - entropy_layering_pattern
-  selection_scenario:
-    layer: llm_manipulation_scenario
-    behavior_class: llm_exfil_correlation_marker
-  selection_techniques:
-    mitre_technique:
-      - T1059.007
-      - T1190
-      - T1565.001
-      - T1027
+  # Observable-only (see docs/OBSERVABLE_FIELDS.md): what the simulated
+  # activity shows, not the layer, behavior or technique it was labelled with.
+  selection_prompt_injection:
+    injection_technique_sim|exists: true
+    prompt_shape_sim|exists: true
+  selection_model_probe:
+    target_model_sim|exists: true
+    token_count_sim|exists: true
+  selection_trace_log_setup:
+    target_log_sim|exists: true
+    planned_traces_sim|exists: true
+  selection_hallucination_trace:
+    log_tag_sim: '[LLM-HALLUCINATION]'
+    hallucination_class_sim|exists: true
+  selection_layered_encoding:
+    overall_entropy_sim|exists: true
+    depth|exists: true
   condition: 1 of selection_*
 falsepositives:
   - Authorized LLM security testing and red team exercises
