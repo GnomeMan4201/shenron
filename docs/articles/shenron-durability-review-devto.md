@@ -33,7 +33,7 @@ The first answer held up as reported. The second reproduced exactly but means le
 
 ## What held up
 
-Each finding below was rerun at `6810866` and again with the fixes from PR #71 applied, with different Python hash seeds. The numbers were identical every time.
+Each finding below was rerun at `6810866` and again with the fixes from PR #71 applied, with different Python hash seeds. The numbers were identical every time. The exact commits, commands, seeds and expected output are in the [verification document](https://github.com/GnomeMan4201/shenron/blob/main/docs/report/VERIFICATION.md).
 
 | Finding | How it was checked |
 | --- | --- |
@@ -65,7 +65,7 @@ The headline strategy number went with it. The report said value swap evaded det
 
 The first version of the interactive report also overstated two things: it said every mutation round targeted `layer` (only round 1 did), and it called each event's safety fields a "contract". Both are corrected in the version linked here.
 
-0.00 is not good news. The rules still match labels that no mutation changes, so in this setup mutation can't break them. A durability score of zero here means the test can't fail, not that the rules are robust.
+0.00 is not good news. The rules still match labels that none of the tested mutations change, so those mutations can't break them. A durability score of zero here means the tested mutations couldn't break the remaining detections, not that the rules are robust.
 
 ## What's still unresolved
 
@@ -74,7 +74,7 @@ The first version of the interactive report also overstated two things: it said 
 - **No durability measurement yet.** The mutation rounds only ever changed one detection field. They show which rules depend on `layer`, not how rules hold up against real attacker variation.
 - **Self-reported safety flags.** 40 events carry a safety object (no executable, no network connection, simulation only), and the other 10 carry fewer fields. The generator writes these flags. They are not an audit of what the tool did at runtime.
 - **A pinned, unmerged snapshot.** The report is fixed at `6810866`. The fixes in PR #71 and the pilot in PR #72 are still drafts, and the report needs regenerating once they merge.
-- **The fix is a two-rule pilot.** [PR #72](https://github.com/GnomeMan4201/shenron/pull/72) rewrites the two C2 rules to match simulated observables (`*_sim` fields) instead of labels. It covers two of 28 rules, its numbers are early and unreviewed, and it found a new gap: the pySigma bridge doesn't normalize Unicode, so homoglyph mutations slip past.
+- **The fix is a two-rule pilot.** [PR #72](https://github.com/GnomeMan4201/shenron/pull/72) rewrites the two C2 rules to match simulated observables (`*_sim` fields) instead of labels. It covers two of 28 rules, and its numbers are early and unreviewed. It also found a narrower gap: homoglyph substitution evaded both rewritten C2 rules on the demo events, because SHENRON's pySigma bridge defines a Unicode normalization step but never calls it. That was measured only on those two rules and SHENRON's synthetic events, not as a general Sigma bypass.
 
 ## Next, and where to look
 
