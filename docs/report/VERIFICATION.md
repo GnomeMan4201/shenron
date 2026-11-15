@@ -1,6 +1,6 @@
 # Report verification
 
-`docs/report/index.html` is a static snapshot of SHENRON at commit `6810866`. It was checked on 2026-11-14 by rerunning the tool at that commit and with PR #71 applied (`61064a6`), then reading the code paths behind each claim.
+`docs/report/index.html` is a **historical** static snapshot of SHENRON at commit `6810866`, before the rule conversions in PR #72. Its "4 of 28 rules fired" is the result at that commit. With the rules on `main` after #72, 3 of 28 fire on the same demo events (C2 beacon 3, covert channel 4, exfil shell 3), and the LLM rule's 4 demo hits disappear because those events carry only labels. It was checked on 2026-11-14 by rerunning the tool at that commit and with PR #71 applied (`61064a6`), then reading the code paths behind each claim.
 
 ## How the numbers were regenerated
 

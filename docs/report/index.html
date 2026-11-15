@@ -6,7 +6,7 @@
 <title>SHENRON rule evaluation</title>
 <meta property="og:type" content="website">
 <meta property="og:title" content="SHENRON rule evaluation">
-<meta property="og:description" content="4 of 28 Sigma rules fired on SHENRON's demo events. What mutation changed, and which durability claims were withdrawn.">
+<meta property="og:description" content="Historical snapshot (commit 6810866): 4 of 28 Sigma rules fired on SHENRON's demo events. What mutation changed, and which durability claims were withdrawn.">
 <meta property="og:url" content="https://gnomeman4201.github.io/shenron/report/">
 <meta property="og:image" content="https://gnomeman4201.github.io/shenron/report/preview.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -171,7 +171,8 @@ pre,.notes{border:0;background:var(--bg);box-shadow:inset 4px 4px 8px #C4C2BF,in
 <noscript><p class="wrap">This page needs JavaScript to render its data.</p></noscript>
 <div class="wrap top"><span class="brand">SHENRON</span><nav class="toplinks" aria-label="Sections"><a href="#rack">Rules</a><a href="#adapt">Rounds</a><a href="#scenarios">Scenarios</a><a href="#coverage">ATT&amp;CK</a><a href="#telemetry">Events</a></nav></div>
 <header class="wrap hero">
-  <div><p class="kick">Demo run · v<span id="ver"></span></p><h1 id="headline"></h1><p class="lede" id="lede"></p>
+  <div><p class="kick">Historical snapshot · commit 6810866 · v<span id="ver"></span></p><h1 id="headline"></h1><p class="lede" id="lede"></p>
+    <p class="lede"><strong>Historical result.</strong> This page records SHENRON at commit 6810866, before the rule conversions in <a href="https://github.com/GnomeMan4201/shenron/pull/72">PR #72</a>. With current rules, 3 of 28 rules fire on these demo events: C2 beacon (3), covert channel (4) and exfil shell (3). None of them depends on simulator labels. The LLM rule's 4 hits shown here were label-only matches. See <a href="https://github.com/GnomeMan4201/shenron/blob/main/docs/OBSERVABLE_FIELDS.md">OBSERVABLE_FIELDS.md</a>.</p>
     <div class="ctas"><a class="btn primary" href="#rack">See the rules</a><a class="btn ghost" href="https://github.com/GnomeMan4201/shenron/pull/71">Read PR #71</a></div></div>
   <div class="panel" aria-label="Rule control panel"><div class="dial" id="dial"><div class="knob"><span><b id="dn"></b>RULES FIRED</span></div></div>
     <div class="toggles" id="toggles" aria-hidden="true"></div>
