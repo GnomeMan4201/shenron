@@ -65,12 +65,19 @@ def test_bundle_safety_verdict_pass():
         assert safety["violations"] == []
 
 
-def test_bundle_sigma_has_triggered():
+def test_bundle_sigma_records_every_rule():
+    # The canonical demo generator emits labels only (layer, technique,
+    # signal), no simulated observables, so observable-only rules correctly
+    # do not fire on it. Earlier this test asserted a TRIGGERED verdict,
+    # which only held because a rule matched labels. Assert what the bundle
+    # actually guarantees: every rule is evaluated and none errors.
     with tempfile.TemporaryDirectory() as tmp:
         _run(tmp)
         sigma = json.loads((Path(tmp) / "sigma_results.json").read_text())
         verdicts = [r.get("verdict") for r in sigma]
-        assert "TRIGGERED" in verdicts
+        assert len(verdicts) == len(list(Path(RULES).rglob("*.yml")))
+        assert "ERROR" not in verdicts
+        assert set(verdicts) <= {"TRIGGERED", "NOT_TRIGGERED", "UNSUPPORTED"}
 
 
 def test_bundle_assumptions_has_supported():

@@ -29,7 +29,7 @@ LABEL_FIELDS = frozenset({
 
 # Rule folders already converted to observable-only detection. The guard
 # test enforces the policy for these; add folders as they are converted.
-OBSERVABLE_ONLY_RULE_DIRS = ("c2",)
+OBSERVABLE_ONLY_RULE_DIRS = ("c2", "exfiltration", "llm")
 
 
 def base_field(sigma_field: str) -> str:

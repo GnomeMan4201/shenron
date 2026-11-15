@@ -37,7 +37,9 @@ list, and the test keeps it from regressing.
 | Folder | Status |
 |---|---|
 | `c2` | Converted (pilot) |
-| everything else | Label-based, still to convert |
+| `exfiltration` | Converted |
+| `llm` | Converted |
+| everything else | Label-based, still to convert. None of these rules fire on the demo events. |
 
 ## Pilot results
 
@@ -91,13 +93,37 @@ The corpus result reflects the relay selection's `exists` checks. Existence test
 
 ## Label-stripping control
 
-Hold the 50 demo events constant, remove every `LABEL_FIELDS` key (410 values), and evaluate all 28 rules:
+Hold the events constant, remove every `LABEL_FIELDS` key, and evaluate the rules. Demo: 50 events, 410 label values removed. Corpus: a `shenron.py run all` run (227 events).
 
-| Rule | `main` (label rules) with / without labels | This PR with / without labels |
-|---|---|---|
-| C2 beacon | 3 / 0 | 3 / 3 |
-| Covert channel | 7 / 0 | 4 / 4 |
-| Exfil shell (unconverted) | 3 / 0 | 3 / 0 |
-| LLM manipulation (unconverted) | 4 / 0 | 4 / 0 |
+| Rule | `main`, demo, with / without labels | This PR, demo, with / without | This PR, corpus, with / without |
+|---|---|---|---|
+| C2 beacon | 3 / 0 | 3 / 3 | 3 / 3 |
+| Covert channel | 7 / 0 | 4 / 4 | 2 / 2 |
+| Exfil shell | 3 / 0 | 3 / 3 | 3 / 3 |
+| LLM manipulation | 4 / 0 | 0 / 0 | 11 / 11 |
 
-On `main`, every detection disappears once the simulator's labels are removed. The two converted rules fire on the same events either way, and the unconverted rules still depend on labels. `test_rule_fires_with_simulator_labels_stripped` enforces this for every rule in a converted folder; `main`'s label-keyed beacon rule fails it (3 hits with labels, 0 without).
+On `main`, every detection disappears once the simulator's labels are removed. Every converted rule fires on the same events with or without labels.
+
+`tests/test_observable_field_policy.py` enforces, for every rule in a converted folder:
+
+- **Positive control:** the same hit count with labels stripped, on the demo and on a freshly generated corpus, and at least one hit overall.
+- **Negative control:** no hits on `artifacts/benign_demo.jsonl`.
+- **Negative control:** no hits on corpus events from any generator other than the one the rule targets. The test uses `layer` as ground truth; the rules never read it.
+
+With `main`'s exfil and LLM rules swapped back in, the label-stripping control and the static label check both fail. `main`'s LLM rule also fails the generator check, because it accepted technique labels such as T1027 that other generators share.
+
+## Exfil and LLM conversion findings
+
+- **Exfil shell** detects a one-shot listener (`lifecycle_sim`, `listen_backlog_sim`, `bind_addr_sim`), an outbound transfer that closes its socket, and a prompt port release. It fires on the same 3 events as before.
+- **LLM manipulation** detects injection prompts, model probes, hallucination-tagged log traces and their log setup, and layered encoding. It fires on 11 of 12 events in `artifacts/llm_manipulation/scenario_run.jsonl`. The one it skips is the scenario summary, which only lists technique labels (`techniques_used_sim`).
+- **The 4 LLM events in the demo artifact carry no evidence at all**, only labels and bookkeeping fields, so the converted rule correctly fires 0 times there. Its 4 demo detections on `main` were pure label matches.
+- **The canonical demo generator emits labels only.** `scripts/generate_demo_artifacts.py` writes the same label template for all 40 layers, with no simulated observables, so no observable-only rule can fire on its output. `test_audit_bundle.py` previously asserted a TRIGGERED verdict on that output, which only held through a label match. It now asserts what the bundle guarantees: every rule is evaluated and none errors. Giving that generator real observables is a separate change.
+
+### Brittleness of the converted rules
+
+| Rule | Demo | Corpus | Only strategy that evades |
+|---|---|---|---|
+| Exfil shell | 0.17 | 0.17 | `field_omit` |
+| LLM manipulation | n/a (no baseline detection) | 0.17 | `field_omit` |
+
+Both rules mostly test for the presence of evidence fields, so changing values (swaps, case, homoglyphs, whitespace) leaves them firing and deleting fields stops them. That is a property of how these rules are written, not evidence that they are durable. It also means most value mutations here change data the rules never compare, so a low score measures little. Rules that compare values would be needed before brittleness says anything about evasion.
