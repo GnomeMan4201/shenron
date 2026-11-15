@@ -31,7 +31,10 @@ def test_every_case_has_the_identical_network_transfer():
 
 
 def test_information_limit_identical_histories():
-    """Same input, different authorization: any event-only detector is wrong on one."""
+    """Same input, different authorization: a binary event-only verdict can't be right on both.
+
+    Abstaining or flagging without asserting intent is outside this test.
+    """
     import hashlib
     import json
 

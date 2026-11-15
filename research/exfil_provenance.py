@@ -130,8 +130,11 @@ def run():
 # Information limit (the cheapest test that could invalidate "this is a
 # heuristic failure, not a missing-information problem"): two event
 # histories that are identical as inputs, with different authorization
-# outcomes held outside the input. Any detector that only sees the events
-# must return the same verdict for both, so it is wrong on at least one.
+# outcomes held outside the input. Any deterministic detector that only sees
+# the events returns the same output for both, so under a required binary
+# malicious/benign verdict it cannot classify both correctly. A detector that
+# abstains, or flags activity as suspicious without asserting intent, is not
+# forced into an error.
 SAME_HISTORY = Case("SSH session copies a server key to a new host",
                     ["/sbin/init", "/usr/sbin/sshd", "/bin/bash", "/usr/bin/python3"],
                     ["/etc/ssl/private/server.key"])
@@ -142,7 +145,7 @@ AUTHORIZATION_OUTCOMES = {
 
 
 def information_limit(detectors=None):
-    """Verdicts each detector gives the two outcomes, and whether it can be right on both."""
+    """Binary verdicts each detector gives the two outcomes, and how many are correct."""
     detectors = detectors or PREDICATES
     histories = {outcome: SAME_HISTORY.events() for outcome in AUTHORIZATION_OUTCOMES}
     identical = len({repr(h) for h in histories.values()}) == 1
