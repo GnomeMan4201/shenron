@@ -76,6 +76,12 @@ The corpus result reflects the relay selection's `exists` checks. Existence test
   bridge defines `_normalize()` but never calls it while matching. Whether
   matching should normalize homoglyphs and zero-width characters is a
   detection-design choice, not a bug fix, so it is left unchanged here.
+  Controlled test at this commit: changing only `_get_event_values` to pass
+  event strings through `_normalize()` turns `unicode_substitute` from
+  evaded to detected for both C2 rules on the demo events (beacon 0.83 →
+  0.50, covert 0.67 → 0.50). `combined_evasion` still evades both, because
+  `_normalize()` does not remove zero-width characters. Measured on these two
+  rules and SHENRON's synthetic events only.
 - `contains` matching survives suffix-style value swaps that exact matching
   does not.
 - `exists` checks resist every value mutation and fail only when the field
