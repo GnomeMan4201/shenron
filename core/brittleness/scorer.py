@@ -221,12 +221,14 @@ class BrittlenessScorer:
         weighted_scores = []
         total_weight = sum(self.ADVERSARY_WEIGHTS.values())
 
-        for event in campaign.events:
+        for position, event in enumerate(campaign.events):
             all_arts = list(getattr(event, "artifacts", None) or [event.artifact])
             primary_index = next(
                 (i for i, a in enumerate(all_arts) if a is event.artifact), 0
             )
-            seed = stable_seed(event.event_id)
+            # Seed from what the event is (scenario, position, stage), never
+            # from builder UUIDs, so fresh campaigns mutate identically.
+            seed = stable_seed(campaign.scenario_name, str(position), event.stage.value)
             # The adversary controls all of their own activity, so each
             # strategy is applied to every artifact the stage emitted.
             per_artifact_variants = [

@@ -60,9 +60,12 @@ def handle(args):
         print(f"  [ROBUST]    Stages detected in all scenarios: {', '.join(report.universally_detected_stages)}")
     if report.strategy_effectiveness:
         top = max(report.strategy_effectiveness.values())
-        best = [s for s, v in report.strategy_effectiveness.items() if v == top]
-        label = "Most effective evasion" if len(best) == 1 else "Most effective evasion (tied)"
-        print(f"  [STRATEGY]  {label}: {', '.join(best)} (evaded {top:.0%} of detected stages)")
+        if top <= 0:
+            print("  [STRATEGY]  No strategy evaded any detected stage")
+        else:
+            best = [s for s, v in report.strategy_effectiveness.items() if v == top]
+            label = "Most effective evasion" if len(best) == 1 else "Most effective evasion (tied)"
+            print(f"  [STRATEGY]  {label}: {', '.join(best)} (evaded {top:.0%} of detected stages)")
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
