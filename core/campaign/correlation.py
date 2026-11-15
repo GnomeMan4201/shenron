@@ -6,6 +6,7 @@ to correlate them into a coherent intrusion narrative.
 import copy
 import random
 import uuid
+from core.brittleness.scorer import stable_seed
 from dataclasses import dataclass, field
 from datetime import datetime, timezone, timedelta
 from enum import Enum
@@ -216,7 +217,7 @@ class CorrelationBrittlenessScorer:
         integrity_scores = []
 
         for strategy in CampaignMutationStrategy:
-            seed = hash(campaign.campaign_id + strategy.value) % 10000
+            seed = stable_seed(campaign.campaign_id, strategy.value)
             mutated = mutator.mutate(campaign, strategy, seed=seed)
             score = self._score_correlation(campaign, mutated)
             score.strategy = strategy.value

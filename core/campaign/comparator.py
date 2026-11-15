@@ -5,22 +5,27 @@ Evaluates and compares brittleness profiles across multiple adversary scenarios.
 import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import List, Dict
+from typing import List, Dict, Optional
 from core.campaign.builder import CampaignBuilder, SCENARIOS
 from core.brittleness.scorer import BrittlenessScorer, BrittlenessReport
+
+
+def _fmt(value: Optional[float]) -> str:
+    return "n/a" if value is None else f"{value:.2f}"
 
 
 @dataclass
 class ScenarioResult:
     scenario_name: str
-    overall_brittleness: float
-    weighted_brittleness: float
+    overall_brittleness: Optional[float]
+    weighted_brittleness: Optional[float]
     correlation_brittleness: float
-    per_stage: Dict[str, float]
+    per_stage: Dict[str, Optional[float]]
     most_brittle_stage: str
     most_effective_strategy: str
     triggered_count: int
     total_stages: int
+    undetected_stages: List[str] = field(default_factory=list)
 
 
 @dataclass
@@ -54,6 +59,7 @@ class ComparisonReport:
                     "most_effective_strategy": s.most_effective_strategy,
                     "triggered_count": s.triggered_count,
                     "total_stages": s.total_stages,
+                    "undetected_stages": s.undetected_stages,
                 }
                 for s in self.scenarios
             ],
@@ -74,16 +80,18 @@ class ComparisonReport:
         lines.append("|---|---|---|---|---|---|")
         for s in self.scenarios:
             trig = str(s.triggered_count) + "/" + str(s.total_stages)
-            lines.append("| " + s.scenario_name + " | " + f"{s.overall_brittleness:.2f}" + " | " + f"{s.weighted_brittleness:.2f}" + " | " + f"{s.correlation_brittleness:.2f}" + " | " + trig + " | " + s.most_brittle_stage + " |")
+            lines.append("| " + s.scenario_name + " | " + _fmt(s.overall_brittleness) + " | " + _fmt(s.weighted_brittleness) + " | " + f"{s.correlation_brittleness:.2f}" + " | " + trig + " | " + s.most_brittle_stage + " |")
         lines.append("")
         lines.append("## Universal Stages")
         lines.append("")
         brittle = ", ".join(self.universally_brittle_stages) if self.universally_brittle_stages else "None"
         detected = ", ".join(self.universally_detected_stages) if self.universally_detected_stages else "None"
-        lines.append("**Universally Brittle (>0.5 evasion in all scenarios):** " + brittle + "  ")
-        lines.append("**Universally Detected (0.0 evasion in all scenarios):** " + detected + "  ")
+        lines.append("**Universally Brittle (>0.5 evasion in all scenarios, detected at baseline in each):** " + brittle + "  ")
+        lines.append("**Universally Detected (0.0 evasion in all scenarios, detected at baseline in each):** " + detected + "  ")
         lines.append("")
-        lines.append("## Strategy Effectiveness (Mean Evasion Rate)")
+        lines.append("Stages that no rule detected at baseline are excluded from brittleness and listed per scenario as undetected.")
+        lines.append("")
+        lines.append("## Strategy Effectiveness (share of detected stages each strategy evaded, all scenarios)")
         lines.append("")
         lines.append("| Strategy | Mean Evasion Rate |")
         lines.append("|---|---|")
@@ -108,10 +116,13 @@ class ScenarioComparator:
 
         per_stage = {}
         triggered_count = 0
+        undetected = []
         for ab in report.per_artifact:
             per_stage[ab.stage] = ab.evasion_rate
             if ab.original_triggered:
                 triggered_count += 1
+            else:
+                undetected.append(ab.stage)
 
         from core.campaign.correlation import CorrelationBrittlenessScorer as _CorrScorer
         corr_scorer = _CorrScorer(artifact_brittleness=report.overall_brittleness_score)
@@ -127,6 +138,7 @@ class ScenarioComparator:
             most_effective_strategy=report.most_effective_strategy,
             triggered_count=triggered_count,
             total_stages=len(campaign.events),
+            undetected_stages=undetected,
         )
         result._raw_report = report
         return result
@@ -140,30 +152,41 @@ class ScenarioComparator:
         if not results:
             return report
 
-        report.most_brittle_scenario = max(results, key=lambda r: r.overall_brittleness).scenario_name
-        report.most_resilient_scenario = min(results, key=lambda r: r.overall_brittleness).scenario_name
+        ranked = [r for r in results if r.overall_brittleness is not None]
+        if ranked:
+            report.most_brittle_scenario = max(ranked, key=lambda r: r.overall_brittleness).scenario_name
+            report.most_resilient_scenario = min(ranked, key=lambda r: r.overall_brittleness).scenario_name
 
-        strat_rates: Dict[str, List[float]] = {}
+        # Per-strategy evasion rate: evasions by that strategy divided by the
+        # number of detected stages it was tried against, across all scenarios.
+        evasions: Dict[str, int] = {}
+        scored_stages = 0
         for res in results:
-            if res.most_effective_strategy:
-                strat_rates.setdefault(res.most_effective_strategy, []).append(res.overall_brittleness)
-        report.strategy_effectiveness = {
-            s: sum(vals) / len(vals) for s, vals in strat_rates.items()
-        }
+            raw = getattr(res, "_raw_report", None)
+            if raw is None:
+                continue
+            scored_stages += sum(1 for ab in raw.per_artifact if ab.evasion_rate is not None)
+            for strat, n in getattr(raw, "strategy_evade_counts", {}).items():
+                evasions[strat] = evasions.get(strat, 0) + n
+        report.strategy_effectiveness = (
+            {s: n / scored_stages for s, n in evasions.items()} if scored_stages else {}
+        )
 
-        stage_sets = [set(r.per_stage.keys()) for r in results]
-        if stage_sets:
-            common_stages = set.intersection(*stage_sets)
-            univ_brittle = []
-            univ_detected = []
-            for stage in common_stages:
-                rates = [r.per_stage[stage] for r in results]
-                if all(rate > 0.5 for rate in rates):
-                    univ_brittle.append(stage)
-                if all(rate == 0.0 for rate in rates):
-                    univ_detected.append(stage)
-            report.universally_brittle_stages = sorted(univ_brittle)
-            report.universally_detected_stages = sorted(univ_detected)
+        # A stage is universal only if every scenario includes it and every
+        # scenario detected it at baseline. An undetected stage has no
+        # brittleness, so it can't count toward "brittle everywhere".
+        common_stages = set.intersection(*[set(r.per_stage) for r in results])
+        univ_brittle, univ_detected = [], []
+        for stage in common_stages:
+            rates = [r.per_stage[stage] for r in results]
+            if any(rate is None for rate in rates):
+                continue
+            if all(rate > 0.5 for rate in rates):
+                univ_brittle.append(stage)
+            if all(rate == 0.0 for rate in rates):
+                univ_detected.append(stage)
+        report.universally_brittle_stages = sorted(univ_brittle)
+        report.universally_detected_stages = sorted(univ_detected)
 
         return report
 

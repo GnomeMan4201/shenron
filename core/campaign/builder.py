@@ -138,31 +138,28 @@ class CampaignBuilder:
         from core.engine.layer_loader import load_all
         import os
 
-        log_path = os.path.expanduser("~/SHENRON/logs/simulation_artifacts.jsonl")
-        if not os.path.exists(log_path):
-            # fallback: check alternate path
-            log_path = os.path.expanduser("~/.shenron/logs/simulation_artifacts.jsonl")
+        from core.config import artifact_log_path
 
-        # Count lines before
+        # Read the same file the layers write to (respects SHENRON_HOME), and
+        # only the bytes appended by this run, instead of re-reading the log.
+        log_path = artifact_log_path()
         try:
-            with open(log_path) as f:
-                before = f.readlines()
-        except FileNotFoundError:
-            before = []
+            start_offset = os.path.getsize(log_path)
+        except OSError:
+            start_offset = 0
 
         # Ensure layer is loaded and run it
         if layer_name not in payload_registry.list_registered():
             load_all()
         payload_registry.run(layer_name)
 
-        # Read back new records
         try:
-            with open(log_path) as f:
-                after = f.readlines()
+            with open(log_path, encoding="utf-8") as f:
+                f.seek(start_offset)
+                new_records = f.read().splitlines()
         except FileNotFoundError:
-            after = []
+            new_records = []
 
-        new_records = after[len(before):]
         import json as _json
         artifacts = []
         for line in new_records:
@@ -185,6 +182,8 @@ class CampaignBuilder:
                 "detection_opportunities": ["simulation_detection_opp"],
                 "simulation_only": True,
                 "safety": make_safe_record_fields(),
+                # Marks a placeholder: the layer emitted nothing for this stage.
+                "stub_artifact": True,
             }]
 
         # Inject campaign fields into all artifacts
