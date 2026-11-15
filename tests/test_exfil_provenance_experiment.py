@@ -28,3 +28,21 @@ def test_every_case_has_the_identical_network_transfer():
     cases = [P.EXFIL, P.TWIN, *P.PRESERVING, *P.ATTACKER]
     sends = [{k: v for k, v in c.events()[-1].items() if k != "process_id_sim"} for c in cases]
     assert all(s == sends[0] for s in sends)
+
+
+def test_information_limit_identical_histories():
+    """Same input, different authorization: any event-only detector is wrong on one."""
+    import hashlib
+    import json
+
+    arbitrary = {
+        "always alert": lambda evs: True,
+        "never alert": lambda evs: False,
+        "hash of the input": lambda evs: hashlib.sha256(json.dumps(evs).encode()).digest()[0] % 2 == 0,
+        **P.PREDICATES,
+    }
+    identical, rows = P.information_limit(arbitrary)
+    assert identical
+    for name, (verdicts, correct) in rows.items():
+        assert len(set(verdicts.values())) == 1, name
+        assert correct == 1, name

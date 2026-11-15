@@ -127,6 +127,33 @@ def run():
     return r1, r2, r3
 
 
+# Information limit (the cheapest test that could invalidate "this is a
+# heuristic failure, not a missing-information problem"): two event
+# histories that are identical as inputs, with different authorization
+# outcomes held outside the input. Any detector that only sees the events
+# must return the same verdict for both, so it is wrong on at least one.
+SAME_HISTORY = Case("SSH session copies a server key to a new host",
+                    ["/sbin/init", "/usr/sbin/sshd", "/bin/bash", "/usr/bin/python3"],
+                    ["/etc/ssl/private/server.key"])
+AUTHORIZATION_OUTCOMES = {
+    "authorized: on-call admin migrating the service": False,   # should not alert
+    "unauthorized: attacker with a stolen SSH key": True,       # should alert
+}
+
+
+def information_limit(detectors=None):
+    """Verdicts each detector gives the two outcomes, and whether it can be right on both."""
+    detectors = detectors or PREDICATES
+    histories = {outcome: SAME_HISTORY.events() for outcome in AUTHORIZATION_OUTCOMES}
+    identical = len({repr(h) for h in histories.values()}) == 1
+    rows = {}
+    for name, f in detectors.items():
+        verdicts = {o: f(h) for o, h in histories.items()}
+        correct = sum(verdicts[o] == should for o, should in AUTHORIZATION_OUTCOMES.items())
+        rows[name] = (verdicts, correct)
+    return identical, rows
+
+
 if __name__ == "__main__":
     r1, r2, r3 = run()
     print("Round 1: exfiltration vs its routine twin (identical network transfer)")
@@ -138,3 +165,7 @@ if __name__ == "__main__":
     print(f"\nRound 3: {len(ATTACKER)} attacker variations (missed)")
     for p, missed in r3.items():
         print(f"  {p:22s} missed {len(missed)}/{len(ATTACKER)}: {', '.join(missed)}")
+    identical, rows = information_limit()
+    print(f"\nInformation limit: identical event histories as input: {identical}")
+    for p, (verdicts, correct) in rows.items():
+        print(f"  {p:22s} same verdict for both: {len(set(verdicts.values())) == 1}  correct on {correct}/2")

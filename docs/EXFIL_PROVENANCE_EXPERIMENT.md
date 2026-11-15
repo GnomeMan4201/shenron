@@ -48,9 +48,17 @@ The combined predicate misses all three:
 - **Stage the data:** one process reads the secrets and a different one sends them, so provenance misses because it only checks the sender. Following data across processes would need taint tracking.
 - **Rename the interpreter** to a service-like name, so lineage misses.
 
+## Information limit: same events, different authorization
+
+This rules out "a better predicate would fix it". Take one event history: an SSH session starts bash, which starts python3, reads a server's TLS private key and sends it to a new host. It has two authorization outcomes. One is an on-call admin migrating the service, which should not alert. The other is an attacker with a stolen SSH key, which should alert.
+
+The two inputs are identical, so **any detector that sees only these events gives both the same verdict and is wrong on exactly one**. `test_information_limit_identical_histories` checks this for the three predicates here, and for arbitrary functions of the input (always alert, never alert, a hash of the events).
+
+This is an information limit, not a failed heuristic. For this pair, no amount of extra behavioral evidence helps unless it differs between the two cases. Authorization context, such as which credential was used and whether the change was expected, does differ.
+
 ## What this establishes
 
-- **Kill criterion met for a behavior-only evidence model.** With network, lineage and provenance all matched, the attack and the admin task are the same events. Telling them apart takes **authorization context**:
+- **Kill criterion met for this evidence model.** With network, lineage and provenance all matched, the attack and the admin task are the same events, and the information-limit test shows no event-only detector can be right on both. This does not show that lineage and provenance are useless for detection: they remove easy false positives. Nor does it show that no behavioral detector can ever separate attacks from authorized work. It shows that these cases can't be separated from these events. Telling them apart takes **authorization context**:
   - who acted, and with which credential and authentication method;
   - whether this host or application normally does this;
   - whether a change or job was expected.
