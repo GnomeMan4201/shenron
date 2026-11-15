@@ -227,7 +227,13 @@ class BrittlenessScorer:
                 (i for i, a in enumerate(all_arts) if a is event.artifact), 0
             )
             seed = stable_seed(event.event_id)
-            variants = self.mutator.mutate_all_strategies(event.artifact, seed=seed)
+            # The adversary controls all of their own activity, so each
+            # strategy is applied to every artifact the stage emitted.
+            per_artifact_variants = [
+                self.mutator.mutate_all_strategies(a, seed=seed + 97 * j)
+                for j, a in enumerate(all_arts)
+            ]
+            variants = per_artifact_variants[primary_index]
             orig_per_rule = self._check_artifacts_per_rule(all_arts)
             orig_triggered = any(orig_per_rule.values())
 
@@ -254,10 +260,9 @@ class BrittlenessScorer:
 
             for i, variant in enumerate(variants):
                 strat_name = self.STRATEGIES[i]
-                # Compare like with like: the full artifact set, with only the
-                # primary artifact replaced by its mutated variant.
-                variant_set = list(all_arts)
-                variant_set[primary_index] = variant
+                # Compare like with like: the full artifact set, every artifact
+                # mutated with the same strategy.
+                variant_set = [vs[i] for vs in per_artifact_variants]
                 variant_per_rule = self._check_artifacts_per_rule(variant_set)
                 for r in fired_rules:
                     if not variant_per_rule.get(r):

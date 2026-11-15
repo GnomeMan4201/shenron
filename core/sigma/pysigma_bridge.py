@@ -140,10 +140,11 @@ def _normalize(s: str) -> str:
 
 def _get_event_values(event: dict, sigma_field: str) -> List[str]:
     """Get all values from an event for a given Sigma field name."""
+    from core.sigma.fields import get_path
     shenron_fields = FIELD_MAP.get(sigma_field, [sigma_field])
     values = []
     for sf in shenron_fields:
-        val = event.get(sf)
+        val = get_path(event, sf) if "." in sf else event.get(sf)
         if val is None:
             continue
         if isinstance(val, list):

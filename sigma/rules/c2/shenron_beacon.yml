@@ -1,7 +1,10 @@
 title: SHENRON C2 Beacon Detection
 id: shenron-c2-001
 status: test
-description: Detects periodic beacon and HTTP C2 channel telemetry
+description: >
+    Detects periodic C2 beacons from what the traffic shows: a beacon interval
+    plus an HTTP or DNS beacon method. Matches observable fields only, never
+    simulator labels (see docs/OBSERVABLE_FIELDS.md).
 author: gnomeman4201 / badBANANA Research Collective
 tags:
     - attack.command_and_control
@@ -11,8 +14,13 @@ logsource:
     product: shenron
     category: simulation
 detection:
-    beacon:
-        mitre_technique: T1071
-        layer: beacon_emitter_cloak
-    condition: beacon
+    selection:
+        beacon_interval_sim|exists: true
+        beacon_data.method:
+            - http_get
+            - http_post
+            - https_encoded
+            - dns_a
+            - dns_txt
+    condition: selection
 level: high

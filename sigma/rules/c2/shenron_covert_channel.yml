@@ -1,26 +1,36 @@
 title: SHENRON Covert Channel / Protocol Tunneling
 id: shenron-c2-002
 status: test
-description: Detects DNS tunneling and covert channel telemetry
+description: >
+    Detects covert channels and tunnels from what the traffic shows: data
+    hidden in packet header fields, one protocol carried inside another, or a
+    listener that forwards connections to an external host. Matches observable
+    fields only, never simulator labels (see docs/OBSERVABLE_FIELDS.md).
 author: gnomeman4201 / badBANANA Research Collective
 tags:
     - attack.command_and_control
     - attack.t1095
     - attack.t1572
-    - attack.t1048
+    - attack.t1001
 logsource:
     product: shenron
     category: simulation
 detection:
-    selection_layer:
-        layer:
-            - packet_covert_channel_sim
-            - covert_tunnel_sim
-            - covert_socket_relay
-    selection_technique:
-        mitre_technique:
-            - T1095
-            - T1572
-            - T1048
+    selection_header_carrier:
+        channel_type_sim|contains:
+            - tcp_seq
+            - ip_id
+            - icmp
+            - ttl
+        encoding_sim|exists: true
+    selection_encapsulation:
+        carrier_protocol_sim:
+            - dns
+            - icmp
+            - https
+        inner_protocol_sim|exists: true
+    selection_relay:
+        listen_port_sim|exists: true
+        forward_dest_sim|exists: true
     condition: 1 of selection_*
 level: high
