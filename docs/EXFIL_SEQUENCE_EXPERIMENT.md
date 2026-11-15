@@ -1,6 +1,6 @@
 # Exfiltration as a sequence: listener, transfer, release
 
-**Result: the cross-event pattern carries real signal, and it gives the first brittleness measurement in SHENRON that tests attacker behavior.** It separates SHENRON's exfiltration from every routine sequence in round 1, unlike any single-event context ([EXFIL_CONTEXT_EXPERIMENT.md](EXFIL_CONTEXT_EXPERIMENT.md)). One plausible routine activity still breaks it. Simple attacker variations evade it completely.
+**Result: invalidated.** The cross-event pattern separated a hand-picked set of routine sequences (round 1). It fails the cheapest test that could break it: routine protocols that send from port X to port X by design, with the same timing (round 3). **It fires on 10 of 10.** Restricting it to ephemeral ports still fires on 3 of 10, and an attacker defeats that restriction by choosing a low port. Port-plus-timing is not an exfiltration signal. Rounds 1 and 2 below are kept as the record of how that looked before round 3.
 
 Code: `research/exfil_sequence.py`. The outcome is pinned by `tests/test_exfil_sequence_experiment.py`. The correlation is plain Python, because SHENRON's Sigma evaluator can't correlate events yet. This experiment tests whether that support is worth building first.
 
@@ -43,14 +43,23 @@ Each change below is something an attacker controls. Unlike the earlier mutation
 
 The minimal pattern catches two more variations but picks up Syncthing as a false positive. That's a real detection trade-off. Neither pattern survives a different port or a delay longer than the window.
 
+## Round 3: routine same-port protocols, same timing
+
+Ten routine protocols that use the same port on both ends, each as a short-lived sequence: bind, send within a second, release within two. They are NTP (123), mDNS (5353), SSDP (1900), NetBIOS (137), IKE (500), BitTorrent DHT (6881), WireGuard (51820), a WebRTC ICE check, a Tailscale probe and a game client's NAT punch.
+
+| Pattern | Fires on |
+|---|---|
+| Full pattern | **10 of 10** |
+| Full pattern, ephemeral ports only (49152+) | 3 of 10: WireGuard, WebRTC, game NAT punch |
+
+The ephemeral-port restriction is also evaded by an attacker who uses port 123: 8 of 8 sequences missed.
+
 ## What this establishes
 
-- **Correlation is worth building.** It is the first approach that separates these fixtures without labels, and it gives brittleness numbers that measure attacker variation, not changes to irrelevant fields.
-- **The pattern is easy to evade.** It depends on choices the attacker makes: the same port, a quick release, a short delay. Report its brittleness alongside detection, never detection alone.
-- **Before trusting it:**
-  - add real host and process grouping instead of `session_id`;
-  - add more routine sequences, especially peer-to-peer and test tooling;
-  - make the window a measured parameter.
+- **Port relationship and timing do not identify exfiltration.** Round 1 looked clean only because of which routine sequences were chosen. Round 3 shows the same shape is everyday network behavior.
+- **The attacker-variation results still stand as method.** They change what the rule actually reads, so they are the right kind of brittleness test. The thing they were testing just turned out not to be a signal.
+- **The requirement from the single-event experiment stands.** What separates exfiltration from routine transfers isn't in network events alone. It is in process lineage (what spawned the sender) and data provenance (what was read before sending). The generator emits neither, for either side.
+- **Correlation support in the evaluator is not justified by this pattern.** Build it only for a pattern that first survives a round-3-style test in plain Python. That needs the evidence above, emitted by the generator for both exfiltration and its routine twins.
 
 ## Limits
 

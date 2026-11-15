@@ -11,7 +11,7 @@ import exfil_sequence as S  # noqa: E402
 
 @pytest.fixture(scope="module")
 def outcome():
-    return S.run()
+    return S.run()[:5]
 
 
 def test_full_pattern_separates_round_one(outcome):
@@ -41,3 +41,11 @@ def test_attacker_variation(outcome):
     assert minimal["keeps the port open (no release)"] == 0
     assert minimal["listener backlog 5 instead of 1"] == 0
     assert "Syncthing: persistent listener, peers on the same port" in minimal_fps
+
+
+def test_round_three_invalidates_the_pattern():
+    """Routine same-port protocols with the same timing defeat the pattern."""
+    positives, _, _, _, _, round3, low_port_evasion = S.run()
+    assert len(round3["full pattern"]) == len(S.SYMMETRIC)
+    assert round3["full pattern, ephemeral ports only"]
+    assert low_port_evasion == len(positives)

@@ -134,6 +134,33 @@ ADVERSARIAL = [
 ]
 
 
+# Round 3 (the cheapest invalidating test): routine protocols that send from
+# port X to port X by design, as short-lived sequences with the same timing
+# as the generator (bind, send within 1s, release within 2s).
+def _symmetric(name, port, peer):
+    s = name.split(":")[0]
+    return (name, [_listener(s, 0, port), _transfer(s, 1, peer, port), _release(s, 2, port)])
+
+
+SYMMETRIC = [
+    _symmetric("ntpdate: NTP query", 123, "198.51.100.123"),
+    _symmetric("mDNS one-shot query", 5353, "224.0.0.251"),
+    _symmetric("SSDP/UPnP discovery", 1900, "239.255.255.250"),
+    _symmetric("nmblookup: NetBIOS name query", 137, "198.51.100.255"),
+    _symmetric("IKE rekey probe", 500, "203.0.113.50"),
+    _symmetric("BitTorrent DHT ping (default port)", 6881, "198.51.100.66"),
+    _symmetric("WireGuard handshake on a fresh socket", 51820, "203.0.113.82"),
+    _symmetric("WebRTC ICE check (mirrored high port)", 60122, "198.51.100.90"),
+    _symmetric("Tailscale peer probe", 41641, "203.0.113.41"),
+    _symmetric("game client NAT punch (high port)", 54777, "198.51.100.17"),
+]
+
+
+def ephemeral(seq):
+    """Refinement suggested by the data: only ports in the ephemeral range."""
+    return all(e.get("port_sim", 49152) >= 49152 for e in seq if "port_sim" in e)
+
+
 def attacker_variants(seq):
     """Exfiltration the pattern should still catch, varied the way an attacker could."""
     lst, tr, rel = (dict(e) for e in seq)
@@ -167,11 +194,21 @@ def run():
                 evasions.setdefault(pname, {}).setdefault(desc, 0)
                 evasions[pname][desc] += not matches(varied, require)
     minimal_fps = [d for d, s in NEGATIVES + ADVERSARIAL if matches(s, patterns["minimal: same port + non-loopback"])]
-    return positives, table, round2, evasions, minimal_fps
+    round3 = {
+        "full pattern": [d for d, q in SYMMETRIC if matches(q, FULL)],
+        "full pattern, ephemeral ports only": [d for d, q in SYMMETRIC if matches(q, FULL) and ephemeral(q)],
+    }
+    low_port = []
+    for seq in positives:
+        lst, tr, rel = (dict(e) for e in seq)
+        lst["port_sim"] = tr["remote_port_sim"] = rel["port_released_sim"] = 123
+        low_port.append([lst, tr, rel])
+    round3_evasion = sum(not (matches(q, FULL) and ephemeral(q)) for q in low_port)
+    return positives, table, round2, evasions, minimal_fps, round3, round3_evasion
 
 
 if __name__ == "__main__":
-    positives, table, round2, evasions, minimal_fps = run()
+    positives, table, round2, evasions, minimal_fps, round3, round3_evasion = run()
     print(f"Round 1. positives: {len(positives)} generator sequences; negatives: {len(NEGATIVES)} routine sequences\n")
     for name, tp, n, fps in table:
         print(f"{name:34s} detects {tp}/{n}  false positives {len(fps)}/{len(NEGATIVES)}  {', '.join(fps)}")
@@ -182,3 +219,7 @@ if __name__ == "__main__":
         print(f"  {pname}")
         for desc, missed in rows.items():
             print(f"    {desc:45s} missed {missed}/{len(positives)}")
+    print(f"\nRound 3: {len(SYMMETRIC)} routine same-port protocols, same timing")
+    for pname, fps in round3.items():
+        print(f"  {pname:38s} fires on {len(fps)}/{len(SYMMETRIC)}: {', '.join(fps)}")
+    print(f"  ephemeral-only refinement evaded by an attacker using port 123: {round3_evasion}/{len(positives)}")
