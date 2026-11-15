@@ -482,8 +482,23 @@ def evaluate_sigma_rule(rule_path, artifact_path,
                     )
         except ArtifactInputError:
             raise  # Ingestion failures must not become successful fallback matching.
-        except Exception:
-            pass  # Fall through to custom evaluator
+        except ImportError:
+            pass  # pySigma not installed: fall through to the custom evaluator
+        except Exception as exc:
+            # A crash while matching must be reported, not turned into a miss
+            # by an evaluator that does not understand the rule's modifiers.
+            return SigmaResult(
+                rule_id=Path(str(rule_path)).stem,
+                rule_title=Path(str(rule_path)).stem,
+                rule_file=str(rule_path),
+                artifact_file=str(artifact_path),
+                verdict=RuleVerdict.ERROR,
+                detections=[],
+                triggered_count=0,
+                missed_fields=[],
+                coverage_note=f"[pySigma] evaluation error: {type(exc).__name__}: {exc}",
+                timestamp=datetime.now(timezone.utc).isoformat(),
+            )
 
     rule      = load_sigma_rule(rule_path)
 

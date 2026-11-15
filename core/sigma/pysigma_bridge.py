@@ -185,7 +185,12 @@ def _match_sigma_value(sigma_val: Any, event_values: List[str],
 
     # Regex match
     if is_re or isinstance(sigma_val, SigmaRegularExpression):
-        pattern = str(sigma_val) if not isinstance(sigma_val, SigmaRegularExpression) else sigma_val.regexp
+        if isinstance(sigma_val, SigmaRegularExpression):
+            # pySigma wraps the pattern in a SigmaString; use the raw text.
+            rx = sigma_val.regexp
+            pattern = rx if isinstance(rx, str) else getattr(rx, "original", None) or str(rx)
+        else:
+            pattern = str(sigma_val)
         flags = 0 if case_sensitive else re.IGNORECASE
         for ev in event_values:
             if re.search(pattern, ev, flags):
