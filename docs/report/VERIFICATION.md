@@ -21,6 +21,7 @@ Runs used `PYTHONHASHSEED` 1 and 2 for the snapshot and 11, 22 and 33 for the sc
 | Rounds 2–4 changed `run_id`, `host_id` or `timestamp`, which no rule reads | Holds | Same instrumentation. **Corrected:** the page previously said every round targeted `layer` |
 | Rounds 5–6 changed nothing | Holds at `6810866` | `sigma_aware_unicode` and `sigma_aware_whitespace` become `unicode` and `whitespace`, which the mutator doesn't recognise; PR #71 adds aliases |
 | Survivors keep firing because they also match `mitre_technique` | Holds | Both rules use `1 of selection_*` with a `mitre_technique` selection; no strategy targets that field |
+| Campaign scorer compared a stage's full event set before mutation with the single mutated event after | Holds | Every stage has 3–13 events. Patching only this comparison at `6810866` (mutated event substituted into the full set) gives 0.00 for all six scenarios |
 | Campaign scorer defects: undetected stages counted as evasion, only `layer` mutated, per-process seeds | Holds | `score_campaign` scores every artifact regardless of baseline detection; the mutator loads only root-level rules (targets `layer`, `behavior_class`); seed is `hash(event_id)` |
 | With PR #71 all six scenarios score 0.00 | Holds | Three runs at `61064a6` |
 | Originally reported scenario values (apt29-style 0.71 … ransomware-precursor 0.40) | Holds as a record of a first run | Later runs at `6810866` give apt29-style 0.67; all other values match |
