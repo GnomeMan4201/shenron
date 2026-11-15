@@ -48,3 +48,37 @@ def test_dotted_paths_mutate_nested_values():
     assert get_path(out, "beacon_data.method") is None
     assert "beacon_interval_sim" not in out
     assert event["beacon_data"]["method"] == "http_get"  # input untouched
+
+
+DEMO_EVENTS = RULES.parent.parent / "artifacts" / "demo" / "shenron_demo_run.jsonl"
+
+
+@pytest.mark.parametrize("rule_path", CONVERTED, ids=lambda p: p.name)
+def test_rule_fires_with_simulator_labels_stripped(rule_path):
+    """Hold the event evidence constant and remove every label field.
+
+    A rule that detects behavior must fire on the same events whether or not
+    the simulator labelled them. Rules that key on labels drop to zero here.
+    """
+    from core.sigma.evaluator import evaluate_sigma_rule
+    from core.sigma.model import RuleVerdict
+
+    events = [json.loads(line) for line in DEMO_EVENTS.read_text().splitlines() if line.strip()]
+    stripped = [{k: v for k, v in e.items() if k not in LABEL_FIELDS} for e in events]
+
+    def matched(path):
+        r = evaluate_sigma_rule(str(rule_path), str(path), match_mode="strict")
+        return r.verdict == RuleVerdict.TRIGGERED, r.triggered_count
+
+    with tempfile.NamedTemporaryFile("w", suffix=".jsonl", delete=False) as f:
+        f.write("\n".join(json.dumps(e) for e in stripped) + "\n")
+        stripped_path = f.name
+    try:
+        labelled, stripped_result = matched(DEMO_EVENTS), matched(stripped_path)
+    finally:
+        Path(stripped_path).unlink()
+
+    assert labelled[0], f"{rule_path.name} should fire on the demo events"
+    assert stripped_result == labelled, (
+        f"{rule_path.name} fired {labelled[1]}x with labels, {stripped_result[1]}x without"
+    )

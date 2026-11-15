@@ -88,3 +88,16 @@ The corpus result reflects the relay selection's `exists` checks. Existence test
   is missing, so their strength depends on the telemetry source.
 - Brittleness here is measured on synthetic fields, so it shows how a rule
   is *written*, not how it performs on real telemetry.
+
+## Label-stripping control
+
+Hold the 50 demo events constant, remove every `LABEL_FIELDS` key (410 values), and evaluate all 28 rules:
+
+| Rule | `main` (label rules) with / without labels | This PR with / without labels |
+|---|---|---|
+| C2 beacon | 3 / 0 | 3 / 3 |
+| Covert channel | 7 / 0 | 4 / 4 |
+| Exfil shell (unconverted) | 3 / 0 | 3 / 0 |
+| LLM manipulation (unconverted) | 4 / 0 | 4 / 0 |
+
+On `main`, every detection disappears once the simulator's labels are removed. The two converted rules fire on the same events either way, and the unconverted rules still depend on labels. `test_rule_fires_with_simulator_labels_stripped` enforces this for every rule in a converted folder; `main`'s label-keyed beacon rule fails it (3 hits with labels, 0 without).
