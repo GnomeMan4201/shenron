@@ -463,6 +463,14 @@ def _select_strategy_feedback(
 
 
 
+# Adaptation strategy suffixes -> SigmaAwareMutator strategy names. Without
+# this, "unicode" and "whitespace" matched no mutator branch and were no-ops.
+SIGMA_AWARE_ALIASES = {
+    "unicode": "unicode_substitute",
+    "whitespace": "whitespace_inject",
+}
+
+
 def _apply_mutation(
     events: List[dict],
     strategy: str,
@@ -498,7 +506,9 @@ def _apply_mutation(
         return result.records
 
     if strategy.startswith("sigma_aware_") and sigma_mutator:
-        sigma_strategy = strategy.replace("sigma_aware_", "")
+        sigma_strategy = SIGMA_AWARE_ALIASES.get(
+            strategy.replace("sigma_aware_", ""), strategy.replace("sigma_aware_", "")
+        )
         mutated = []
         for ev in events:
             mutated.append(sigma_mutator.mutate_targeted(ev, sigma_strategy, seed=seed))

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SHENRON: Mutation History — operational logging infrastructure
 # ROLE: Core audit log module — records every layer load and execution event
-# MECHANISM: Appends structured JSON entries to ~/SHENRON/logs/mutation_history.json
+# MECHANISM: Appends structured JSON entries to $SHENRON_HOME/logs/mutation_history.jsonl (default ~/SHENRON)
 # NOTE: This module IS the mutation audit trail. It is not a simulator.
 #       It is called by layer_loader.py on every load and by payload_registry.run() on execution.
 #       Do not convert to a stub — it is active operational infrastructure.
@@ -11,8 +11,11 @@ import os
 import json
 from datetime import datetime, timezone
 
-LOG_FILE = os.path.expanduser("~/SHENRON/logs/mutation_history.jsonl")
-os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+def _log_file() -> str:
+    # Resolved at call time so SHENRON_HOME is honored and importing this
+    # module does not create directories.
+    from core.config import get_log_dir
+    return str(get_log_dir() / "mutation_history.jsonl")
 
 def log_mutation(payload_name, mutation_type, stealth_score, notes=""):
     entry = {
@@ -24,7 +27,7 @@ def log_mutation(payload_name, mutation_type, stealth_score, notes=""):
     }
 
     try:
-        with open(LOG_FILE, 'a') as f:
+        with open(_log_file(), 'a') as f:
             f.write(json.dumps(entry) + "\n")
         print(f"[+] Mutation logged for: {payload_name}")
     except Exception as e:

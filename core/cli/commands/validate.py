@@ -107,7 +107,9 @@ def _score_brittleness(rule_path, artifact_path):
         raise RuntimeError(f"Cannot score non-triggered baseline: {baseline.verdict.value}")
 
     try:
-        mutator = SigmaAwareMutator(str(Path(rule_path).parent))
+        # Target only the rule being scored, so its score doesn't depend on
+        # which other rules happen to share its folder.
+        mutator = SigmaAwareMutator(str(rule_path))
     except Exception as exc:
         raise RuntimeError(f"Sigma-aware mutator initialization failed: {exc}") from exc
 

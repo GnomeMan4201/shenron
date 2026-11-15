@@ -48,7 +48,10 @@ def handle(args):
     print(f"  {'-'*22} {'-'*11} {'-'*9} {'-'*20}")
     for res in report.scenarios:
         trig = f"{res.triggered_count}/{res.total_stages}"
-        print(f"  {res.scenario_name:<23} {res.overall_brittleness:<12.2f} {trig:<10} {res.most_brittle_stage}")
+        score = "n/a" if res.overall_brittleness is None else f"{res.overall_brittleness:.2f}"
+        print(f"  {res.scenario_name:<23} {score:<12} {trig:<10} {res.most_brittle_stage}")
+        if res.undetected_stages:
+            print(f"  {'':<23} undetected at baseline (not scored): {', '.join(res.undetected_stages)}")
 
     print()
     if report.universally_brittle_stages:
@@ -56,8 +59,13 @@ def handle(args):
     if report.universally_detected_stages:
         print(f"  [ROBUST]    Stages detected in all scenarios: {', '.join(report.universally_detected_stages)}")
     if report.strategy_effectiveness:
-        best = max(report.strategy_effectiveness, key=report.strategy_effectiveness.get)
-        print(f"  [STRATEGY]  Most effective evasion: {best} ({report.strategy_effectiveness[best]:.2f} mean evasion rate)")
+        top = max(report.strategy_effectiveness.values())
+        if top <= 0:
+            print("  [STRATEGY]  No strategy evaded any detected stage")
+        else:
+            best = [s for s, v in report.strategy_effectiveness.items() if v == top]
+            label = "Most effective evasion" if len(best) == 1 else "Most effective evasion (tied)"
+            print(f"  [STRATEGY]  {label}: {', '.join(best)} (evaded {top:.0%} of detected stages)")
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)

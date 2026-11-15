@@ -6,10 +6,11 @@ to correlate them into a coherent intrusion narrative.
 import copy
 import random
 import uuid
+from core.brittleness.scorer import stable_seed
 from dataclasses import dataclass, field
 from datetime import datetime, timezone, timedelta
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 from core.campaign.builder import Campaign
 
@@ -40,7 +41,8 @@ class CorrelationBrittlenessReport:
     per_strategy: List[CorrelationScore] = field(default_factory=list)
     overall_correlation_brittleness: float = 0.0
     most_fragile_strategy: str = ""
-    gap_vs_artifact_brittleness: float = 0.0
+    # None when the artifact side had no baseline detections to score.
+    gap_vs_artifact_brittleness: Optional[float] = 0.0
 
     def report_to_dict(self) -> dict:
         return {
@@ -71,7 +73,8 @@ class CorrelationBrittlenessReport:
         lines.append("**Generated At:** " + self.generated_at + "  ")
         lines.append("**Overall Correlation Brittleness:** " + f"{self.overall_correlation_brittleness:.2f}" + "  ")
         lines.append("**Most Fragile Strategy:** " + self.most_fragile_strategy + "  ")
-        lines.append("**Gap vs Artifact Brittleness:** " + f"{self.gap_vs_artifact_brittleness:.2f}" + "  ")
+        gap = self.gap_vs_artifact_brittleness
+        lines.append("**Gap vs Artifact Brittleness:** " + ("n/a" if gap is None else f"{gap:.2f}") + "  ")
         lines.append("")
         lines.append("## Per-Strategy Breakdown")
         lines.append("")
@@ -200,7 +203,7 @@ class CorrelationBrittlenessScorer:
             pass
         return CorrelationBrittlenessScorer.TIME_THRESHOLD_HOURS
 
-    def __init__(self, artifact_brittleness: float = 0.0,
+    def __init__(self, artifact_brittleness: Optional[float] = 0.0,
                  config_path: str = "shenron.config.yml"):
         self.artifact_brittleness = artifact_brittleness
         self.TIME_THRESHOLD_HOURS = self._load_time_threshold(config_path)
@@ -216,7 +219,9 @@ class CorrelationBrittlenessScorer:
         integrity_scores = []
 
         for strategy in CampaignMutationStrategy:
-            seed = hash(campaign.campaign_id + strategy.value) % 10000
+            # Seed from the scenario, not the random campaign_id, so fresh
+            # campaigns of one scenario are mutated the same way.
+            seed = stable_seed(campaign.scenario_name, strategy.value)
             mutated = mutator.mutate(campaign, strategy, seed=seed)
             score = self._score_correlation(campaign, mutated)
             score.strategy = strategy.value
@@ -231,7 +236,8 @@ class CorrelationBrittlenessScorer:
                 report.per_strategy, key=lambda s: 1.0 - s.correlation_integrity
             ).strategy
             report.gap_vs_artifact_brittleness = (
-                report.overall_correlation_brittleness - self.artifact_brittleness
+                None if self.artifact_brittleness is None
+                else report.overall_correlation_brittleness - self.artifact_brittleness
             )
 
         return report

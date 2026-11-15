@@ -97,6 +97,17 @@ def _parse_sigma_rule(path: Path) -> Dict[str, Any]:
     }
 
 
+_TECHNIQUE_TAG = re.compile(r"^attack\.(t\d{4}(?:\.\d{3})?)$", re.I)
+
+
+def technique_from_tag(tag: Any) -> Optional[str]:
+    """attack.t1003.001 -> T1003.001; non-technique tags -> None."""
+    if not isinstance(tag, str):
+        return None
+    m = _TECHNIQUE_TAG.match(tag.strip())
+    return m.group(1).upper() if m else None
+
+
 def list_sigma_rules() -> List[Dict[str, Any]]:
     rules_dir = REPO_ROOT / "sigma" / "rules"
     if not rules_dir.exists():
@@ -256,17 +267,20 @@ def api_artifact():
     technique_rules: Dict[str, List[str]] = {}
     for r in rules:
         for tag in r.get("tags", []) or []:
-            if isinstance(tag, str) and re.match(r"^attack\.t\d+", tag, re.I):
-                tid = tag.split(".")[-1].upper()
+            tid = technique_from_tag(tag)
+            if tid:
                 technique_rules.setdefault(tid, []).append(r["name"])
 
     for ev in events:
         techs = ev.get("mitre_techniques") or []
         matched = []
         for t in techs:
-            for rname in technique_rules.get(str(t).upper(), []):
-                if rname not in matched:
-                    matched.append(rname)
+            t = str(t).upper()
+            # Exact match first, then the parent technique (T1053.005 -> T1053).
+            for key in dict.fromkeys([t, t.split(".")[0]]):
+                for rname in technique_rules.get(key, []):
+                    if rname not in matched:
+                        matched.append(rname)
         ev["_matched_rules"] = matched
 
     return jsonify({"path": rel, "count": len(events), "events": events, "errors": errors, "technique_rules": technique_rules})
@@ -274,14 +288,17 @@ def api_artifact():
 
 @app.route("/api/scenarios")
 def api_scenarios():
-    res = _run_cli(["python3", "shenron.py", "compare-scenarios", "--format", "json"], timeout=300)
-    if res["returncode"] not in (0, 1, 2):
-        return jsonify({"error": "compare-scenarios failed", "returncode": res["returncode"], "stdout": res["stdout"][:4000], "stderr": res["stderr"][:4000]}), 500
+    # compare-scenarios has no JSON-to-stdout mode, so call the comparator
+    # directly instead of shelling out to the CLI.
     try:
-        payload = json.loads(res["stdout"])
-        return jsonify(payload)
-    except json.JSONDecodeError:
-        return jsonify({"error": "invalid JSON from compare-scenarios", "stdout": res["stdout"][:4000]}), 500
+        import contextlib
+        import io
+        from core.campaign.comparator import ScenarioComparator
+        with contextlib.redirect_stdout(io.StringIO()):
+            report = ScenarioComparator(str(REPO_ROOT / "sigma" / "rules")).run_all()
+        return jsonify(report.report_to_dict())
+    except Exception as e:
+        return jsonify({"error": f"scenario comparison failed: {e}", "traceback": traceback.format_exc()}), 500
 
 
 @app.route("/api/drift")
@@ -315,8 +332,8 @@ def api_mitre():
             if isinstance(tag, str) and tag.startswith("attack.") and not re.match(r"^attack\.t\d", tag, re.I):
                 tac = tag.replace("attack.", "").replace("_", "-")
         for tag in r.get("tags", []) or []:
-            if isinstance(tag, str) and re.match(r"^attack\.t\d", tag, re.I):
-                tid = tag.split(".")[-1].upper()
+            tid = technique_from_tag(tag)
+            if tid:
                 technique_rules.setdefault(tid, []).append(r["path"])
                 if tac and tid not in technique_tactics:
                     technique_tactics[tid] = tac
@@ -432,7 +449,10 @@ def static_proxy(path: str):
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    print(f"\n  SHENRON dashboard -> http://localhost:{port}")
+    # Loopback by default: the dashboard has no authentication. Set
+    # SHENRON_DASHBOARD_HOST=0.0.0.0 to expose it deliberately.
+    host = os.environ.get("SHENRON_DASHBOARD_HOST", "127.0.0.1")
+    print(f"\n  SHENRON dashboard -> http://{host}:{port}")
     print(f"  repo_root = {REPO_ROOT}")
     print(f"  frontend  = {'built' if FRONTEND_DIST.exists() else 'NOT built (cd frontend && npm install && npm run build)'}\n")
-    app.run(host="0.0.0.0", port=port, threaded=True, debug=False)
+    app.run(host=host, port=port, threaded=True, debug=False)
