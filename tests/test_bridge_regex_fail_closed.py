@@ -23,7 +23,7 @@ logsource:
     category: simulation
 detection:
     selection:
-        uptime_sim|re: '^[0-9](\\\\.[0-9]+)?$'
+        uptime_sim|re: '^[0-9](\\.[0-9]+)?$'
     condition: selection
 level: low
 """
