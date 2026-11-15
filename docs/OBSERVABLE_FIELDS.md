@@ -127,3 +127,27 @@ With `main`'s exfil and LLM rules swapped back in, the label-stripping control a
 | LLM manipulation | n/a (no baseline detection) | 0.17 | `field_omit` |
 
 Both rules mostly test for the presence of evidence fields, so changing values (swaps, case, homoglyphs, whitespace) leaves them firing and deleting fields stops them. That is a property of how these rules are written, not evidence that they are durable. It also means most value mutations here change data the rules never compare, so a low score measures little. Rules that compare values would be needed before brittleness says anything about evasion.
+
+## Specificity: matched benign controls
+
+Label independence is necessary, not sufficient. `tests/test_observable_specificity.py` gives each converted rule benign twins: events with the same evidence fields as its positives, but ordinary values. **10 of 12 twins fire:**
+
+| Rule | Benign twins that fire |
+|---|---|
+| C2 beacon | 2 of 2: hourly software update check, resolver refreshing a cached record |
+| Covert channel | 3 of 3: ordinary ping, normal HTTPS, reverse proxy |
+| Exfil shell | 2 of 3: routine HTTPS upload, service releasing a port. Quiet: long-lived listener |
+| LLM manipulation | 3 of 4: ordinary chat request, app logger setup, compressed archive. Quiet: ordinary prompt |
+
+**These rules are label-independent but not behavior-specific, and must not be described as behavior-specific detection.** Most selections only check that fields exist, or match values benign traffic also has (`http_get`, `dns_a`, `https`). The two quiet twins hit selections that compare values (`lifecycle_sim: one_shot` with `listen_backlog_sim: 1`) or require a field whose name asserts the behavior (`injection_technique_sim`, effectively a label under another name).
+
+The firing twins are strict xfails: when a rule is made specific, its twin passes unexpectedly and CI flags it so the mark can be removed.
+
+Making them specific needs evidence the generators don't emit yet. Single events can't separate a beacon from an update check without process lineage, destination context or periodicity across events, and an upload from exfiltration without knowing what was read and by whom. Next steps, in order: tighten the selections the current fields can support (for example DNS carrying TCP), add discriminating context to the generators, and keep these twins as the acceptance test.
+
+### Denominators used in this document
+
+- **Demo:** `artifacts/demo/shenron_demo_run.jsonl`, 50 events, committed. The published report uses this file.
+- **Corpus:** a fresh `shenron.py run all`, 227 events in the run measured here. Generated, so counts can vary between runs.
+- **LLM scenario run:** `artifacts/llm_manipulation/scenario_run.jsonl`, 12 events, committed.
+- **Benign twins:** 12 hand-written events in `tests/test_observable_specificity.py`.
