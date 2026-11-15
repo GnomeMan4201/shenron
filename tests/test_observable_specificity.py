@@ -47,3 +47,43 @@ def test_benign_twin_does_not_fire(rule_name, event):
         assert evaluate_sigma_rule(str(rule), path, match_mode="strict").triggered_count == 0
     finally:
         Path(path).unlink()
+
+
+# Pinned fixture inventory. The twins are permanent regression fixtures:
+# removing one, or dropping a NOT_SPECIFIC mark, must be a deliberate,
+# reviewed change here, not a side effect of tuning a rule until a metric
+# improves. When a rule genuinely becomes specific, its strict xfail fails;
+# remove the mark AND the entry below in the same change, and say why.
+PINNED_TWINS = {
+    'beacon: hourly software update check (HTTPS GET)',
+    'beacon: resolver refreshing a cached A record',
+    'covert_channel: ordinary ping (ICMP echo, no encoding)',
+    'covert_channel: normal HTTPS carrying HTTP',
+    'covert_channel: reverse proxy forwarding to an internal app',
+    'transient_exfil_shell: long-lived service listener',
+    'transient_exfil_shell: routine HTTPS upload that closes its socket',
+    'transient_exfil_shell: service releasing a port on shutdown',
+    'llm_manipulation: ordinary chat completion request',
+    'llm_manipulation: ordinary prompt with no injection',
+    'llm_manipulation: app logger initialising its log file',
+    'llm_manipulation: nested compressed archive',
+}
+PINNED_KNOWN_FALSE_POSITIVES = {
+    'beacon: hourly software update check (HTTPS GET)',
+    'beacon: resolver refreshing a cached A record',
+    'covert_channel: ordinary ping (ICMP echo, no encoding)',
+    'covert_channel: normal HTTPS carrying HTTP',
+    'covert_channel: reverse proxy forwarding to an internal app',
+    'transient_exfil_shell: routine HTTPS upload that closes its socket',
+    'transient_exfil_shell: service releasing a port on shutdown',
+    'llm_manipulation: ordinary chat completion request',
+    'llm_manipulation: app logger initialising its log file',
+    'llm_manipulation: nested compressed archive',
+}
+
+
+def test_twin_inventory_is_pinned():
+    ids = {p.id for p in TWINS}
+    known_fp = {p.id for p in TWINS if any(m.name == "xfail" for m in p.marks)}
+    assert ids == PINNED_TWINS
+    assert known_fp == PINNED_KNOWN_FALSE_POSITIVES
