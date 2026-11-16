@@ -34,7 +34,7 @@ The **canonical simulation layers** are designed to avoid:
 - Real file writes outside controlled artifact paths
 - Exploit code
 
-The [canonical-layer static safety gate](tests/test_all_layers_safety_static.py) checks selected forbidden patterns. It is a partial safeguard, **not a proof of complete runtime safety**. CLI helper subprocesses and MITRE drift-check network requests are outside the synthetic-layer guarantee.
+The [canonical-layer static safety gate](tests/test_all_layers_safety_static.py) parses each layer's code (an AST lint) and rejects forbidden imports and calls: subprocess, socket, shutil, eval/exec, `__import__`, importlib, ctypes, marshal, compile, and `os.exec*`/`os.fork`. It is a static check, **not a sandbox and not a proof of runtime safety**. Dynamic lookups can evade it (for example, reaching a builtin through `__builtins__[...]`), so it guards against mistakes, not deliberate evasion. CLI helper subprocesses and MITRE drift-check network requests are outside the synthetic-layer guarantee.
 
 ---
 
