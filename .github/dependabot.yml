@@ -5,6 +5,12 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # Keep pyproject.toml minimums as declared. A newer release already
+    # satisfies a ">=" minimum, so Dependabot leaves it alone and only bumps
+    # the exact pins in constraints/ci.txt. The declared minimums are a
+    # compatibility contract, tested by the minimum-dependencies CI job and
+    # tests/test_minimum_dependency_contract.py.
+    versioning-strategy: increase-if-necessary
 
   - package-ecosystem: github-actions
     directory: "/"
