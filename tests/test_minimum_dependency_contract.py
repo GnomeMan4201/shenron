@@ -65,9 +65,20 @@ def test_minimums_are_lower_bounds_without_caps():
 
 
 def _requirements_txt_minimums():
-    lines = (ROOT / "requirements.txt").read_text().splitlines()
-    pins = [re.fullmatch(r"([A-Za-z0-9_.\-]+)>=([0-9][0-9.]*)", l.strip()) for l in lines]
-    return {m.group(1).lower(): Version(m.group(2)) for m in pins if m}
+    """Every non-blank, non-comment line must be a plain 'name>=version'.
+
+    Anything else (a cap, an exact pin, a malformed line) fails here rather
+    than being skipped, so it can't hide a dependency from the comparison.
+    """
+    minimums = {}
+    for number, raw in enumerate((ROOT / "requirements.txt").read_text().splitlines(), start=1):
+        line = raw.split("#", 1)[0].strip()
+        if not line:
+            continue
+        m = re.fullmatch(r"([A-Za-z0-9_.\-]+)>=([0-9][0-9.]*)", line)
+        assert m, f"requirements.txt line {number} is not a plain 'name>=version' minimum: {raw!r}"
+        minimums[m.group(1).lower()] = Version(m.group(2))
+    return minimums
 
 
 def test_requirements_txt_matches_runtime_minimums():
